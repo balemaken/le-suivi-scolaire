@@ -14,3 +14,6 @@ def inscription(request):
 def apropos(request):
     return render(request,'frontend/apropos.html')   
 
+def contacte(request):
+    return render(request,'frontend/contacte.html') 
+
