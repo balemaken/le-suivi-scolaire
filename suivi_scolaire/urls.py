@@ -25,10 +25,3 @@ urlpatterns = [
     path('administrateur/',include('administrateur.urls')),
     path('teacher/',include('teacher.urls'))
 ]
-
-from django.urls import path
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-]
-
