@@ -33,3 +33,6 @@ def parametre(request):
 
 def classes(request):
     return render(request,'teacher/classes.html') 
+
+def inscription(request):
+    return render(request,'teacher/inscription.html')

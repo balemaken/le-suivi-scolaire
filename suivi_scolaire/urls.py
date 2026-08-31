@@ -23,5 +23,8 @@ urlpatterns = [
     path('',include('frontend.urls')),
     path('parent/',include('parent.urls')),
     path('administrateur/',include('administrateur.urls')),
-    path('teacher/',include('teacher.urls'))
+    path('teacher/',include('teacher.urls')),
+    path( 'api/', include('user.urls')),
+
+
 ]

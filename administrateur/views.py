@@ -31,5 +31,8 @@ def notesBulletin(request):
 def parametre(request):
     return render(request,'administrateur/parametre.html') 
 
+def inscription(request):
+    return render(request,'administrateur/inscription.html') 
+
 def discipline(request):
     return render(request,'administrateur/discipline.html') 
