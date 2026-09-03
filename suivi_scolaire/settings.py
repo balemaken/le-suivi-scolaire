@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'parent',
 'administrateur',
 'teacher',
-'user'
+'user',
+'administration',
+'enseignement',
+'parental'
 
 ]
 

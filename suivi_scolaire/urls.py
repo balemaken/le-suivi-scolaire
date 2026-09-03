@@ -25,6 +25,8 @@ urlpatterns = [
     path('administrateur/',include('administrateur.urls')),
     path('teacher/',include('teacher.urls')),
     path( 'api/', include('user.urls')),
-
+    path('api/',include ('administration.urls')),
+    path('api/',include ('enseignement.urls')),
+    path('api/',include ('parental.urls'))
 
 ]
