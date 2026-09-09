@@ -1,4 +1,5 @@
-{%load static%}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -8,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{%static 'parent/css/leparametre.css'%}">
+<link rel="stylesheet" href="{% static 'parent/css/leparametre.css' %}">
 </head>
-<body>
+<body data-parent-id="{{ user.id_utilisateur }}">
 
 <div class="dash-body">
 
@@ -46,13 +47,16 @@
       <a href="{% url 'mesnotifications' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
         Notifications
-        <span class="badge-dot">3</span>
+        <span class="badge-dot">0</span>
       </a>
-     
+      <a href="{% url 'leparametre' %}" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path></svg>
+        Paramètres
+      </a>
     </nav>
 
     <div class="logout">
-      <a href="index.html">
+      <a href="">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
         Déconnexion
       </a>
@@ -67,33 +71,112 @@
         <p class="sub">Vos informations personnelles.</p>
       </div>
       <div class="topbar-actions">
-        <a href="parent-notifications.html" class="icon-btn" aria-label="Notifications">
+        <a href="#" class="icon-btn" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
           <span class="dot"></span>
         </a>
-        <a href="contact.html" class="icon-btn" aria-label="Contacter l'école">
+        <a href="#" class="icon-btn" aria-label="Contacter l'école">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
         </a>
         <div class="topbar-avatar">
-          <span class="avatar-sm">M</span>
-          <span>Mme Mballa</span>
+          <span class="avatar-sm" id="parent-initial">P</span>
+          <span id="parent-nom">Parent</span>
         </div>
       </div>
     </div>
 
-
     <div class="panel">
       <div class="panel-head"><h2>Mon compte</h2></div>
-      <form novalidate>
-        <div class="field"><label for="p-nom">Nom complet</label><input type="text" id="p-nom" value="Mme Mballa"></div>
-        <div class="field"><label for="p-tel">Téléphone</label><input type="tel" id="p-tel" placeholder="+237 6XX XX XX XX"></div>
-        <div class="field"><label for="p-email">Email</label><input type="email" id="p-email" value="mballa@schoolconnect.cm"></div>
+      <form id="profile-form" novalidate>
+        <div class="field">
+          <label for="p-nom">Nom complet</label>
+          <input type="text" id="p-nom" placeholder="Votre nom complet">
+        </div>
+        <div class="field">
+          <label for="p-prenom">Prénom</label>
+          <input type="text" id="p-prenom" placeholder="Votre prénom">
+        </div>
+        <div class="field">
+          <label for="p-tel">Téléphone</label>
+          <input type="tel" id="p-tel" placeholder="+237 6XX XX XX XX">
+        </div>
+        <div class="field">
+          <label for="p-email">Email</label>
+          <input type="email" id="p-email" placeholder="votre@email.com">
+        </div>
+        <div class="field">
+          <label for="p-sex">Sexe</label>
+          <select id="p-sex" style="width:100%;padding:13px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--cream);font-size:0.96rem;">
+            <option value="M">Masculin</option>
+            <option value="F">Féminin</option>
+          </select>
+        </div>
         <button type="submit" class="btn btn-sm">Enregistrer</button>
       </form>
     </div>
 
   </main>
 </div>
+
+<script>
+  (function() {
+    const parentId = document.body.dataset.parentId;
+    if (!parentId) return;
+
+    async function fetchAPI(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function loadProfile() {
+      try {
+        const data = await fetchAPI(`/parents/${parentId}/`);
+        document.getElementById('parent-nom').textContent = data.prenom || data.nom || 'Parent';
+        document.getElementById('parent-initial').textContent = (data.prenom || data.nom || 'P')[0];
+        // Remplir le formulaire
+        document.getElementById('p-nom').value = data.nom || '';
+        document.getElementById('p-prenom').value = data.prenom || '';
+        document.getElementById('p-tel').value = data.telephone || '';
+        document.getElementById('p-email').value = data.email || '';
+        if (data.sexe) {
+          document.getElementById('p-sex').value = data.sexe;
+        }
+      } catch (e) {
+        console.warn('Erreur chargement profil:', e);
+      }
+    }
+
+    // Soumission du formulaire (PUT/PATCH)
+    document.getElementById('profile-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const nom = document.getElementById('p-nom').value;
+      const prenom = document.getElementById('p-prenom').value;
+      const telephone = document.getElementById('p-tel').value;
+      const email = document.getElementById('p-email').value;
+      const sexe = document.getElementById('p-sex').value;
+
+      try {
+        const response = await fetch(`/parents/${parentId}/`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nom, prenom, telephone, email, sexe })
+        });
+        if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+        const data = await response.json();
+        alert('Profil mis à jour avec succès !');
+        // Mettre à jour l'affichage
+        document.getElementById('parent-nom').textContent = data.prenom || data.nom || 'Parent';
+        document.getElementById('parent-initial').textContent = (data.prenom || data.nom || 'P')[0];
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+        console.error(e);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  })();
+</script>
 
 </body>
 </html>

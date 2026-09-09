@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remarques — Espace enseignant — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'teacher/css/pageteacher.css' %}" />
+  <style>
+    .badge-dot { margin-left: auto; background: var(--coral); color: var(--cream); font-size: 0.68rem; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; align-items: center; }
+    .filter-bar select { padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--cream); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; min-width: 160px; flex: 1; max-width: 220px; }
+    .filter-bar select:focus { outline: none; border-color: var(--accent); background: var(--paper); }
+    .filter-bar .btn-filter { padding: 10px 24px; border-radius: 999px; background: var(--sage); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+    .filter-bar .btn-filter:hover { background: #5a7a5d; transform: translateY(-2px); }
+    .form-remarque { display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 12px; align-items: end; padding: 16px 20px; background: var(--cream); border-radius: 16px; border: 1px solid var(--line); margin-bottom: 24px; }
+    .form-remarque .field { display: flex; flex-direction: column; gap: 4px; }
+    .form-remarque .field label { font-size: 0.75rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-remarque .field select, .form-remarque .field input, .form-remarque .field textarea { padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
+    .form-remarque .field textarea { resize: vertical; min-height: 38px; }
+    .form-remarque .btn-save { padding: 10px 24px; border-radius: 999px; background: var(--accent); color: var(--ink); border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; height: 42px; align-self: end; }
+    .form-remarque .btn-save:hover { background: var(--accent-dark); transform: translateY(-2px); }
+    .form-remarque .btn-cancel { padding: 10px 24px; border-radius: 999px; background: var(--text-soft); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; height: 42px; align-self: end; display: none; }
+    .form-remarque .btn-cancel:hover { background: var(--ink); transform: translateY(-2px); }
+    .remarques-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-soft); padding: 0 0 10px 0; border-bottom: 1px solid var(--line); }
+    .remarques-table td { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; vertical-align: middle; }
+    .type-badge { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    .type-badge.positif { background: rgba(110,143,113,0.15); color: var(--sage); }
+    .type-badge.negatif { background: rgba(226,114,91,0.15); color: var(--coral); }
+    .type-badge.autre { background: rgba(217,164,65,0.18); color: #a97416; }
+    .contenu-text { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .actions button { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; }
+    .actions button:hover { background: var(--cream); }
+    .actions .edit-btn { color: var(--blue); border-color: var(--blue); }
+    .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
+    .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
+    .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+  </style>
+</head>
+<body data-enseignant-id="1">
+
+<div class="dash-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>SchoolConnect</div>
+    <nav>
+      <a href="{% url 'pageteacher' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Tableau de bord</a>
+      <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
+      <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
+      <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
+      <a href="{% url 'remarques' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
+    </nav>
+    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-topbar"><div><h1>Gestion des remarques</h1><p class="sub">Enregistrez et gérez les remarques sur vos élèves.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+
+    <div class="filter-bar">
+      <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
+      <button class="btn-filter" id="loadBtn">📊 Charger les remarques</button>
+    </div>
+
+    <div class="info-banner" id="infoBanner">Sélectionnez une classe, puis cliquez sur "Charger les remarques".</div>
+
+    <div class="form-remarque" id="formRemarque" style="display:none;">
+      <div class="field"><label for="eleveSelect">Élève</label><select id="eleveSelect"><option value="">-- Choisir --</option></select></div>
+      <div class="field"><label for="typeRemarque">Type</label><select id="typeRemarque"><option value="positif">Positif</option><option value="negatif">Négatif</option><option value="autre">Autre</option></select></div>
+      <div class="field"><label for="contenu">Contenu</label><textarea id="contenu" placeholder="Votre remarque..." rows="2"></textarea></div>
+      <div class="field"><label for="dateRemarque">Date</label><input type="date" id="dateRemarque"></div>
+      <input type="hidden" id="editId" value="">
+      <button class="btn-save" id="saveBtn">💾 Enregistrer</button>
+      <button class="btn-cancel" id="cancelBtn">❌ Annuler</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Remarques enregistrées</h2><span style="font-size:0.82rem;color:var(--text-soft);" id="remarqueCount">0 remarque</span></div>
+      <table class="remarques-table"><thead><tr><th>Élève</th><th>Type</th><th>Date</th><th>Contenu</th><th>Actions</th></tr></thead><tbody id="remarquesBody"><tr><td colspan="5" class="empty-state">Sélectionnez une classe.</td></tr></tbody></table>
+    </div>
+  </main>
+</div>
+
+<script>
+  (function() {
+    const affectations = [
+      { classe: { id: 1, nom: '5ᵉ A' }, eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
+      { classe: { id: 2, nom: '4ᵉ B' }, eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
+      { classe: { id: 3, nom: '3ᵉ A' }, eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
+    ];
+    let remarquesData = { '1_2026-07-28': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', type: 'positif', contenu: 'Très bon travail en classe.', date: '2026-07-28' }, '2_2026-07-25': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', type: 'negatif', contenu: 'Difficultés en mathématiques.', date: '2026-07-25' } };
+    let nextRemarqueId = 3, editingId = null;
+
+    document.getElementById('enseignant-initial').textContent = 'N';
+    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+
+    const classeSelect = document.getElementById('classeSelect');
+    const eleveSelect = document.getElementById('eleveSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    const remarquesBody = document.getElementById('remarquesBody');
+    const remarqueCount = document.getElementById('remarqueCount');
+    const formRemarque = document.getElementById('formRemarque');
+    const infoBanner = document.getElementById('infoBanner');
+    const typeRemarque = document.getElementById('typeRemarque');
+    const contenu = document.getElementById('contenu');
+    const dateRemarque = document.getElementById('dateRemarque');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editId = document.getElementById('editId');
+
+    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
+    classeSelect.addEventListener('change', function() {
+      const classeId = parseInt(this.value);
+      const classe = affectations.find(a => a.classe.id === classeId);
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
+      if (classe) classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
+      formRemarque.style.display = 'none';
+      infoBanner.textContent = 'Sélectionnez une classe, puis cliquez sur "Charger les remarques".';
+      remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe.</td></tr>`;
+      remarqueCount.textContent = '0 remarque';
+    });
+
+    loadBtn.addEventListener('click', function() {
+      const classeId = parseInt(classeSelect.value);
+      if (!classeId) { alert('Veuillez sélectionner une classe.'); return; }
+      const classe = affectations.find(a => a.classe.id === classeId);
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
+      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
+      dateRemarque.value = new Date().toISOString().split('T')[0];
+      formRemarque.style.display = 'grid';
+      infoBanner.textContent = `Gestion des remarques pour ${classe.classe.nom}`;
+      const remarques = Object.values(remarquesData).filter(r => classe.eleves.some(e => e.id === r.eleveId));
+      renderRemarques(remarques);
+    });
+
+    function renderRemarques(remarques) {
+      if (remarques.length === 0) { remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune remarque enregistrée.</td></tr>`; remarqueCount.textContent = '0 remarque'; return; }
+      remarquesBody.innerHTML = '';
+      remarques.forEach(r => {
+        const tr = document.createElement('tr');
+        const dateFr = new Date(r.date).toLocaleDateString('fr-FR');
+        const typeLabel = r.type.charAt(0).toUpperCase() + r.type.slice(1);
+        tr.innerHTML = `<td class="eleve-nom">${r.eleveNom}</td><td><span class="type-badge ${r.type}">${typeLabel}</span></td><td>${dateFr}</td><td><span class="contenu-text" title="${r.contenu}">${r.contenu}</span></td><td><div class="actions"><button class="edit-btn" onclick="editRemarque(${r.id})">✏️</button><button class="delete-btn" onclick="deleteRemarque(${r.id})">🗑️</button></div></td>`;
+        remarquesBody.appendChild(tr);
+      });
+      remarqueCount.textContent = `${remarques.length} remarque${remarques.length > 1 ? 's' : ''}`;
+    }
+
+    saveBtn.addEventListener('click', function() {
+      const eleveId = parseInt(eleveSelect.value);
+      const type = typeRemarque.value;
+      const contenuValue = contenu.value.trim();
+      const dateValue = dateRemarque.value;
+      if (!eleveId || !contenuValue || !dateValue) { alert('Veuillez remplir tous les champs.'); return; }
+      const classe = affectations.find(a => a.eleves.some(e => e.id === eleveId));
+      const eleve = classe.eleves.find(e => e.id === eleveId);
+      const key = `${eleveId}_${dateValue}`;
+      if (editingId) {
+        const existing = Object.values(remarquesData).find(r => r.id === editingId);
+        if (existing) { const oldKey = `${existing.eleveId}_${existing.date}`; delete remarquesData[oldKey]; const newKey = key; remarquesData[newKey] = { id: editingId, eleveId, eleveNom: eleve.nom, type, contenu: contenuValue, date: dateValue }; }
+        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
+      } else {
+        if (remarquesData[key]) { alert('Une remarque existe déjà pour cet élève à cette date.'); return; }
+        remarquesData[key] = { id: nextRemarqueId++, eleveId, eleveNom: eleve.nom, type, contenu: contenuValue, date: dateValue };
+      }
+      contenu.value = ''; eleveSelect.value = ''; loadBtn.click();
+    });
+
+    window.editRemarque = function(id) {
+      const remarque = Object.values(remarquesData).find(r => r.id === id);
+      if (!remarque) return;
+      editingId = id; editId.value = id; eleveSelect.value = remarque.eleveId; typeRemarque.value = remarque.type; contenu.value = remarque.contenu; dateRemarque.value = remarque.date;
+      cancelBtn.style.display = 'inline-block';
+      formRemarque.scrollIntoView({ behavior: 'smooth' });
+    };
+    window.deleteRemarque = function(id) {
+      if (!confirm('Supprimer cette remarque ?')) return;
+      const key = Object.keys(remarquesData).find(k => remarquesData[k].id === id);
+      if (key) delete remarquesData[key];
+      loadBtn.click();
+    };
+    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; contenu.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+
+    document.getElementById('msg-badge').textContent = '3';
+  })();
+</script>
+</body>
+</html>

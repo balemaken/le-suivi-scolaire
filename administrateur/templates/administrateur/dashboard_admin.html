@@ -1,0 +1,500 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord — Administration — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'admin/css/dashboard_admin.css' %}" />
+  <style>
+    /* ===== VARIABLES ===== */
+    :root {
+      --ink: #1C2E33;
+      --cream: #FBF6EC;
+      --paper: #FFFDF8;
+      --accent: #E2725B;
+      --accent-dark: #C24F3B;
+      --sage: #6E8F71;
+      --coral: #E2725B;
+      --gold: #D9A441;
+      --text: #233232;
+      --text-soft: #5B6B69;
+      --line: rgba(28, 46, 51, 0.12);
+      --blue: #4A6FA5;
+      --purple: #7B5EA7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    h1, h2, h3 { font-family: 'Fraunces', serif; color: var(--ink); letter-spacing: -0.01em; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .dash-body { display: flex; min-height: 100vh; background: var(--cream); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 250px; flex-shrink: 0; background: var(--ink);
+      padding: 26px 18px; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar .logo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--cream); margin-bottom: 34px; padding: 0 8px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(251, 246, 236, 0.1);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-mark svg { width: 20px; height: 20px; }
+
+    .sidebar nav { flex: 1; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72); font-size: 0.92rem; font-weight: 500;
+      margin-bottom: 4px;
+      transition: background .22s ease, color .22s ease, transform .22s ease;
+    }
+    .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
+    .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
+    .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
+    .badge-dot {
+      margin-left: auto;
+      background: var(--coral);
+      color: var(--cream);
+      font-size: 0.68rem;
+      font-weight: 700;
+      min-width: 19px;
+      height: 19px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* ===== MAIN ===== */
+    .dash-main {
+      flex: 1; padding: 30px 4% 60px; min-width: 0;
+    }
+    .dash-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
+    .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
+    .topbar-actions {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .topbar-avatar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper); border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 16px 6px 6px;
+    }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+
+    /* ===== STATS CARDS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -12px rgba(28,46,51,0.2);
+    }
+    .stat-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-card .icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--paper);
+      stroke-width: 1.8;
+    }
+    .stat-card .info strong {
+      display: block;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .stat-card .info span {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+    .stat-card:nth-child(1) .icon { background: var(--accent); }
+    .stat-card:nth-child(2) .icon { background: var(--sage); }
+    .stat-card:nth-child(3) .icon { background: var(--blue); }
+    .stat-card:nth-child(4) .icon { background: var(--gold); }
+    .stat-card:nth-child(5) .icon { background: var(--purple); }
+    .stat-card:nth-child(6) .icon { background: var(--coral); }
+
+    /* ===== GRID ===== */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px 24px 20px;
+      margin-bottom: 22px;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .panel-head h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .panel-head a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+    .panel-head a:hover { color: var(--ink); }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--cream);
+      transition: background 0.2s, transform 0.2s;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .action-btn:hover {
+      background: color-mix(in srgb, var(--accent) 10%, var(--cream));
+      transform: translateY(-2px);
+    }
+    .action-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .notif-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item .ic {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .notif-item .ic svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--paper);
+    }
+    .notif-item p { font-size: 0.86rem; color: var(--text); margin-bottom: 2px; }
+    .notif-item small { font-size: 0.74rem; color: var(--text-soft); }
+
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
+      .sidebar.open { transform: translateX(0); }
+      .dash-main { padding: 20px 5% 60px; }
+      .dash-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .action-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-admin-id="1">
+
+<div class="dash-body">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" />
+        </svg>
+      </span>
+      SchoolConnect
+    </div>
+
+    <nav>
+      <a href="{% url 'dashboard_admin' %}" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      <a href="{% url 'classes_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>
+        Classes
+      </a>
+      <a href="{% url 'matieres_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>
+        Matières
+      </a>
+      <a href="{% url 'eleves_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>
+        Élèves
+      </a>
+      <a href="{% url 'enseignants_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Enseignants
+      </a>
+      <a href="{% url 'parents_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Parents
+      </a>
+      <a href="{% url 'liaisons_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
+        Liaisons parent-élève
+      </a>
+      <a href="{% url 'affectations_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Affectations
+      </a>
+      <a href="{% url 'parametres_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        Paramètres
+      </a>
+    </nav>
+
+    <div class="logout">
+      <a href="">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="dash-main">
+
+    <!-- Topbar -->
+    <div class="dash-topbar">
+      <div>
+        <h1>Bonjour, <span id="admin-nom">Administrateur</span> 👋</h1>
+        <p class="sub">Voici un aperçu global de l'établissement.</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar">
+          <span class="avatar-sm" id="admin-initial">A</span>
+          <span id="admin-nom-avatar">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATISTIQUES GLOBALES ===== -->
+    <div class="stats-grid" id="statsGrid">
+      <!-- Généré par JavaScript -->
+    </div>
+
+    <!-- ===== GRILLE PRINCIPALE ===== -->
+    <div class="dash-grid">
+
+      <!-- Colonne gauche -->
+      <div>
+        <!-- ACTIONS RAPIDES -->
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Actions rapides</h2>
+          </div>
+          <div class="action-grid" id="quickActions">
+            <a href="{% url 'classes_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>
+              Gérer les classes
+            </a>
+            <a href="{% url 'matieres_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>
+              Gérer les matières
+            </a>
+            <a href="{% url 'eleves_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/></svg>
+              Gérer les élèves
+            </a>
+            <a href="{% url 'enseignants_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+              Gérer les enseignants
+            </a>
+            <a href="{% url 'parents_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+              Gérer les parents
+            </a>
+            <a href="{% url 'affectations_admin' %}" class="action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              Affectations
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne droite -->
+      <div>
+        <!-- ACTIVITÉS RÉCENTES -->
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Activités récentes</h2>
+            <a href="#">Voir tout</a>
+          </div>
+          <div class="notif-list" id="activitiesList">
+            <!-- Généré par JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+  (function() {
+    // ======================================================
+    // 1. SIMULATION DES DONNÉES (à remplacer par API réelle)
+    // ======================================================
+
+    const adminSimule = {
+      id: 1,
+      nom: 'Administrateur',
+      initial: 'A'
+    };
+
+    // Statistiques globales (simulées)
+    const stats = {
+      classes: 8,
+      eleves: 156,
+      enseignants: 12,
+      parents: 45,
+      matieres: 24,
+      liaisons: 67
+    };
+
+    // Activités récentes (simulées)
+    const activities = [
+      { type: 'Création', message: 'Nouvelle classe : 6ᵉ C créée par Admin', date: 'Aujourd\'hui, 10:30', icon: 'var(--sage)' },
+      { type: 'Affectation', message: 'M. Ngono affecté à Mathématiques (5ᵉ A)', date: 'Aujourd\'hui, 09:15', icon: 'var(--blue)' },
+      { type: 'Liaison', message: 'Mme Mballa liée à Sarah Mballa (5ᵉ A)', date: 'Hier, 16:45', icon: 'var(--gold)' },
+      { type: 'Inscription', message: 'Nouvel enseignant : Mme Tchoffo s\'est inscrite', date: 'Hier, 14:20', icon: 'var(--purple)' },
+      { type: 'Modification', message: 'Classe 4ᵉ B modifiée (enseignant mis à jour)', date: 'Il y a 2 jours', icon: 'var(--accent)' }
+    ];
+
+    // ======================================================
+    // 2. AFFICHAGE
+    // ======================================================
+
+    // Profil admin
+    document.getElementById('admin-nom').textContent = adminSimule.nom;
+    document.getElementById('admin-nom-avatar').textContent = adminSimule.nom;
+    document.getElementById('admin-initial').textContent = adminSimule.initial;
+
+    // Statistiques
+    const statsContainer = document.getElementById('statsGrid');
+    const statItems = [
+      { label: 'Classes', value: stats.classes, icon: 'M3.5 3.5h17v17h-17z M3.5 9h17' },
+      { label: 'Élèves', value: stats.eleves, icon: 'M9 8a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8' },
+      { label: 'Enseignants', value: stats.enseignants, icon: 'M12 8a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8z M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2' },
+      { label: 'Parents', value: stats.parents, icon: 'M12 8a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8z M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2' },
+      { label: 'Matières', value: stats.matieres, icon: 'M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z M8 12h8 M8 16h5' },
+      { label: 'Liaisons', value: stats.liaisons, icon: 'M4 5h16v11H8l-4 4V5z' }
+    ];
+
+    statsContainer.innerHTML = '';
+    const colors = ['var(--accent)', 'var(--sage)', 'var(--blue)', 'var(--gold)', 'var(--purple)', 'var(--coral)'];
+
+    statItems.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'stat-card';
+      // Découper le SVG en plusieurs paths
+      const svgPaths = item.icon.split(' ').map(p => `<path d="${p}" />`).join('');
+      card.innerHTML = `
+        <div class="icon" style="background:${colors[index % colors.length]}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${svgPaths}</svg>
+        </div>
+        <div class="info">
+          <strong>${item.value}</strong>
+          <span>${item.label}</span>
+        </div>
+      `;
+      statsContainer.appendChild(card);
+    });
+
+    // Activités récentes
+    const activitiesContainer = document.getElementById('activitiesList');
+    activitiesContainer.innerHTML = '';
+    activities.forEach(act => {
+      const div = document.createElement('div');
+      div.className = 'notif-item';
+      div.innerHTML = `
+        <span class="ic" style="background:${act.icon};">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        </span>
+        <div>
+          <p><strong>${act.type}</strong> : ${act.message}</p>
+          <small>${act.date}</small>
+        </div>
+      `;
+      activitiesContainer.appendChild(div);
+    });
+
+  })();
+</script>
+
+</body>
+</html>

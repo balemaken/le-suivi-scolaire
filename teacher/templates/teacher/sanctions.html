@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctions — Espace enseignant — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'teacher/css/pageteacher.css' %}" />
+  <style>
+    .badge-dot { margin-left: auto; background: var(--coral); color: var(--cream); font-size: 0.68rem; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; align-items: center; }
+    .filter-bar select { padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--cream); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; min-width: 160px; flex: 1; max-width: 220px; }
+    .filter-bar select:focus { outline: none; border-color: var(--accent); background: var(--paper); }
+    .filter-bar .btn-filter { padding: 10px 24px; border-radius: 999px; background: var(--sage); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+    .filter-bar .btn-filter:hover { background: #5a7a5d; transform: translateY(-2px); }
+    .form-sanction { display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 12px; align-items: end; padding: 16px 20px; background: var(--cream); border-radius: 16px; border: 1px solid var(--line); margin-bottom: 24px; }
+    .form-sanction .field { display: flex; flex-direction: column; gap: 4px; }
+    .form-sanction .field label { font-size: 0.75rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-sanction .field select, .form-sanction .field input, .form-sanction .field textarea { padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
+    .form-sanction .field textarea { resize: vertical; min-height: 38px; }
+    .form-sanction .btn-save { padding: 10px 24px; border-radius: 999px; background: var(--accent); color: var(--ink); border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; height: 42px; align-self: end; }
+    .form-sanction .btn-save:hover { background: var(--accent-dark); transform: translateY(-2px); }
+    .form-sanction .btn-cancel { padding: 10px 24px; border-radius: 999px; background: var(--text-soft); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; height: 42px; align-self: end; display: none; }
+    .form-sanction .btn-cancel:hover { background: var(--ink); transform: translateY(-2px); }
+    .sanctions-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-soft); padding: 0 0 10px 0; border-bottom: 1px solid var(--line); }
+    .sanctions-table td { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; vertical-align: middle; }
+    .type-badge { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    .type-badge.avertissement { background: rgba(217,164,65,0.18); color: #a97416; }
+    .type-badge.blame { background: rgba(123,94,167,0.15); color: #7B5EA7; }
+    .type-badge.retenue { background: rgba(74,111,165,0.15); color: var(--blue); }
+    .type-badge.exclusion { background: rgba(179,58,42,0.15); color: #B33A2A; }
+    .type-badge.autre { background: rgba(110,143,113,0.15); color: var(--sage); }
+    .actions button { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; }
+    .actions button:hover { background: var(--cream); }
+    .actions .edit-btn { color: var(--blue); border-color: var(--blue); }
+    .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
+    .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
+    .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+  </style>
+</head>
+<body data-enseignant-id="1">
+
+<div class="dash-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>SchoolConnect</div>
+    <nav>
+      <a href="{% url 'pageteacher' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Tableau de bord</a>
+      <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
+      <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
+      <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'sanctions' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
+      <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
+    </nav>
+    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-topbar"><div><h1>Gestion des sanctions</h1><p class="sub">Enregistrez et gérez les sanctions de vos élèves.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+
+    <div class="filter-bar">
+      <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
+      <button class="btn-filter" id="loadBtn">📊 Charger les sanctions</button>
+    </div>
+
+    <div class="info-banner" id="infoBanner">Sélectionnez une classe, puis cliquez sur "Charger les sanctions".</div>
+
+    <div class="form-sanction" id="formSanction" style="display:none;">
+      <div class="field"><label for="eleveSelect">Élève</label><select id="eleveSelect"><option value="">-- Choisir --</option></select></div>
+      <div class="field"><label for="typeSanction">Type</label><select id="typeSanction"><option value="avertissement">Avertissement</option><option value="blame">Blâme</option><option value="retenue">Retenue</option><option value="exclusion">Exclusion</option><option value="autre">Autre</option></select></div>
+      <div class="field"><label for="motif">Motif</label><textarea id="motif" placeholder="Motif..." rows="1"></textarea></div>
+      <div class="field"><label for="dateSanction">Date</label><input type="date" id="dateSanction"></div>
+      <input type="hidden" id="editId" value="">
+      <button class="btn-save" id="saveBtn">💾 Enregistrer</button>
+      <button class="btn-cancel" id="cancelBtn">❌ Annuler</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Sanctions enregistrées</h2><span style="font-size:0.82rem;color:var(--text-soft);" id="sanctionCount">0 sanction</span></div>
+      <table class="sanctions-table"><thead><tr><th>Élève</th><th>Type</th><th>Date</th><th>Motif</th><th>Actions</th></tr></thead><tbody id="sanctionsBody"><tr><td colspan="5" class="empty-state">Sélectionnez une classe.</td></tr></tbody></table>
+    </div>
+  </main>
+</div>
+
+<script>
+  (function() {
+    const affectations = [
+      { classe: { id: 1, nom: '5ᵉ A' }, eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
+      { classe: { id: 2, nom: '4ᵉ B' }, eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
+      { classe: { id: 3, nom: '3ᵉ A' }, eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
+    ];
+    let sanctionsData = { '1_2026-07-20': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', type: 'avertissement', motif: 'Retard récurrent', date: '2026-07-20' }, '2_2026-07-10': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', type: 'retenue', motif: 'Comportement perturbateur', date: '2026-07-10' } };
+    let nextSanctionId = 3, editingId = null;
+
+    document.getElementById('enseignant-initial').textContent = 'N';
+    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+
+    const classeSelect = document.getElementById('classeSelect');
+    const eleveSelect = document.getElementById('eleveSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    const sanctionsBody = document.getElementById('sanctionsBody');
+    const sanctionCount = document.getElementById('sanctionCount');
+    const formSanction = document.getElementById('formSanction');
+    const infoBanner = document.getElementById('infoBanner');
+    const typeSanction = document.getElementById('typeSanction');
+    const motif = document.getElementById('motif');
+    const dateSanction = document.getElementById('dateSanction');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editId = document.getElementById('editId');
+
+    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
+    classeSelect.addEventListener('change', function() {
+      const classeId = parseInt(this.value);
+      const classe = affectations.find(a => a.classe.id === classeId);
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
+      if (classe) classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
+      formSanction.style.display = 'none';
+      infoBanner.textContent = 'Sélectionnez une classe, puis cliquez sur "Charger les sanctions".';
+      sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe.</td></tr>`;
+      sanctionCount.textContent = '0 sanction';
+    });
+
+    loadBtn.addEventListener('click', function() {
+      const classeId = parseInt(classeSelect.value);
+      if (!classeId) { alert('Veuillez sélectionner une classe.'); return; }
+      const classe = affectations.find(a => a.classe.id === classeId);
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
+      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
+      dateSanction.value = new Date().toISOString().split('T')[0];
+      formSanction.style.display = 'grid';
+      infoBanner.textContent = `Gestion des sanctions pour ${classe.classe.nom}`;
+      const sanctions = Object.values(sanctionsData).filter(s => classe.eleves.some(e => e.id === s.eleveId));
+      renderSanctions(sanctions);
+    });
+
+    function renderSanctions(sanctions) {
+      if (sanctions.length === 0) { sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune sanction enregistrée.</td></tr>`; sanctionCount.textContent = '0 sanction'; return; }
+      sanctionsBody.innerHTML = '';
+      sanctions.forEach(s => {
+        const tr = document.createElement('tr');
+        const dateFr = new Date(s.date).toLocaleDateString('fr-FR');
+        const typeLabel = s.type.charAt(0).toUpperCase() + s.type.slice(1);
+        tr.innerHTML = `<td class="eleve-nom">${s.eleveNom}</td><td><span class="type-badge ${s.type}">${typeLabel}</span></td><td>${dateFr}</td><td>${s.motif || '—'}</td><td><div class="actions"><button class="edit-btn" onclick="editSanction(${s.id})">✏️</button><button class="delete-btn" onclick="deleteSanction(${s.id})">🗑️</button></div></td>`;
+        sanctionsBody.appendChild(tr);
+      });
+      sanctionCount.textContent = `${sanctions.length} sanction${sanctions.length > 1 ? 's' : ''}`;
+    }
+
+    saveBtn.addEventListener('click', function() {
+      const eleveId = parseInt(eleveSelect.value);
+      const type = typeSanction.value;
+      const motifValue = motif.value.trim();
+      const dateValue = dateSanction.value;
+      if (!eleveId || !dateValue) { alert('Veuillez sélectionner un élève et une date.'); return; }
+      const classe = affectations.find(a => a.eleves.some(e => e.id === eleveId));
+      const eleve = classe.eleves.find(e => e.id === eleveId);
+      const key = `${eleveId}_${dateValue}`;
+      if (editingId) {
+        const existing = Object.values(sanctionsData).find(s => s.id === editingId);
+        if (existing) { const oldKey = `${existing.eleveId}_${existing.date}`; delete sanctionsData[oldKey]; const newKey = key; sanctionsData[newKey] = { id: editingId, eleveId, eleveNom: eleve.nom, type, motif: motifValue, date: dateValue }; }
+        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
+      } else {
+        if (sanctionsData[key]) { alert('Une sanction existe déjà pour cet élève à cette date.'); return; }
+        sanctionsData[key] = { id: nextSanctionId++, eleveId, eleveNom: eleve.nom, type, motif: motifValue, date: dateValue };
+      }
+      motif.value = ''; eleveSelect.value = ''; loadBtn.click();
+    });
+
+    window.editSanction = function(id) {
+      const sanction = Object.values(sanctionsData).find(s => s.id === id);
+      if (!sanction) return;
+      editingId = id; editId.value = id; eleveSelect.value = sanction.eleveId; typeSanction.value = sanction.type; motif.value = sanction.motif || ''; dateSanction.value = sanction.date;
+      cancelBtn.style.display = 'inline-block';
+      formSanction.scrollIntoView({ behavior: 'smooth' });
+    };
+    window.deleteSanction = function(id) {
+      if (!confirm('Supprimer cette sanction ?')) return;
+      const key = Object.keys(sanctionsData).find(k => sanctionsData[k].id === id);
+      if (key) delete sanctionsData[key];
+      loadBtn.click();
+    };
+    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; motif.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+
+    document.getElementById('msg-badge').textContent = '3';
+  })();
+</script>
+</body>
+</html>

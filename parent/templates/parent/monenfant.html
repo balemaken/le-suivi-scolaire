@@ -1,27 +1,198 @@
-{%load static%}
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mes enfants — Espace parent — SchoolConnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{%static 'parent/css/monenfant.css'%}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes enfants — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== VARIABLES (mêmes que pageparent) ===== */
+    :root {
+      --ink: #1C2E33;
+      --cream: #FBF6EC;
+      --paper: #FFFDF8;
+      --accent: #E2725B;
+      --accent-dark: #C24F3B;
+      --sage: #6E8F71;
+      --coral: #E2725B;
+      --gold: #D9A441;
+      --text: #233232;
+      --text-soft: #5B6B69;
+      --line: rgba(28, 46, 51, 0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    h1, h2, h3 { font-family: 'Fraunces', serif; color: var(--ink); letter-spacing: -0.01em; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--accent); color: var(--ink);
+      padding: 12px 22px; border-radius: 999px;
+      font-weight: 600; font-size: 0.92rem; border: none; cursor: pointer;
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .25s ease;
+    }
+    .btn:hover { transform: translateY(-2px) scale(1.03); background: var(--accent-dark); }
+    .btn svg { width: 16px; height: 16px; stroke: currentColor; }
+
+    .dash-body { display: flex; min-height: 100vh; background: var(--cream); }
+
+    /* ===== SIDEBAR (identique à pageparent) ===== */
+    .sidebar {
+      width: 250px; flex-shrink: 0; background: var(--ink);
+      padding: 26px 18px; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar .logo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--cream); margin-bottom: 34px; padding: 0 8px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(251, 246, 236, 0.1);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-mark svg { width: 20px; height: 20px; }
+
+    .sidebar nav { flex: 1; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72); font-size: 0.92rem; font-weight: 500;
+      margin-bottom: 4px;
+      transition: background .22s ease, color .22s ease, transform .22s ease;
+    }
+    .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
+    .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
+    .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
+    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* ===== MAIN ===== */
+    .dash-main {
+      flex: 1; padding: 30px 4% 60px; min-width: 0;
+    }
+    .dash-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
+    .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
+    .topbar-actions {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .topbar-avatar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper); border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 16px 6px 6px;
+    }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+
+    /* ===== LISTE DES ENFANTS ===== */
+    .children-list {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 26px;
+    }
+    .children-list .list-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr 0.5fr;
+      gap: 12px;
+      padding: 12px 0 10px;
+      border-bottom: 2px solid var(--line);
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-soft);
+    }
+    .child-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr 0.5fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .child-item:last-child { border-bottom: none; }
+    .child-item .nom {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .child-item .sexe {
+      color: var(--text);
+    }
+    .child-item .classe {
+      background: rgba(110, 143, 113, 0.12);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--sage);
+      text-align: center;
+      justify-self: start;
+    }
+    .child-item .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .child-item .actions button {
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+    }
+    .child-item .actions button:hover {
+      background: var(--cream);
+    }
+
+    /* Responsive */
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
+      .sidebar.open { transform: translateX(0); }
+      .dash-main { padding: 20px 5% 60px; }
+      .children-list .list-header,
+      .child-item {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .children-list .list-header span:nth-child(3),
+      .child-item .classe { grid-column: span 1; }
+      .children-list .list-header span:nth-child(4),
+      .child-item .actions { grid-column: span 2; text-align: right; }
+    }
+  </style>
 </head>
-<body>
+<body data-parent-id="{{ user.id_utilisateur }}">
 
 <div class="dash-body">
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- ===== SIDEBAR (identique) ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <span class="logo-mark">
         <svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3 2 8l10 5 10-5-10-5Z"></path>
-          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"></path>
+          <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" />
         </svg>
       </span>
       SchoolConnect
@@ -29,84 +200,151 @@
 
     <nav>
       <a href="{% url 'pageparent' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
         Tableau de bord
       </a>
+      <a href="{% url 'monenfant' %}" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Mes enfants
+      </a>
       <a href="{% url 'mesnotes' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path><path d="M8 12h8M8 16h5"></path></svg>
-        Notes &amp; bulletins
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>
+        Notes
       </a>
       <a href="{% url 'madiscipline' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Discipline
       </a>
-      <a href="{% url 'mesnotifications' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        Notifications
-        <span class="badge-dot">3</span>
+      <a href="{% url 'mesremarques' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
+        Remarques
       </a>
-   
-      <a href="{% url 'leparametre' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path></svg>
-        Paramètres
+      <a href="{% url 'messanctions' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+        Sanctions
+      </a>
+      <a href="{% url 'mesbulletins' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
+        Bulletins
+      </a>
+      <a href="{% url 'ia_schoolconnect' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.27A7 7 0 0 1 14 21.73V22h-4v-.27A7 7 0 0 1 5.27 19H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2"/></svg>
+        IA School Connect
       </a>
     </nav>
 
     <div class="logout">
-      <a href="index.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+      <a href="">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
     </div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
+  <!-- ===== MAIN CONTENT ===== -->
   <main class="dash-main">
+
+    <!-- Topbar -->
     <div class="dash-topbar">
       <div>
         <h1>Mes enfants</h1>
-        <p class="sub">Gérez les enfants rattachés à votre compte.</p>
+        <p class="sub">Voici la liste de tous les enfants qui vous sont rattachés.</p>
       </div>
       <div class="topbar-actions">
-        <a href="parent-notifications.html" class="icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-          <span class="dot"></span>
-        </a>
-        <a href="contact.html" class="icon-btn" aria-label="Contacter l'école">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
-        </a>
         <div class="topbar-avatar">
-          <span class="avatar-sm">M</span>
-          <span>Mme Mballa</span>
+          <span class="avatar-sm" id="parent-initial">P</span>
+          <span id="parent-nom-avatar">Parent</span>
         </div>
       </div>
     </div>
 
-
-    <div class="panel">
-      <div class="table-toolbar">
-        <div class="search-input"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input type="text" placeholder="Rechercher un enfant..."></div>
-        <button class="btn btn-sm">+ Ajouter un enfant</button>
+    <!-- ===== LISTE DES ENFANTS ===== -->
+    <div class="children-list">
+      <div class="list-header">
+        <span>Nom</span>
+        <span>Sexe</span>
+        <span>Classe</span>
+        <span></span> <!-- vide pour aligner -->
       </div>
-      <table class="notes-table">
-        <thead><tr><th>Enfant</th><th>Classe</th><th>Moyenne</th><th>Statut</th><th></th></tr></thead>
-        <tbody>
-          <tr>
-            <td><div class="row-avatar"><span class="avatar-sm">S</span> Sarah Mballa</div></td>
-            <td>5ᵉ</td><td>15,4/20</td><td><span class="status-pill on">Régulier</span></td>
-            <td><div class="table-actions"><button aria-label="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button></div></td>
-          </tr>
-          <tr>
-            <td><div class="row-avatar"><span class="avatar-sm">P</span> Paul Mballa</div></td>
-            <td>CM2</td><td>13,1/20</td><td><span class="status-pill on">Régulier</span></td>
-            <td><div class="table-actions"><button aria-label="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button></div></td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="childrenContainer">
+        <!-- Les enfants seront injectés ici par JavaScript -->
+      </div>
     </div>
 
   </main>
 </div>
+
+<script>
+  (function() {
+    const parentId = document.body.dataset.parentId;
+
+    // ======================================================
+    // 1. SIMULATION DE DONNÉES (à remplacer par API réelle)
+    // ======================================================
+    const fakeEnfants = [
+      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: '5ᵉ' },
+      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 'CM2' },
+      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: '3ᵉ' }
+    ];
+
+    // ======================================================
+    // 2. RÉCUPÉRER LE NOM DU PARENT (simulé)
+    // ======================================================
+    const parentNom = 'Mme Mballa';
+    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
+    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
+
+    // ======================================================
+    // 3. AFFICHER LA LISTE DES ENFANTS
+    // ======================================================
+    function renderChildren(enfants) {
+      const container = document.getElementById('childrenContainer');
+      if (!enfants || enfants.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 30px 0; text-align: center; color: var(--text-soft);">
+            Aucun enfant n’est rattaché à votre compte.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      enfants.forEach(enfant => {
+        const div = document.createElement('div');
+        div.className = 'child-item';
+        div.innerHTML = `
+          <span class="nom">${enfant.nom}</span>
+          <span class="sexe">${enfant.sexe}</span>
+          <span class="classe">${enfant.classe}</span>
+          <div class="actions">
+            <button onclick="alert('Voir le détail de ${enfant.nom}')">👁️</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ======================================================
+    // 4. APPEL API (SIMULÉ) - on utilise les données fictives
+    // ======================================================
+    function loadChildren() {
+      // Ici, plus tard, tu feras :
+      // fetch(`/parents/${parentId}/eleves/`)
+      //   .then(res => res.json())
+      //   .then(data => renderChildren(data))
+      //   .catch(err => console.error(err));
+
+      // Pour la démonstration, on utilise fakeEnfants
+      renderChildren(fakeEnfants);
+    }
+
+    // ======================================================
+    // 5. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', loadChildren);
+
+  })();
+</script>
 
 </body>
 </html>

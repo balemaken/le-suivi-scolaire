@@ -29,3 +29,19 @@ def madiscipline(request):
 
 def mesnotifications(request):
     return render(request, 'parent/mesnotifications.html')
+
+def remarques(request):
+    return render(request, 'parent/mesremarques.html')
+
+def sanctions(request):
+    return render(request,'parent/messanctions.html')
+
+def bulletins(request):
+    return render(request,'parent/mesbulletins.html')
+
+def ia(request):
+    return render (request,'parent/ia_schoolconnect.html')
+
+
+
+

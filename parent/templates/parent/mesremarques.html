@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remarques — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== VARIABLES (identiques) ===== */
+    :root {
+      --ink: #1C2E33;
+      --cream: #FBF6EC;
+      --paper: #FFFDF8;
+      --accent: #E2725B;
+      --accent-dark: #C24F3B;
+      --sage: #6E8F71;
+      --coral: #E2725B;
+      --gold: #D9A441;
+      --text: #233232;
+      --text-soft: #5B6B69;
+      --line: rgba(28, 46, 51, 0.12);
+      --blue: #4A6FA5;
+      --green: #2E7D5E;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    h1, h2, h3 { font-family: 'Fraunces', serif; color: var(--ink); letter-spacing: -0.01em; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .dash-body { display: flex; min-height: 100vh; background: var(--cream); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 250px; flex-shrink: 0; background: var(--ink);
+      padding: 26px 18px; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar .logo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--cream); margin-bottom: 34px; padding: 0 8px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(251, 246, 236, 0.1);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-mark svg { width: 20px; height: 20px; }
+
+    .sidebar nav { flex: 1; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72); font-size: 0.92rem; font-weight: 500;
+      margin-bottom: 4px;
+      transition: background .22s ease, color .22s ease, transform .22s ease;
+    }
+    .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
+    .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
+    .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
+    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* ===== MAIN ===== */
+    .dash-main {
+      flex: 1; padding: 30px 4% 60px; min-width: 0;
+    }
+    .dash-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
+    .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
+    .topbar-actions {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .topbar-avatar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper); border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 16px 6px 6px;
+    }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+
+    /* ===== CHILD TABS ===== */
+    .child-tabs {
+      display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap;
+    }
+    .child-tab {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px;
+      padding: 8px 18px 8px 8px; font-size: 0.88rem; font-weight: 600; color: var(--text);
+      cursor: pointer; transition: border-color .22s ease, transform .22s ease;
+    }
+    .child-tab .avatar-sm { width: 32px; height: 32px; font-size: 0.8rem; }
+    .child-tab:hover { transform: translateY(-2px); }
+    .child-tab.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
+
+    /* ===== PANEL & TABLE ===== */
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 26px 26px 22px;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .panel-head h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .panel-head a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+    .panel-head a:hover { color: var(--ink); }
+
+    .notes-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .notes-table th {
+      text-align: left;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-soft);
+      padding: 0 0 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .notes-table td {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.9rem;
+    }
+    .notes-table tr:last-child td { border-bottom: none; }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .type-badge.positive { background: rgba(46, 125, 94, 0.15); color: var(--green); }
+    .type-badge.negative { background: rgba(226, 114, 91, 0.15); color: var(--coral); }
+    .type-badge.neutral { background: rgba(217, 164, 65, 0.15); color: #a97416; }
+    .type-badge.behavior { background: rgba(74, 111, 165, 0.15); color: var(--blue); }
+
+    .content-text {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    /* responsive */
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
+      .sidebar.open { transform: translateX(0); }
+      .dash-main { padding: 20px 5% 60px; }
+      .content-text { max-width: 150px; }
+    }
+    @media (max-width: 560px) {
+      .child-tabs { flex-direction: column; }
+      .content-text { max-width: 100px; }
+    }
+  </style>
+</head>
+<body data-parent-id="{{ user.id_utilisateur }}">
+
+<div class="dash-body">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" />
+        </svg>
+      </span>
+      SchoolConnect
+    </div>
+
+    <nav>
+      <a href="{% url 'pageparent' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      <a href="{% url 'monenfant' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Mes enfants
+      </a>
+      <a href="{% url 'mesnotes' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>
+        Notes
+      </a>
+      <a href="{% url 'madiscipline' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Discipline
+      </a>
+      <a href="" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
+        Remarques
+      </a>
+      <a href="{% url 'messanctions' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+        Sanctions
+      </a>
+      <a href="{% url 'mesbulletins' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
+        Bulletins
+      </a>
+      <a href="{% url 'ia_schoolconnect' %}">s
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.27A7 7 0 0 1 14 21.73V22h-4v-.27A7 7 0 0 1 5.27 19H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2"/></svg>
+        IA School Connect
+      </a>
+    </nav>
+
+    <div class="logout">
+      <a href="">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="dash-main">
+
+    <!-- Topbar -->
+    <div class="dash-topbar">
+      <div>
+        <h1>Remarques</h1>
+        <p class="sub">Consultez les remarques sur vos enfants.</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar">
+          <span class="avatar-sm" id="parent-initial">P</span>
+          <span id="parent-nom-avatar">Parent</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SÉLECTEUR D'ENFANT ===== -->
+    <div class="child-tabs" id="childTabs">
+      <!-- Généré par JavaScript -->
+    </div>
+
+    <!-- ===== TABLEAU DES REMARQUES ===== -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Remarques — <span id="eleveNom">...</span></h2>
+        <a href="#" id="exportBtn">📊 Exporter</a>
+      </div>
+      <table class="notes-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Contenu</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="remarksBody">
+          <!-- Généré par JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  (function() {
+    const parentId = document.body.dataset.parentId;
+
+    // ======================================================
+    // 1. SIMULATION DE DONNÉES (à remplacer par API réelle)
+    // ======================================================
+    const fakeChildren = [
+      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: '5ᵉ' },
+      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 'CM2' },
+      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: '3ᵉ' }
+    ];
+
+    const fakeRemarks = {
+      1: [ // Sarah
+        { type: 'Positive', contenu: 'Très bon travail en Mathématiques, Sarah est motivée.', date: '2026-07-28' },
+        { type: 'Neutre', contenu: 'Participation satisfaisante en cours de Français.', date: '2026-07-25' },
+        { type: 'Négative', contenu: 'Difficultés en Physique, recommande de revoir les bases.', date: '2026-07-22' },
+        { type: 'Comportement', contenu: 'Sarah perturbe parfois la classe, à surveiller.', date: '2026-07-19' }
+      ],
+      2: [ // Paul
+        { type: 'Positive', contenu: 'Excellente progression en Français.', date: '2026-07-27' },
+        { type: 'Neutre', contenu: 'Assiduité irréprochable ce trimestre.', date: '2026-07-24' },
+        { type: 'Négative', contenu: 'A besoin de plus d’efforts en Histoire.', date: '2026-07-20' }
+      ],
+      3: [ // Marie
+        { type: 'Positive', contenu: 'Très bon esprit d’équipe en projet de groupe.', date: '2026-07-29' },
+        { type: 'Comportement', contenu: 'Marie est très respectueuse et attentive en classe.', date: '2026-07-26' }
+      ]
+    };
+
+    // ======================================================
+    // 2. RÉCUPÉRER LE NOM DU PARENT (simulé)
+    // ======================================================
+    const parentNom = 'Mme Mballa';
+    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
+    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
+
+    // ======================================================
+    // 3. AFFICHER LES ONGLETS DES ENFANTS
+    // ======================================================
+    let currentEleveId = null;
+
+    function renderChildTabs(enfants) {
+      const container = document.getElementById('childTabs');
+      if (!enfants || enfants.length === 0) {
+        container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      enfants.forEach((enfant, index) => {
+        const tab = document.createElement('div');
+        tab.className = `child-tab${index === 0 ? ' active' : ''}`;
+        tab.dataset.eleveId = enfant.id;
+        tab.innerHTML = `
+          <span class="avatar-sm">${enfant.nom.charAt(0)}</span>
+          ${enfant.nom}, ${enfant.classe}
+        `;
+        tab.addEventListener('click', () => selectChild(enfant.id));
+        container.appendChild(tab);
+      });
+
+      // Sélectionner le premier par défaut
+      const first = enfants[0];
+      currentEleveId = first.id;
+      loadRemarks(first.id);
+    }
+
+    // ======================================================
+    // 4. CHARGER LES REMARQUES
+    // ======================================================
+    function loadRemarks(eleveId) {
+      // Mettre à jour les onglets actifs
+      document.querySelectorAll('.child-tab').forEach(tab => {
+        tab.classList.toggle('active', parseInt(tab.dataset.eleveId) === eleveId);
+      });
+
+      // Récupérer les données
+      const enfant = fakeChildren.find(e => e.id === eleveId);
+      if (enfant) {
+        document.getElementById('eleveNom').textContent = enfant.nom;
+      }
+
+      const remarks = fakeRemarks[eleveId] || [];
+
+      // Afficher le tableau
+      const tbody = document.getElementById('remarksBody');
+      if (remarks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-soft);">Aucune remarque disponible</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      // Trier par date décroissante
+      remarks.sort((a, b) => new Date(b.date) - new Date(a.date));
+      remarks.forEach(rem => {
+        // Déterminer la classe CSS pour le type
+        let typeClass = '';
+        const typeLower = rem.type.toLowerCase();
+        if (typeLower.includes('positif')) {
+          typeClass = 'positive';
+        } else if (typeLower.includes('négatif') || typeLower.includes('negatif')) {
+          typeClass = 'negative';
+        } else if (typeLower.includes('comportement')) {
+          typeClass = 'behavior';
+        } else {
+          typeClass = 'neutral';
+        }
+
+        const tr = document.createElement('tr');
+        const dateFr = new Date(rem.date).toLocaleDateString('fr-FR');
+        tr.innerHTML = `
+          <td><span class="type-badge ${typeClass}">${rem.type}</span></td>
+          <td><span class="content-text" title="${rem.contenu}">${rem.contenu}</span></td>
+          <td>${dateFr}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ======================================================
+    // 5. SÉLECTIONNER UN ENFANT
+    // ======================================================
+    function selectChild(eleveId) {
+      if (eleveId === currentEleveId) return;
+      currentEleveId = eleveId;
+      loadRemarks(eleveId);
+    }
+
+    // ======================================================
+    // 6. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      renderChildTabs(fakeChildren);
+    });
+
+  })();
+</script>
+
+</body>
+</html>

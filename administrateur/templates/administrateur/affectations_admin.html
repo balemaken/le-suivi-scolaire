@@ -1,0 +1,677 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Affectations — Administration — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== VARIABLES ===== */
+    :root {
+      --ink: #1C2E33;
+      --cream: #FBF6EC;
+      --paper: #FFFDF8;
+      --accent: #E2725B;
+      --accent-dark: #C24F3B;
+      --sage: #6E8F71;
+      --coral: #E2725B;
+      --gold: #D9A441;
+      --text: #233232;
+      --text-soft: #5B6B69;
+      --line: rgba(28, 46, 51, 0.12);
+      --blue: #4A6FA5;
+      --purple: #7B5EA7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    h1, h2, h3 { font-family: 'Fraunces', serif; color: var(--ink); letter-spacing: -0.01em; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .dash-body { display: flex; min-height: 100vh; background: var(--cream); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 250px; flex-shrink: 0; background: var(--ink);
+      padding: 26px 18px; display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar .logo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--cream); margin-bottom: 34px; padding: 0 8px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(251, 246, 236, 0.1);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-mark svg { width: 20px; height: 20px; }
+
+    .sidebar nav { flex: 1; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72); font-size: 0.92rem; font-weight: 500;
+      margin-bottom: 4px;
+      transition: background .22s ease, color .22s ease, transform .22s ease;
+    }
+    .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
+    .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
+    .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
+    .badge-dot {
+      margin-left: auto;
+      background: var(--coral);
+      color: var(--cream);
+      font-size: 0.68rem;
+      font-weight: 700;
+      min-width: 19px;
+      height: 19px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* ===== MAIN ===== */
+    .dash-main {
+      flex: 1; padding: 30px 4% 60px; min-width: 0;
+    }
+    .dash-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
+    .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
+    .topbar-actions {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .topbar-avatar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper); border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 16px 6px 6px;
+    }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+
+    /* ===== ONGLETS ===== */
+    .tabs {
+      display: flex; gap: 4px; margin-bottom: 24px;
+      border-bottom: 2px solid var(--line);
+    }
+    .tab-btn {
+      padding: 12px 24px; border: none; background: none;
+      font-family: 'Work Sans', sans-serif; font-size: 0.9rem;
+      font-weight: 600; color: var(--text-soft);
+      cursor: pointer; border-bottom: 3px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ===== FORMULAIRES ===== */
+    .form-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .form-card.active { display: block; }
+    .form-card .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+    .form-card .form-grid .field {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .form-card .form-grid .field label {
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--text-soft); text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-card .form-grid .field select {
+      padding: 10px 14px; border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: var(--cream);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .form-card .form-grid .field select:focus {
+      outline: none; border-color: var(--accent);
+      background: var(--paper);
+    }
+    .form-card .form-grid .btn-submit {
+      padding: 10px 24px; border-radius: 999px;
+      background: var(--accent); color: var(--ink);
+      border: none; font-weight: 600; font-size: 0.85rem;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+      height: 42px; align-self: end;
+    }
+    .form-card .form-grid .btn-submit:hover {
+      background: var(--accent-dark); transform: translateY(-2px);
+    }
+
+    /* ===== TABLEAU ===== */
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .panel-head h2 { font-size: 1.05rem; font-weight: 600; }
+
+    .table-wrap { overflow-x: auto; }
+    .table {
+      width: 100%; border-collapse: collapse;
+    }
+    .table th {
+      text-align: left; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--text-soft);
+      padding: 0 0 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .table td {
+      padding: 12px 0; border-bottom: 1px solid var(--line);
+      font-size: 0.9rem; vertical-align: middle;
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table .enseignant { font-weight: 600; }
+    .table .classe { color: var(--text-soft); }
+    .table .matiere { color: var(--text-soft); }
+    .table .actions { display: flex; gap: 6px; }
+    .table .actions button {
+      background: none; border: 1px solid var(--line);
+      border-radius: 8px; padding: 4px 10px;
+      cursor: pointer; font-size: 0.75rem;
+      transition: background 0.2s;
+    }
+    .table .actions button:hover { background: var(--cream); }
+    .table .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
+
+    .empty-state {
+      text-align: center; padding: 30px 0;
+      color: var(--text-soft);
+    }
+
+    /* responsive */
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
+      .sidebar.open { transform: translateX(0); }
+      .dash-main { padding: 20px 5% 60px; }
+      .form-card .form-grid { grid-template-columns: 1fr; }
+      .tabs { flex-direction: column; border-bottom: none; }
+      .tab-btn { border-bottom: 2px solid var(--line); }
+      .tab-btn.active { border-bottom-color: var(--accent); }
+    }
+  </style>
+</head>
+<body data-admin-id="1">
+
+<div class="dash-body">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" />
+        </svg>
+      </span>
+      SchoolConnect
+    </div>
+
+    <nav>
+      <a href="{% url 'dashboard_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      <a href="{% url 'classes_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>
+        Classes
+      </a>
+      <a href="{% url 'matieres_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>
+        Matières
+      </a>
+      <a href="{% url 'eleves_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>
+        Élèves
+      </a>
+      <a href="{% url 'enseignants_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Enseignants
+      </a>
+      <a href="{% url 'parents_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/></svg>
+        Parents
+      </a>
+      <a href="{% url 'liaisons_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
+        Liaisons parent-élève
+      </a>
+      <a href="{% url 'affectations_admin' %}" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Affectations
+      </a>
+      <a href="{% url 'parametres_admin' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        Paramètres
+      </a>
+    </nav>
+
+    <div class="logout">
+      <a href="">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="dash-main">
+
+    <!-- Topbar -->
+    <div class="dash-topbar">
+      <div>
+        <h1>Gestion des affectations</h1>
+        <p class="sub">Affectez un enseignant à une classe ou à une matière.</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar">
+          <span class="avatar-sm" id="admin-initial">A</span>
+          <span id="admin-nom-avatar">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ONGLETS ===== -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="classe">Affecter à une classe</button>
+      <button class="tab-btn" data-tab="matiere">Affecter à une matière</button>
+      <button class="tab-btn" data-tab="liste">Liste des affectations</button>
+    </div>
+
+    <!-- ===== AFFECTATION À UNE CLASSE ===== -->
+    <div class="form-card active" id="tab-classe">
+      <h3 style="margin-bottom:16px;font-size:1rem;">Affecter un enseignant à une classe</h3>
+      <form id="affectClasseForm" class="form-grid">
+        <div class="field">
+          <label for="enseignantClasse">Enseignant</label>
+          <select id="enseignantClasse" required>
+            <option value="">-- Choisir --</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="classeAffect">Classe</label>
+          <select id="classeAffect" required>
+            <option value="">-- Choisir --</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">💾 Affecter</button>
+      </form>
+    </div>
+
+    <!-- ===== AFFECTATION À UNE MATIÈRE ===== -->
+    <div class="form-card" id="tab-matiere">
+      <h3 style="margin-bottom:16px;font-size:1rem;">Affecter un enseignant à une matière</h3>
+      <form id="affectMatiereForm" class="form-grid">
+        <div class="field">
+          <label for="enseignantMatiere">Enseignant</label>
+          <select id="enseignantMatiere" required>
+            <option value="">-- Choisir --</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="classeMatiereAffect">Classe</label>
+          <select id="classeMatiereAffect" required>
+            <option value="">-- Choisir --</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="matiereAffect">Matière</label>
+          <select id="matiereAffect" required>
+            <option value="">-- Choisir d'abord une classe --</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">💾 Affecter</button>
+      </form>
+    </div>
+
+    <!-- ===== LISTE DES AFFECTATIONS ===== -->
+    <div class="form-card" id="tab-liste">
+      <div class="panel" style="margin-bottom:0;">
+        <div class="panel-head">
+          <h2>Affectations existantes</h2>
+          <span style="font-size:0.82rem;color:var(--text-soft);" id="affectationCount">0 affectation</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Enseignant</th>
+                <th>Classe</th>
+                <th>Matière</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="affectationsBody">
+              <!-- Généré par JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  (function() {
+    // ======================================================
+    // 1. SIMULATION DES DONNÉES
+    // ======================================================
+
+    const enseignantsSimules = [
+      { id: 1, nom: 'M. Ngono' },
+      { id: 2, nom: 'Mme Tchoffo' },
+      { id: 3, nom: 'M. Kamga' },
+      { id: 4, nom: 'Mme Nana' }
+    ];
+
+    const classesSimules = [
+      { id: 1, nom: '6ᵉ A' },
+      { id: 2, nom: '5ᵉ A' },
+      { id: 3, nom: '4ᵉ B' },
+      { id: 4, nom: '3ᵉ A' },
+      { id: 5, nom: '6ᵉ B' },
+      { id: 6, nom: '5ᵉ B' },
+      { id: 7, nom: '4ᵉ A' },
+      { id: 8, nom: '3ᵉ B' }
+    ];
+
+    const matieresSimules = {
+      1: ['Mathématiques', 'Français', 'Anglais'],
+      2: ['Mathématiques', 'Physique', 'Chimie'],
+      3: ['Histoire', 'Géographie', 'Anglais'],
+      4: ['Informatique', 'Mathématiques', 'Espagnol'],
+      5: ['SVT', 'Physique'],
+      6: ['Mathématiques', 'Français'],
+      7: ['Anglais', 'Histoire'],
+      8: ['Physique', 'Informatique', 'Mathématiques']
+    };
+
+    // Affectations simulées
+    let affectationsData = [
+      { id: 1, type: 'classe', enseignantId: 1, enseignantNom: 'M. Ngono', classeId: 1, classeNom: '6ᵉ A', matiereId: null, matiereNom: null },
+      { id: 2, type: 'classe', enseignantId: 1, enseignantNom: 'M. Ngono', classeId: 2, classeNom: '5ᵉ A', matiereId: null, matiereNom: null },
+      { id: 3, type: 'matiere', enseignantId: 2, enseignantNom: 'Mme Tchoffo', classeId: 3, classeNom: '4ᵉ B', matiereId: 3, matiereNom: 'Histoire' },
+      { id: 4, type: 'classe', enseignantId: 3, enseignantNom: 'M. Kamga', classeId: 4, classeNom: '3ᵉ A', matiereId: null, matiereNom: null },
+      { id: 5, type: 'matiere', enseignantId: 3, enseignantNom: 'M. Kamga', classeId: 4, classeNom: '3ᵉ A', matiereId: 4, matiereNom: 'Informatique' },
+      { id: 6, type: 'matiere', enseignantId: 3, enseignantNom: 'M. Kamga', classeId: 8, classeNom: '3ᵉ B', matiereId: 8, matiereNom: 'Physique' },
+      { id: 7, type: 'classe', enseignantId: 4, enseignantNom: 'Mme Nana', classeId: 5, classeNom: '6ᵉ B', matiereId: null, matiereNom: null }
+    ];
+    let nextId = 8;
+
+    // ======================================================
+    // 2. RÉFÉRENCES DOM
+    // ======================================================
+    const affectationsBody = document.getElementById('affectationsBody');
+    const affectationCount = document.getElementById('affectationCount');
+
+    // Onglets
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = {
+      classe: document.getElementById('tab-classe'),
+      matiere: document.getElementById('tab-matiere'),
+      liste: document.getElementById('tab-liste')
+    };
+
+    // Formulaires
+    const affectClasseForm = document.getElementById('affectClasseForm');
+    const affectMatiereForm = document.getElementById('affectMatiereForm');
+
+    // Selects
+    const enseignantClasse = document.getElementById('enseignantClasse');
+    const classeAffect = document.getElementById('classeAffect');
+    const enseignantMatiere = document.getElementById('enseignantMatiere');
+    const classeMatiereAffect = document.getElementById('classeMatiereAffect');
+    const matiereAffect = document.getElementById('matiereAffect');
+
+    // ======================================================
+    // 3. PROFIL ADMIN
+    // ======================================================
+    document.getElementById('admin-initial').textContent = 'A';
+    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+
+    // ======================================================
+    // 4. GESTION DES ONGLETS
+    // ======================================================
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        Object.keys(tabContents).forEach(key => {
+          tabContents[key].classList.toggle('active', key === this.dataset.tab);
+        });
+        if (this.dataset.tab === 'liste') renderAffectations(affectationsData);
+      });
+    });
+
+    // ======================================================
+    // 5. REMPLIR LES SELECTS
+    // ======================================================
+    function populateSelects() {
+      // Enseignants
+      [enseignantClasse, enseignantMatiere].forEach(sel => {
+        sel.innerHTML = '<option value="">-- Choisir --</option>';
+        enseignantsSimules.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id;
+          opt.textContent = e.nom;
+          sel.appendChild(opt);
+        });
+      });
+
+      // Classes
+      [classeAffect, classeMatiereAffect].forEach(sel => {
+        sel.innerHTML = '<option value="">-- Choisir --</option>';
+        classesSimules.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.nom;
+          sel.appendChild(opt);
+        });
+      });
+
+      // Matières (dynamique selon la classe)
+      matiereAffect.innerHTML = '<option value="">-- Choisir d\'abord une classe --</option>';
+    }
+    populateSelects();
+
+    // Dynamique : matières selon la classe
+    classeMatiereAffect.addEventListener('change', function() {
+      const classeId = parseInt(this.value);
+      matiereAffect.innerHTML = '<option value="">-- Choisir --</option>';
+      if (classeId && matieresSimules[classeId]) {
+        matieresSimules[classeId].forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          matiereAffect.appendChild(opt);
+        });
+      } else {
+        matiereAffect.innerHTML = '<option value="">-- Aucune matière --</option>';
+      }
+    });
+
+    // ======================================================
+    // 6. AFFICHER LES AFFECTATIONS
+    // ======================================================
+    function renderAffectations(affectations) {
+      if (affectations.length === 0) {
+        affectationsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune affectation trouvée.</td></tr>`;
+        affectationCount.textContent = '0 affectation';
+        return;
+      }
+
+      affectationsBody.innerHTML = '';
+      affectations.forEach(a => {
+        const tr = document.createElement('tr');
+        const typeLabel = a.type === 'classe' ? 'Classe' : 'Matière';
+        tr.innerHTML = `
+          <td><span style="display:inline-block;padding:2px 12px;border-radius:999px;font-size:0.75rem;font-weight:600;background:${a.type === 'classe' ? 'rgba(110,143,113,0.15)' : 'rgba(74,111,165,0.15)'};color:${a.type === 'classe' ? 'var(--sage)' : 'var(--blue)'};">${typeLabel}</span></td>
+          <td class="enseignant">${a.enseignantNom}</td>
+          <td class="classe">${a.classeNom}</td>
+          <td class="matiere">${a.matiereNom || '—'}</td>
+          <td>
+            <div class="actions">
+              <button class="delete-btn" onclick="deleteAffectation(${a.id})">🗑️ Supprimer</button>
+            </div>
+          </td>
+        `;
+        affectationsBody.appendChild(tr);
+      });
+      affectationCount.textContent = `${affectations.length} affectation${affectations.length > 1 ? 's' : ''}`;
+    }
+
+    // ======================================================
+    // 7. AFFECTATION À UNE CLASSE
+    // ======================================================
+    affectClasseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const enseignantId = parseInt(enseignantClasse.value);
+      const classeId = parseInt(classeAffect.value);
+
+      if (!enseignantId || !classeId) {
+        alert('Veuillez sélectionner un enseignant et une classe.');
+        return;
+      }
+
+      // Vérifier si l'affectation existe déjà
+      const exists = affectationsData.some(a => 
+        a.type === 'classe' && a.enseignantId === enseignantId && a.classeId === classeId
+      );
+      if (exists) {
+        alert('Cet enseignant est déjà affecté à cette classe.');
+        return;
+      }
+
+      const enseignant = enseignantsSimules.find(e => e.id === enseignantId);
+      const classe = classesSimules.find(c => c.id === classeId);
+
+      affectationsData.push({
+        id: nextId++,
+        type: 'classe',
+        enseignantId: enseignantId,
+        enseignantNom: enseignant.nom,
+        classeId: classeId,
+        classeNom: classe.nom,
+        matiereId: null,
+        matiereNom: null
+      });
+
+      this.reset();
+      alert('Affectation créée avec succès !');
+      // Si l'onglet liste est actif, mettre à jour
+      if (document.querySelector('.tab-btn[data-tab="liste"]').classList.contains('active')) {
+        renderAffectations(affectationsData);
+      }
+    });
+
+    // ======================================================
+    // 8. AFFECTATION À UNE MATIÈRE
+    // ======================================================
+    affectMatiereForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const enseignantId = parseInt(enseignantMatiere.value);
+      const classeId = parseInt(classeMatiereAffect.value);
+      const matiereNom = matiereAffect.value;
+
+      if (!enseignantId || !classeId || !matiereNom) {
+        alert('Veuillez sélectionner un enseignant, une classe et une matière.');
+        return;
+      }
+
+      // Vérifier si l'affectation existe déjà
+      const exists = affectationsData.some(a => 
+        a.type === 'matiere' && a.enseignantId === enseignantId && 
+        a.classeId === classeId && a.matiereNom === matiereNom
+      );
+      if (exists) {
+        alert('Cet enseignant est déjà affecté à cette matière dans cette classe.');
+        return;
+      }
+
+      const enseignant = enseignantsSimules.find(e => e.id === enseignantId);
+      const classe = classesSimules.find(c => c.id === classeId);
+
+      affectationsData.push({
+        id: nextId++,
+        type: 'matiere',
+        enseignantId: enseignantId,
+        enseignantNom: enseignant.nom,
+        classeId: classeId,
+        classeNom: classe.nom,
+        matiereId: null,
+        matiereNom: matiereNom
+      });
+
+      this.reset();
+      matiereAffect.innerHTML = '<option value="">-- Choisir d\'abord une classe --</option>';
+      alert('Affectation créée avec succès !');
+      if (document.querySelector('.tab-btn[data-tab="liste"]').classList.contains('active')) {
+        renderAffectations(affectationsData);
+      }
+    });
+
+    // ======================================================
+    // 9. SUPPRIMER UNE AFFECTATION
+    // ======================================================
+    window.deleteAffectation = function(id) {
+      if (!confirm('Supprimer cette affectation ?')) return;
+      affectationsData = affectationsData.filter(a => a.id !== id);
+      renderAffectations(affectationsData);
+    };
+
+    // ======================================================
+    // 10. INITIALISATION
+    // ======================================================
+    renderAffectations(affectationsData);
+
+  })();
+</script>
+
+</body>
+</html>

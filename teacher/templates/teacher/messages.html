@@ -1,104 +1,121 @@
-{%load static%}
-
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messages — Espace enseignant — SchoolConnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{%static 'teacher/css/messages.css'%}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages — Espace enseignant — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'teacher/css/pageteacher.css' %}" />
+  <style>
+    .badge-dot { margin-left: auto; background: var(--coral); color: var(--cream); font-size: 0.68rem; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+    .msg-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .msg-item:last-child { border-bottom: none; }
+    .msg-item .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+    .msg-item .content { flex: 1; }
+    .msg-item .content .expediteur { font-weight: 600; }
+    .msg-item .content .date { font-size: 0.78rem; color: var(--text-soft); }
+    .msg-item .content .message { margin-top: 4px; }
+    .msg-item.unread { background: color-mix(in srgb, var(--accent) 6%, transparent); margin: 0 -16px; padding: 14px 16px; border-radius: 12px; }
+    .msg-item .actions { display: flex; gap: 6px; align-items: center; }
+    .msg-item .actions button { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; }
+    .msg-item .actions button:hover { background: var(--cream); }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+    .form-grid input, .form-grid textarea { padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
+    .form-grid input:focus, .form-grid textarea:focus { outline: none; border-color: var(--accent); }
+  </style>
 </head>
-<body>
+<body data-enseignant-id="1">
 
 <div class="dash-body">
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <div class="logo">
-      <span class="logo-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#3E8E96" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3 2 8l10 5 10-5-10-5Z"></path>
-          <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"></path>
-        </svg>
-      </span>
-      SchoolConnect
-    </div>
-
+    <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>SchoolConnect</div>
     <nav>
-      <a href="{% url 'pageteacher' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>
-        Tableau de bord
-      </a>
-      <a href="{% url 'classes' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M3.5 9h17"></path></svg>
-        Mes classes
-      </a>
-      <a href="{% url 'notes' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path><path d="M8 12h8M8 16h5"></path></svg>
-        Saisie des notes
-      </a>
-      <a href="{% url 'élève' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"></path><circle cx="17.5" cy="8.5" r="2.4"></circle><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"></path></svg>
-        Élèves
-      </a>
-      <a href="{% url 'emploi' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
-        Emploi du temps
-      </a>
-      <a href="{% url 'messages' %}" class="active">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
-        Messages
-        <span class="badge-dot">4</span>
-      </a>
-      <a href="{% url 'parametre' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path></svg>
-        Paramètres
-      </a>
+      <a href="{% url 'pageteacher' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Tableau de bord</a>
+      <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
+      <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
+      <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
+      <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
+      <a href="{% url 'messages' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-
-    <div class="logout">
-      <a href="index.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
-        Déconnexion
-      </a>
-    </div>
+    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
+  <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar">
-      <div>
-        <h1>Messages</h1>
-        <p class="sub">Échangez avec les parents et l'administration.</p>
-      </div>
-      <div class="topbar-actions">
-        <a href="{% url 'messages' %}"class="icon-btn" aria-label="Messages">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
-          <span class="dot"></span>
-        </a>
-        <div class="topbar-avatar">
-          <span class="avatar-sm">N</span>
-          <span>M. Ngono</span>
-        </div>
-      </div>
-    </div>
-
+    <div class="dash-topbar"><div><h1>Messages</h1><p class="sub">Tous vos messages.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
 
     <div class="panel">
-      <div class="panel-head"><h2>Boîte de réception</h2><a href="#">Tout marquer lu</a></div>
-      <div class="notif-list">
-        <div class="notif-item unread"><span class="ic" style="background:var(--accent);"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg></span><div><p><strong>Mme Mballa</strong> — Question sur le devoir de Sarah</p><small>Il y a 1 heure</small></div></div>
-        <div class="notif-item unread"><span class="ic" style="background:var(--coral);"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg></span><div><p><strong>Administration</strong> — Rappel saisie des notes</p><small>Hier</small></div></div>
-        <div class="notif-item"><span class="ic" style="background:var(--ink);"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg></span><div><p><strong>M. Eto'o</strong> — Demande de rendez-vous</p><small>Il y a 2 jours</small></div></div>
-      </div>
+      <div class="panel-head"><h2>Boîte de réception</h2><button class="btn btn-sm" id="markAllRead" style="background:var(--sage);color:white;">✅ Tout marquer lu</button></div>
+      <div id="messagesList"></div>
     </div>
 
+    <div class="panel" style="margin-top:20px;">
+      <div class="panel-head"><h2>Envoyer un message</h2></div>
+      <div class="form-grid">
+        <input type="text" id="destinataire" placeholder="Destinataire (ex: Mme Mballa)">
+        <textarea id="msgContent" rows="3" placeholder="Votre message..."></textarea>
+        <button class="btn btn-sm" id="sendMsgBtn" style="background:var(--accent);">📤 Envoyer</button>
+      </div>
+    </div>
   </main>
 </div>
 
+<script>
+  (function() {
+    let messages = [
+      { id: 1, expediteur: 'Mme Mballa (parent)', message: 'Question sur le devoir de Sarah', date: 'Il y a 1 heure', lu: false },
+      { id: 2, expediteur: 'Administration', message: 'Rappel saisie des notes', date: 'Hier', lu: false },
+      { id: 3, expediteur: 'M. Tchoffo', message: 'Réunion demain 14h', date: 'Il y a 2 jours', lu: true }
+    ];
+
+    document.getElementById('enseignant-initial').textContent = 'N';
+    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+
+    function renderMessages() {
+      const container = document.getElementById('messagesList');
+      if (messages.length === 0) { container.innerHTML = '<div class="empty-state">Aucun message.</div>'; return; }
+      container.innerHTML = '';
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `msg-item${msg.lu ? '' : ' unread'}`;
+        const colors = ['var(--accent)', 'var(--sage)', 'var(--coral)', 'var(--gold)', 'var(--blue)'];
+        div.innerHTML = `
+          <div class="avatar" style="background:${colors[msg.id % colors.length]};">${msg.expediteur.charAt(0)}</div>
+          <div class="content">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;"><span class="expediteur">${msg.expediteur}</span><span class="date">${msg.date}</span></div>
+            <div class="message">${msg.message}</div>
+          </div>
+          <div class="actions"><button onclick="toggleLu(${msg.id})">${msg.lu ? '📩 Non lu' : '✅ Lu'}</button><button onclick="deleteMsg(${msg.id})" style="color:var(--coral);">🗑️</button></div>
+        `;
+        container.appendChild(div);
+      });
+      document.getElementById('msg-badge').textContent = messages.filter(m => !m.lu).length;
+    }
+
+    window.toggleLu = function(id) { const msg = messages.find(m => m.id === id); if (msg) { msg.lu = !msg.lu; renderMessages(); } };
+    window.deleteMsg = function(id) { if (confirm('Supprimer ce message ?')) { messages = messages.filter(m => m.id !== id); renderMessages(); } };
+
+    document.getElementById('markAllRead').addEventListener('click', function() { messages.forEach(m => m.lu = true); renderMessages(); });
+    document.getElementById('sendMsgBtn').addEventListener('click', function() {
+      const destinataire = document.getElementById('destinataire').value.trim();
+      const content = document.getElementById('msgContent').value.trim();
+      if (!destinataire || !content) { alert('Veuillez remplir tous les champs.'); return; }
+      messages.unshift({ id: Date.now(), expediteur: 'Moi', message: `À ${destinataire} : ${content}`, date: 'À l\'instant', lu: false });
+      document.getElementById('destinataire').value = '';
+      document.getElementById('msgContent').value = '';
+      renderMessages();
+    });
+
+    renderMessages();
+  })();
+</script>
 </body>
 </html>

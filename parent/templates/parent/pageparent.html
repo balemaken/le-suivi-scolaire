@@ -1,23 +1,4 @@
-{%load static%}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -28,9 +9,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{%static 'parent/css/pageparent.css'%}">
+<link rel="stylesheet" href="{% static 'parent/css/pageparent.css' %}">
+<style>
+  /* Petits ajustements pour les cartes cliquables */
+  .stat-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .stat-card-link .dash-stat {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .stat-card-link .dash-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
+  }
+</style>
 </head>
-<body>
+<body data-parent-id="{{ user.id_utilisateur }}">
 
 <div class="dash-body">
 
@@ -47,7 +44,7 @@
     </div>
 
     <nav>
-      <a href="" class="active">
+      <a href="{% url 'pageparent' %}" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>
         Tableau de bord
       </a>
@@ -57,26 +54,32 @@
       </a>
       <a href="{% url 'mesnotes' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path><path d="M8 12h8M8 16h5"></path></svg>
-        Notes &amp; bulletins
+        Notes
       </a>
       <a href="{% url 'madiscipline' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
         Discipline
       </a>
-      <a href="{% url 'mesnotifications' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        Notifications
-        <span class="badge-dot">3</span>
+      <a href="{% url 'mesremarques' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+        Remarques
       </a>
-    
-      <a href="{% url 'leparametre' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path></svg>
-        Paramètres
+      <a href="{% url 'messanctions' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+        Sanctions
+      </a>
+      <a href="{% url 'mesbulletins' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+        Bulletins
+      </a>
+      <a href="{% url 'ia_schoolconnect' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5Z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+        IAschool connect
       </a>
     </nav>
 
     <div class="logout">
-      <a href="index.html">
+      <a href="">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
         Déconnexion
       </a>
@@ -88,174 +91,191 @@
 
     <div class="dash-topbar">
       <div>
-        <h1>Bonjour, Mr Balemaken 👋</h1>
-        <p class="sub">Voici un aperçu du suivi scolaire de vos enfants aujourd'hui.</p>
+        <h1>Bonjour, <span id="parent-nom">Parent</span> 👋</h1>
+        <p class="sub">Voici un aperçu global du suivi de vos enfants.</p>
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
           <span class="dot"></span>
         </button>
-        <a href="contact.html" class="icon-btn" aria-label="Contacter l'école">
+        <a href="#" class="icon-btn" aria-label="Contacter l'école">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
         </a>
         <div class="topbar-avatar">
-          <span class="avatar-sm">M</span>
-          <span>Mme Balemaken</span>
+          <span class="avatar-sm" id="parent-initial">P</span>
+          <span id="parent-nom-avatar">Parent</span>
         </div>
       </div>
     </div>
 
-    <!-- ===== SÉLECTEUR D'ENFANT ===== -->
-    <div class="child-tabs" id="enfants">
-      <div class="child-tab active">
-        <span class="avatar-sm">S</span> Sarah, 5ᵉ
+    <!-- ===== STATISTIQUES GLOBALES (CARTES CLIQUABLES) ===== -->
+    <div class="dash-stats" id="stats-container">
+      <!-- Les cartes seront générées par JavaScript -->
+    </div>
+
+    <!-- ===== PETIT RÉSUMÉ DES DERNIÈRES ACTIVITÉS (optionnel) ===== -->
+    <div class="panel" style="margin-top:24px;">
+      <div class="panel-head">
+        <h2>Activités récentes</h2>
+        <a href="#">Voir tout</a>
       </div>
-      <div class="child-tab">
-        <span class="avatar-sm">P</span> Paul, CM2
-      </div>
-      <div class="child-tab add">
-        + Ajouter un enfant
+      <div id="recent-activities" style="padding:10px 0;">
+        <p style="color:var(--text-soft);">Chargement des dernières activités...</p>
       </div>
     </div>
 
-    <!-- ===== STATS ===== -->
-    <div class="dash-stats">
-      <div class="dash-stat">
-        <span class="ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 2"></path></svg>
-        </span>
-        <div><strong>15,4/20</strong><span>Moyenne générale</span></div>
-      </div>
-      <div class="dash-stat">
-        <span class="ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
-        </span>
-        <div><strong>Trimestre 2</strong><span>Bulletin disponible</span></div>
-      </div>
-      <div class="dash-stat">
-        <span class="ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v9a1 1 0 0 0 1 1H9v-5h6v5h2.5a1 1 0 0 0 1-1v-9"></path></svg>
-        </span>
-        <div><strong>2</strong><span>Absences ce mois</span></div>
-      </div>
-      <div class="dash-stat">
-        <span class="ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        </span>
-        <div><strong>3</strong><span>Nouvelles notifications</span></div>
-      </div>
-    </div>
-
-    <!-- ===== GRILLE PRINCIPALE ===== -->
-    <div class="dash-grid">
-
-      <!-- Colonne gauche -->
-      <div>
-        <div class="panel" id="notes">
-          <div class="panel-head">
-            <h2>Dernières notes — Sarah</h2>
-            <a href="#">Voir tout</a>
-          </div>
-          <table class="notes-table">
-            <thead>
-              <tr><th>Matière</th><th>Évaluation</th><th>Date</th><th>Note</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Mathématiques</td><td>Devoir surveillé</td><td>28 juil.</td>
-                <td><span class="note-pill good">16</span></td>
-              </tr>
-              <tr>
-                <td>Français</td><td>Dissertation</td><td>25 juil.</td>
-                <td><span class="note-pill mid">12</span></td>
-              </tr>
-              <tr>
-                <td>Physique</td><td>Interrogation</td><td>22 juil.</td>
-                <td><span class="note-pill good">15</span></td>
-              </tr>
-              <tr>
-                <td>Anglais</td><td>Contrôle</td><td>19 juil.</td>
-                <td><span class="note-pill low">9</span></td>
-              </tr>
-              <tr>
-                <td>Informatique</td><td>Projet</td><td>15 juil.</td>
-                <td><span class="note-pill good">17</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel" id="discipline">
-          <div class="panel-head">
-            <h2>Discipline — Sarah</h2>
-            <a href="#">Voir tout</a>
-          </div>
-          <div class="disc-list">
-            <div class="disc-item">
-              <span>Absence non justifiée — 26 juillet</span>
-              <span class="tag absence">Absence</span>
-            </div>
-            <div class="disc-item">
-              <span>Retard de 10 min — 20 juillet</span>
-              <span class="tag retard">Retard</span>
-            </div>
-            <div class="disc-item">
-              <span>Absence justifiée (certificat) — 12 juillet</span>
-              <span class="tag absence">Absence</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Colonne droite -->
-      <div>
-        <div class="panel" id="notifications">
-          <div class="panel-head">
-            <h2>Notifications récentes</h2>
-            <a href="#">Tout marquer lu</a>
-          </div>
-          <div class="notif-list">
-            <div class="notif-item unread">
-              <span class="ic" style="background:var(--sage);">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path></svg>
-              </span>
-              <div><p>Nouvelle note en Mathématiques : 16/20</p><small>Il y a 2 heures</small></div>
-            </div>
-            <div class="notif-item unread">
-              <span class="ic" style="background:var(--coral);">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
-              </span>
-              <div><p>Absence signalée le 26 juillet</p><small>Hier</small></div>
-            </div>
-            <div class="notif-item unread">
-              <span class="ic" style="background:var(--ink);">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
-              </span>
-              <div><p>Message de l'établissement : réunion de parents</p><small>Il y a 2 jours</small></div>
-            </div>
-            <div class="notif-item">
-              <span class="ic" style="background:var(--gold);">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8"></path></svg>
-              </span>
-              <div><p>Bulletin du trimestre 2 disponible</p><small>Il y a 4 jours</small></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="quick-contact">
-          <h2>Une question pour l'école ?</h2>
-          <p>Contactez directement l'établissement de Sarah depuis votre espace.</p>
-          <a href="contact.html" class="btn">
-            Contacter l'école
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
-          </a>
-        </div>
-      </div>
-
-    </div>
   </main>
 </div>
+
+<script>
+//   (function() {
+//     const parentId = document.body.dataset.parentId;
+//     if (!parentId) {
+//       console.error('Aucun parent ID trouvé.');
+//       return;
+//     }
+
+//     // Fonction fetch simplifiée
+//     async function fetchAPI(url) {
+//       const response = await fetch(url);
+//       if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+//       return response.json();
+//     }
+
+//     // Charger le profil du parent
+//     async function loadParentProfile() {
+//       try {
+//         const data = await fetchAPI(`/parents/${parentId}/`);
+//         const prenom = data.prenom || data.nom || 'Parent';
+//         document.getElementById('parent-nom').textContent = prenom;
+//         document.getElementById('parent-nom-avatar').textContent = prenom;
+//         document.getElementById('parent-initial').textContent = prenom.charAt(0).toUpperCase();
+//       } catch (e) {
+//         console.warn('Profil parent:', e);
+//       }
+//     }
+
+//     // Charger les stats globales : enfants, notes, absences, etc.
+//     async function loadGlobalStats() {
+//       const container = document.getElementById('stats-container');
+//       container.innerHTML = '<div style="grid-column:1/-1;text-align:center;">Chargement...</div>';
+
+//       try {
+//         // 1. Récupérer la liste des enfants
+//         const enfants = await fetchAPI(`/parents/${parentId}/eleves/`);
+//         const nbEnfants = enfants.length;
+
+//         // 2. Pour chaque enfant, récupérer le suivi complet et agréger
+//         let totalNotes = 0;
+//         let totalAbsences = 0;
+//         let totalRemarques = 0;
+//         let totalSanctions = 0;
+//         let totalBulletins = 0;
+
+//         for (const enfant of enfants) {
+//           try {
+//             const suivi = await fetchAPI(`/parents/${parentId}/eleves/${enfant.id_eleve}/suivi/`);
+//             totalNotes += (suivi.notes || []).length;
+//             totalAbsences += (suivi.absences || []).length;
+//             totalRemarques += (suivi.remarques || []).length;
+//             totalSanctions += (suivi.sanctions || []).length;
+//             totalBulletins += (suivi.bulletins || []).length;
+//           } catch (e) {
+//             console.warn('Erreur pour enfant', enfant.id_eleve, e);
+//           }
+//         }
+
+//         // Construire les cartes cliquables
+//         // On définit pour chaque carte : titre, valeur, icône, couleur, lien
+//         const cards = [
+//           { label: 'Enfants', value: nbEnfants, icon: '👨‍👧‍👦', color: 'var(--accent)', url: "{% url 'monenfant' %}" },
+//           { label: 'Notes', value: totalNotes, icon: '📝', color: 'var(--sage)', url: "{% url 'mesnotes' %}" },
+//           { label: 'Absences', value: totalAbsences, icon: '📅', color: 'var(--coral)', url: "{% url 'madiscipline' %}" },
+//           { label: 'Remarques', value: totalRemarques, icon: '💬', color: 'var(--ink)', url: "#" },
+//           { label: 'Sanctions', value: totalSanctions, icon: '⚖️', color: '#b33c3c', url: "#" },
+//           { label: 'Bulletins', value: totalBulletins, icon: '📄', color: 'var(--gold)', url: "#" },
+//         ];
+
+//         container.innerHTML = '';
+//         cards.forEach(card => {
+//           const link = document.createElement('a');
+//           link.href = card.url;
+//           link.className = 'stat-card-link';
+//           link.innerHTML = `
+//             <div class="dash-stat">
+//               <span class="ic" style="background:${card.color};">
+//                 <span style="font-size:22px;line-height:1;color:white;">${card.icon}</span>
+//               </span>
+//               <div>
+//                 <strong>${card.value}</strong>
+//                 <span>${card.label}</span>
+//               </div>
+//             </div>
+//           `;
+//           container.appendChild(link);
+//         });
+
+//         // Optionnel : afficher les activités récentes (ex: dernières notes)
+//         await loadRecentActivities(enfants);
+
+//       } catch (error) {
+//         container.innerHTML = '<div style="grid-column:1/-1;color:var(--coral);">Erreur de chargement des statistiques</div>';
+//         console.error('Erreur stats:', error);
+//       }
+//     }
+
+//     // Afficher quelques activités récentes (dernières notes, absences, etc.)
+//     async function loadRecentActivities(enfants) {
+//       const container = document.getElementById('recent-activities');
+//       let activities = [];
+
+//       for (const enfant of enfants) {
+//         try {
+//           const suivi = await fetchAPI(`/parents/${parentId}/eleves/${enfant.id_eleve}/suivi/`);
+//           const notes = (suivi.notes || []).map(n => ({
+//             type: 'Note',
+//             date: n.date || new Date(),
+//             message: `${n.matiere?.nom || 'Matière'} : ${n.moyenne || 0}/20 — ${enfant.nom}`,
+//           }));
+//           const absences = (suivi.absences || []).map(a => ({
+//             type: 'Absence',
+//             date: a.date_absence || new Date(),
+//             message: `Absence le ${new Date(a.date_absence).toLocaleDateString('fr-FR')} — ${enfant.nom}`,
+//           }));
+//           activities = [...activities, ...notes, ...absences];
+//         } catch (e) { /* ignore */ }
+//       }
+
+//       if (activities.length === 0) {
+//         container.innerHTML = '<p style="color:var(--text-soft);">Aucune activité récente.</p>';
+//         return;
+//       }
+
+//       // Trier par date décroissante et prendre les 5 dernières
+//       activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+//       const recent = activities.slice(0, 5);
+
+//       container.innerHTML = '';
+//       recent.forEach(act => {
+//         const div = document.createElement('div');
+//         div.style.cssText = 'padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;';
+//         div.innerHTML = `
+//           <span>${act.message}</span>
+//           <span style="font-size:0.8rem;color:var(--text-soft);">${new Date(act.date).toLocaleDateString('fr-FR')}</span>
+//         `;
+//         container.appendChild(div);
+//       });
+//     }
+
+//     // Lancer au chargement
+//     document.addEventListener('DOMContentLoaded', function() {
+//       loadParentProfile();
+//       loadGlobalStats();
+//     });
+
+//   })();
+// </script>
 
 </body>
 </html>

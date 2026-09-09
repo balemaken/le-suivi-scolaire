@@ -34,5 +34,17 @@ def parametre(request):
 def classes(request):
     return render(request,'teacher/classes.html') 
 
-def inscription(request):
+def inscriptionEnseignant(request):
     return render(request,'teacher/inscription.html')
+
+
+def absences(request):
+    return render(request,'teacher/absences.html') 
+
+
+def remarques(request):
+    return render(request,'teacher/remarques.html')
+
+
+def sanctions(request):
+    return render(request,'teacher/sanctions.html') 
