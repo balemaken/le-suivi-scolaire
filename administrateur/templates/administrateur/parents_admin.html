@@ -423,35 +423,56 @@
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES
+    // 1. CONFIGURATION
     // ======================================================
-
-    // Élèves existants (pour l'affichage des enfants liés)
-    const elevesSimules = [
-      { id: 1, nom: 'Sarah Mballa' },
-      { id: 2, nom: 'Paul Mballa' },
-      { id: 3, nom: 'Marie Ngono' },
-      { id: 4, nom: 'Jean Tchoffo' },
-      { id: 5, nom: 'Aline Nana' },
-      { id: 6, nom: 'David Mballa' },
-      { id: 7, nom: 'Céline Ngono' },
-      { id: 8, nom: 'Marc Kamga' },
-      { id: 9, nom: 'Sophie Tchoffo' },
-      { id: 10, nom: 'Kevin Nana' }
-    ];
-
-    // Parents simulés
-    let parentsData = [
-      { id: 1, nom: 'Mme Mballa', email: 'mballa@schoolconnect.cm', telephone: '+237 6XX XX XX 01', statut: 'actif', enfants: [1, 2, 6] },
-      { id: 2, nom: 'M. Ngono', email: 'ngono@schoolconnect.cm', telephone: '+237 6XX XX XX 02', statut: 'actif', enfants: [3, 7] },
-      { id: 3, nom: 'Mme Tchoffo', email: 'tchoffo@schoolconnect.cm', telephone: '+237 6XX XX XX 03', statut: 'actif', enfants: [4, 9] },
-      { id: 4, nom: 'M. Nana', email: 'nana@schoolconnect.cm', telephone: '+237 6XX XX XX 04', statut: 'inactif', enfants: [5, 10] },
-      { id: 5, nom: 'M. Kamga', email: 'kamga@schoolconnect.cm', telephone: '+237 6XX XX XX 05', statut: 'actif', enfants: [8] }
-    ];
-    let nextId = 6;
+    const API_BASE = '';
 
     // ======================================================
-    // 2. RÉFÉRENCES DOM
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Admin';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const initiale = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-initial').textContent = initiale;
+    document.getElementById('admin-nom-avatar').textContent = (prenomAdmin + ' ' + nomAdmin).trim();
+
+    // ======================================================
+    // 3. CACHER LE BOUTON "NOUVEAU PARENT"
+    // (les parents s'inscrivent eux-mêmes)
+    // ======================================================
+    const openAddBtn = document.getElementById('openAddModal');
+    if (openAddBtn) {
+      openAddBtn.style.display = 'none';
+    }
+
+    // ======================================================
+    // 4. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const token = localStorage.getItem('authToken');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Token ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(API_BASE + url, { ...options, headers });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
     // ======================================================
     const parentsBody = document.getElementById('parentsBody');
     const parentCount = document.getElementById('parentCount');
@@ -464,37 +485,36 @@
     const telephoneParent = document.getElementById('telephoneParent');
     const statutParent = document.getElementById('statutParent');
     const editId = document.getElementById('editId');
+    const saveBtn = document.getElementById('saveBtn');
     const closeModal = document.getElementById('closeModal');
     const cancelBtn = document.getElementById('cancelBtn');
-    const openAddBtn = document.getElementById('openAddModal');
+
+    // Cache
+    let parentsData = [];
 
     // ======================================================
-    // 3. PROFIL ADMIN
+    // 6. CHARGER LES PARENTS
     // ======================================================
-    document.getElementById('admin-initial').textContent = 'A';
-    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+    async function loadParents() {
+      parentsBody.innerHTML = `
+        <tr><td colspan="6" class="empty-state">⏳ Chargement des parents...</td></tr>
+      `;
 
-    // ======================================================
-    // 4. FONCTIONS UTILITAIRES
-    // ======================================================
-    function getEnfantsNoms(ids) {
-      if (!ids || ids.length === 0) return '—';
-      return ids.map(id => {
-        const e = elevesSimules.find(el => el.id === id);
-        return e ? e.nom : '?';
-      }).join(', ');
+      try {
+        parentsData = await fetchAPI('/api/parents/');
+        filterParents();
+      } catch (err) {
+        console.error('Erreur chargement parents :', err);
+        parentsBody.innerHTML = `
+          <tr><td colspan="6" class="empty-state" style="color:var(--coral);">
+            ⚠️ Impossible de charger les parents : ${err.message}
+          </td></tr>
+        `;
+      }
     }
 
-    function getEnfantsTags(ids) {
-      if (!ids || ids.length === 0) return '—';
-      return ids.map(id => {
-        const e = elevesSimules.find(el => el.id === id);
-        return e ? `<span class="enfant-tag">${e.nom}</span>` : '?';
-      }).join(' ');
-    }
-
     // ======================================================
-    // 5. AFFICHER LES PARENTS
+    // 7. AFFICHER LES PARENTS
     // ======================================================
     function renderParents(parents) {
       if (parents.length === 0) {
@@ -506,18 +526,26 @@
       parentsBody.innerHTML = '';
       parents.forEach(p => {
         const tr = document.createElement('tr');
-        const statusClass = p.statut === 'actif' ? 'active' : 'inactive';
-        const statusLabel = p.statut === 'actif' ? 'Actif' : 'Inactif';
+        const statusClass = p.is_active ? 'active' : 'inactive';
+        const statusLabel = p.is_active ? 'Actif' : 'Inactif';
+        const nomComplet = ((p.prenom || '') + ' ' + (p.nom || '')).trim() || '—';
+
+        // Enfants liés (via LiaisonParentEleve)
+        const elevesLies = p.eleves_lies || [];
+        const enfantsTags = elevesLies.length > 0
+          ? elevesLies.map(e => `<span class="enfant-tag">${e.nom} (${e.classe})</span>`).join(' ')
+          : '—';
+
         tr.innerHTML = `
-          <td class="nom">${p.nom}</td>
-          <td class="email">${p.email}</td>
+          <td class="nom">${nomComplet}</td>
+          <td class="email">${p.email || '—'}</td>
           <td>${p.telephone || '—'}</td>
-          <td class="enfants">${getEnfantsTags(p.enfants)}</td>
+          <td class="enfants">${enfantsTags}</td>
           <td><span class="status ${statusClass}">${statusLabel}</span></td>
           <td>
             <div class="actions">
-              <button class="edit-btn" onclick="editParent(${p.id})">✏️ Modifier</button>
-              <button class="delete-btn" onclick="deleteParent(${p.id})">🗑️ Supprimer</button>
+              <button class="edit-btn" onclick="editParent(${p.id_utilisateur})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteParent(${p.id_utilisateur})">🗑️ Supprimer</button>
             </div>
           </td>
         `;
@@ -527,15 +555,15 @@
     }
 
     // ======================================================
-    // 6. FILTRER LES PARENTS
+    // 8. FILTRER (CÔTÉ CLIENT)
     // ======================================================
     function filterParents() {
       const searchTerm = searchInput.value.toLowerCase().trim();
 
-      let filtered = parentsData.filter(p => {
-        const matchSearch = p.nom.toLowerCase().includes(searchTerm) || 
-                           p.email.toLowerCase().includes(searchTerm);
-        return matchSearch;
+      const filtered = parentsData.filter(p => {
+        const nomComplet = ((p.prenom || '') + ' ' + (p.nom || '')).toLowerCase();
+        const email = (p.email || '').toLowerCase();
+        return nomComplet.includes(searchTerm) || email.includes(searchTerm);
       });
 
       renderParents(filtered);
@@ -544,23 +572,16 @@
     searchInput.addEventListener('input', filterParents);
 
     // ======================================================
-    // 7. CRUD : AJOUT / MODIFICATION
+    // 9. MODAL MODIFICATION
     // ======================================================
     function openModal(parentData = null) {
       if (parentData) {
         modalTitle.textContent = 'Modifier le parent';
-        editId.value = parentData.id;
-        nomParent.value = parentData.nom;
-        emailParent.value = parentData.email;
+        editId.value = parentData.id_utilisateur;
+        nomParent.value = ((parentData.prenom || '') + ' ' + (parentData.nom || '')).trim();
+        emailParent.value = parentData.email || '';
         telephoneParent.value = parentData.telephone || '';
-        statutParent.value = parentData.statut;
-      } else {
-        modalTitle.textContent = 'Nouveau parent';
-        editId.value = '';
-        nomParent.value = '';
-        emailParent.value = '';
-        telephoneParent.value = '';
-        statutParent.value = 'actif';
+        statutParent.value = parentData.is_active ? 'actif' : 'inactif';
       }
       modalOverlay.classList.add('active');
     }
@@ -571,7 +592,6 @@
       editId.value = '';
     }
 
-    openAddBtn.addEventListener('click', () => openModal());
     closeModal.addEventListener('click', closeModalFn);
     cancelBtn.addEventListener('click', closeModalFn);
 
@@ -579,83 +599,98 @@
       if (e.target === this) closeModalFn();
     });
 
-    // Soumission du formulaire
-    parentForm.addEventListener('submit', function(e) {
+    // ======================================================
+    // 10. SOUMISSION (MODIFICATION UNIQUEMENT)
+    // ======================================================
+    parentForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const nom = nomParent.value.trim();
+      const nomComplet = nomParent.value.trim();
       const email = emailParent.value.trim();
       const telephone = telephoneParent.value.trim();
       const statut = statutParent.value;
 
-      if (!nom) {
-        alert('Le nom du parent est obligatoire.');
+      if (!nomComplet || !email) {
+        alert('Le nom et l\'email sont obligatoires.');
         return;
       }
-      if (!email) {
-        alert('L\'email est obligatoire.');
-        return;
-      }
+
+      // Séparer prénom / nom (1er mot = prénom, reste = nom)
+      const parties = nomComplet.split(' ');
+      const prenom = parties.length > 1 ? parties[0] : '';
+      const nom = parties.length > 1 ? parties.slice(1).join(' ') : parties[0];
 
       const id = parseInt(editId.value);
-
-      // Vérifier unicité de l'email
-      const exists = parentsData.some(p => 
-        p.email.toLowerCase() === email.toLowerCase() && 
-        p.id !== id
-      );
-      if (exists) {
-        alert('Cet email est déjà utilisé par un autre parent.');
+      if (!id) {
+        alert('Impossible de modifier : ID manquant.');
         return;
       }
 
-      if (id) {
-        // Modification
-        const index = parentsData.findIndex(p => p.id === id);
-        if (index !== -1) {
-          parentsData[index].nom = nom;
-          parentsData[index].email = email;
-          parentsData[index].telephone = telephone;
-          parentsData[index].statut = statut;
-        }
-      } else {
-        // Nouveau parent
-        parentsData.push({
-          id: nextId++,
-          nom: nom,
-          email: email,
-          telephone: telephone,
-          statut: statut,
-          enfants: []
-        });
-      }
+      const payload = {
+        nom: nom,
+        prenom: prenom,
+        email: email,
+        telephone: telephone,
+        is_active: statut === 'actif',
+      };
 
-      closeModalFn();
-      filterParents();
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        await fetchAPI(`/api/parents/${id}/`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+
+        closeModalFn();
+        await loadParents();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
     // ======================================================
-    // 8. CRUD : MODIFIER
+    // 11. MODIFIER
     // ======================================================
     window.editParent = function(id) {
-      const parent = parentsData.find(p => p.id === id);
-      if (!parent) return;
-      openModal(parent);
+      const p = parentsData.find(x => x.id_utilisateur === id);
+      if (!p) return;
+      openModal(p);
     };
 
     // ======================================================
-    // 9. CRUD : SUPPRIMER
+    // 12. SUPPRIMER
     // ======================================================
-    window.deleteParent = function(id) {
+    window.deleteParent = async function(id) {
       if (!confirm('Supprimer ce parent ? Cette action est irréversible.')) return;
-      parentsData = parentsData.filter(p => p.id !== id);
-      filterParents();
+
+      try {
+        await fetchAPI(`/api/parents/${id}/`, { method: 'DELETE' });
+        await loadParents();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Impossible de supprimer ce parent (peut-être lié à des élèves).');
+      }
     };
 
     // ======================================================
-    // 10. INITIALISATION
+    // 13. INITIALISATION
     // ======================================================
-    renderParents(parentsData);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadParents();
+    });
 
   })();
 </script>

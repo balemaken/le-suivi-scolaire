@@ -339,7 +339,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="s">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -428,36 +428,55 @@
     </form>
   </div>
 </div>
-
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES
+    // 1. CONFIGURATION
     // ======================================================
-
-    // Enseignants disponibles (pour l'affectation)
-    const enseignantsSimules = [
-      { id: 1, nom: 'M. Ngono' },
-      { id: 2, nom: 'Mme Tchoffo' },
-      { id: 3, nom: 'M. Kamga' },
-      { id: 4, nom: 'Mme Nana' }
-    ];
-
-    // Classes simulées
-    let classesData = [
-      { id: 1, nom: '6ᵉ A', enseignant: 1, nbEleves: 28, nbMatieres: 4 },
-      { id: 2, nom: '5ᵉ A', enseignant: 1, nbEleves: 32, nbMatieres: 5 },
-      { id: 3, nom: '4ᵉ B', enseignant: 2, nbEleves: 30, nbMatieres: 4 },
-      { id: 4, nom: '3ᵉ A', enseignant: 3, nbEleves: 26, nbMatieres: 5 },
-      { id: 5, nom: '6ᵉ B', enseignant: null, nbEleves: 27, nbMatieres: 4 },
-      { id: 6, nom: '5ᵉ B', enseignant: 4, nbEleves: 29, nbMatieres: 4 },
-      { id: 7, nom: '4ᵉ A', enseignant: 2, nbEleves: 31, nbMatieres: 4 },
-      { id: 8, nom: '3ᵉ B', enseignant: 3, nbEleves: 25, nbMatieres: 5 }
-    ];
-    let nextId = 9;
+    const API_BASE = '';
 
     // ======================================================
-    // 2. RÉFÉRENCES DOM
+    // 2. AFFICHER L'UTILISATEUR CONNECTÉ
+    // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Admin';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const initiale = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-initial').textContent = initiale;
+    document.getElementById('admin-nom-avatar').textContent = (prenomAdmin + ' ' + nomAdmin).trim();
+
+    // ======================================================
+    // 3. FONCTION UTILITAIRE FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const token = localStorage.getItem('authToken');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Token ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(API_BASE + url, {
+        ...options,
+        headers: headers,
+      });
+
+      // 204 No Content (DELETE)
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+
+      return data;
+    }
+
+    // ======================================================
+    // 4. RÉFÉRENCES DOM
     // ======================================================
     const classesBody = document.getElementById('classesBody');
     const classCount = document.getElementById('classCount');
@@ -473,28 +492,55 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const openAddBtn = document.getElementById('openAddModal');
 
-    // ======================================================
-    // 3. PROFIL ADMIN
-    // ======================================================
-    document.getElementById('admin-initial').textContent = 'A';
-    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+    // Cache local
+    let classesData = [];
+    let enseignantsData = [];
 
     // ======================================================
-    // 4. REMPLIR LA LISTE DES ENSEIGNANTS DANS LE SELECT
+    // 5. CHARGER LES ENSEIGNANTS (POUR LE SELECT)
     // ======================================================
+    async function loadEnseignants() {
+      try {
+        enseignantsData = await fetchAPI('/api/enseignants/');
+        populateTeacherSelect();
+      } catch (err) {
+        console.error('Erreur chargement enseignants :', err);
+      }
+    }
+
     function populateTeacherSelect() {
       enseignantClasse.innerHTML = '<option value="">-- Aucun --</option>';
-      enseignantsSimules.forEach(e => {
+      enseignantsData.forEach(e => {
         const opt = document.createElement('option');
-        opt.value = e.id;
-        opt.textContent = e.nom;
+        opt.value = e.id_utilisateur;
+        opt.textContent = (e.prenom + ' ' + e.nom).trim() || e.email;
         enseignantClasse.appendChild(opt);
       });
     }
-    populateTeacherSelect();
 
     // ======================================================
-    // 5. AFFICHER LES CLASSES
+    // 6. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      classesBody.innerHTML = `
+        <tr><td colspan="5" class="empty-state">⏳ Chargement des classes...</td></tr>
+      `;
+
+      try {
+        classesData = await fetchAPI('/api/classes/');
+        filterClasses();
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+        classesBody.innerHTML = `
+          <tr><td colspan="5" class="empty-state" style="color:var(--coral);">
+            ⚠️ Impossible de charger les classes : ${err.message}
+          </td></tr>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 7. AFFICHER LES CLASSES
     // ======================================================
     function renderClasses(classes) {
       if (classes.length === 0) {
@@ -506,16 +552,16 @@
       classesBody.innerHTML = '';
       classes.forEach(c => {
         const tr = document.createElement('tr');
-        const enseignantNom = c.enseignant ? enseignantsSimules.find(e => e.id === c.enseignant)?.nom || 'Non affecté' : 'Non affecté';
+        const enseignantNom = c.enseignant_nom || 'Non affecté';
         tr.innerHTML = `
           <td class="nom">${c.nom}</td>
           <td class="enseignant">${enseignantNom}</td>
-          <td>${c.nbEleves}</td>
-          <td>${c.nbMatieres}</td>
+          <td>${c.nb_eleves}</td>
+          <td>${c.nb_matieres}</td>
           <td>
             <div class="actions">
-              <button class="edit-btn" onclick="editClass(${c.id})">✏️ Modifier</button>
-              <button class="delete-btn" onclick="deleteClass(${c.id})">🗑️ Supprimer</button>
+              <button class="edit-btn" onclick="editClass(${c.id_classe})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteClass(${c.id_classe})">🗑️ Supprimer</button>
             </div>
           </td>
         `;
@@ -525,23 +571,25 @@
     }
 
     // ======================================================
-    // 6. FILTRER LES CLASSES
+    // 8. FILTRER (RECHERCHE CÔTÉ CLIENT)
     // ======================================================
     function filterClasses() {
       const searchTerm = searchInput.value.toLowerCase().trim();
-      const filtered = classesData.filter(c => c.nom.toLowerCase().includes(searchTerm));
+      const filtered = classesData.filter(c =>
+        c.nom.toLowerCase().includes(searchTerm)
+      );
       renderClasses(filtered);
     }
 
     searchInput.addEventListener('input', filterClasses);
 
     // ======================================================
-    // 7. CRUD : AJOUT / MODIFICATION
+    // 9. MODAL AJOUT/MODIFICATION
     // ======================================================
     function openModal(classData = null) {
       if (classData) {
         modalTitle.textContent = 'Modifier la classe';
-        editId.value = classData.id;
+        editId.value = classData.id_classe;
         nomClasse.value = classData.nom;
         enseignantClasse.value = classData.enseignant || '';
       } else {
@@ -563,17 +611,19 @@
     closeModal.addEventListener('click', closeModalFn);
     cancelBtn.addEventListener('click', closeModalFn);
 
-    // Fermer le modal en cliquant à l'extérieur
     modalOverlay.addEventListener('click', function(e) {
       if (e.target === this) closeModalFn();
     });
 
-    // Soumission du formulaire
-    classForm.addEventListener('submit', function(e) {
+    // ======================================================
+    // 10. SOUMISSION FORMULAIRE (CRÉATION / MODIFICATION)
+    // ======================================================
+    classForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const nom = nomClasse.value.trim();
-      const enseignantId = parseInt(enseignantClasse.value) || null;
+      const enseignantValue = enseignantClasse.value;
+      const enseignantId = enseignantValue ? parseInt(enseignantValue) : null;
 
       if (!nom) {
         alert('Le nom de la classe est obligatoire.');
@@ -582,53 +632,83 @@
 
       const id = parseInt(editId.value);
 
-      if (id) {
-        // Modification
-        const index = classesData.findIndex(c => c.id === id);
-        if (index !== -1) {
-          classesData[index].nom = nom;
-          classesData[index].enseignant = enseignantId;
-        }
-      } else {
-        // Nouvelle classe
-        classesData.push({
-          id: nextId++,
-          nom: nom,
-          enseignant: enseignantId,
-          nbEleves: 0,
-          nbMatieres: 0
-        });
-      }
+      // Payload : attention, le champ enseignant attend un ID utilisateur
+      const payload = {
+        nom: nom,
+        enseignant: enseignantId,
+      };
 
-      closeModalFn();
-      filterClasses();
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (id) {
+          // MODIFICATION (PUT)
+          await fetchAPI(`/api/classes/${id}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // CRÉATION (POST)
+          await fetchAPI('/api/classes/', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        closeModalFn();
+        await loadClasses();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data) {
+          if (typeof err.data === 'object') {
+            msg = Object.keys(err.data)
+              .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+              .join('\n');
+          }
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
     // ======================================================
-    // 8. CRUD : MODIFIER
+    // 11. MODIFIER UNE CLASSE
     // ======================================================
     window.editClass = function(id) {
-      const classData = classesData.find(c => c.id === id);
-      if (!classData) return;
-      openModal(classData);
+      const c = classesData.find(x => x.id_classe === id);
+      if (!c) return;
+      openModal(c);
     };
 
     // ======================================================
-    // 9. CRUD : SUPPRIMER
+    // 12. SUPPRIMER UNE CLASSE
     // ======================================================
-    window.deleteClass = function(id) {
+    window.deleteClass = async function(id) {
       if (!confirm('Supprimer cette classe ? Cette action est irréversible.')) return;
-      classesData = classesData.filter(c => c.id !== id);
-      filterClasses();
+
+      try {
+        await fetchAPI(`/api/classes/${id}/`, { method: 'DELETE' });
+        await loadClasses();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Erreur lors de la suppression. La classe a peut-être des élèves ou des matières liés.');
+      }
     };
 
     // ======================================================
-    // 10. INITIALISATION
+    // 13. INITIALISATION
     // ======================================================
-    renderClasses(classesData);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadEnseignants();
+      await loadClasses();
+    });
 
   })();
 </script>
-
 </body>
 </html>

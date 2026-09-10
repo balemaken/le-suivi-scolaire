@@ -57,6 +57,47 @@ class Eleve(models.Model):
         return self.nom
 
 
+# class Matiere(models.Model):
+
+#     id_matiere = models.AutoField(primary_key=True)
+
+#     nom = models.CharField(
+#         max_length=100
+#     )
+
+#     # La matière appartient à une classe
+#     classe = models.ForeignKey(
+#         Classe,
+#         on_delete=models.CASCADE,
+#         related_name='matieres'
+#     )
+
+#     # Enseignant affecté à la matière
+#     enseignant = models.ForeignKey(
+#         Utilisateur,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True,
+#         related_name='matieres_enseignees',
+#         limit_choices_to={'role': 'enseignant'}
+#     )
+
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=['nom', 'classe'],
+#                 name='unique_matiere_par_classe'
+#             )
+#         ]
+
+#     def __str__(self):
+#         return self.nom
+
+
+
+
+
+
 class Matiere(models.Model):
 
     id_matiere = models.AutoField(primary_key=True)
@@ -83,12 +124,7 @@ class Matiere(models.Model):
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['nom', 'classe'],
-                name='unique_matiere_par_classe'
-            )
-        ]
+        unique_together = [['nom', 'classe']]
 
     def __str__(self):
         return self.nom
@@ -100,10 +136,39 @@ class Matiere(models.Model):
 
 
 
+# class LiaisonParentEleve(models.Model):
 
+#     id_liaison = models.AutoField(
+#         primary_key=True
+#     )
 
+#     parent = models.ForeignKey(
+#         Utilisateur,
+#         on_delete=models.CASCADE,
+#         related_name='liaisons_eleves',
+#         limit_choices_to={'role': 'parent'}
+#     )
 
+#     eleve = models.ForeignKey(
+#         Eleve,
+#         on_delete=models.CASCADE,
+#         related_name='liaisons_parents'
+#     )
 
+#     date_liaison = models.DateTimeField(
+#         auto_now_add=True
+#     )
+
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=['parent', 'eleve'],
+#                 name='unique_parent_eleve'
+#             )
+#         ]
+
+#     def __str__(self):
+#         return f"{self.parent} - {self.eleve}"
 
 
 
@@ -131,13 +196,7 @@ class LiaisonParentEleve(models.Model):
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['parent', 'eleve'],
-                name='unique_parent_eleve'
-            )
-        ]
+        unique_together = [['parent', 'eleve']]
 
     def __str__(self):
         return f"{self.parent} - {self.eleve}"
-

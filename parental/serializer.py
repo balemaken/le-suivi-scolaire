@@ -94,91 +94,177 @@ class LiaisonParentSerializer(serializers.ModelSerializer):
 # NOTE
 # ============================================================
 
+# class NoteParentSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = Note
+
+#         fields = [
+#             'id_note',
+#             'type_evaluation',
+#             'matiere',
+#             'sequence',
+#             'moyenne'
+#         ]
+
+#         read_only_fields = fields
+
+
 class NoteParentSerializer(serializers.ModelSerializer):
+    matiere_nom = serializers.SerializerMethodField()
 
     class Meta:
         model = Note
-
         fields = [
             'id_note',
             'type_evaluation',
             'matiere',
+            'matiere_nom',
             'sequence',
-            'moyenne'
+            'moyenne',
         ]
-
         read_only_fields = fields
+
+    def get_matiere_nom(self, obj):
+        return obj.matiere.nom if obj.matiere else '—'
 
 
 # ============================================================
 # ABSENCE
 # ============================================================
 
+# class AbsenceParentSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = Absence
+
+#         fields = [
+#             'id_absence',
+#             'date_absence',
+#             'matiere'
+#         ]
+
+#         read_only_fields = fields
+
 class AbsenceParentSerializer(serializers.ModelSerializer):
+    matiere_nom = serializers.SerializerMethodField()
 
     class Meta:
         model = Absence
-
         fields = [
             'id_absence',
             'date_absence',
-            'matiere'
+            'matiere',
+            'matiere_nom',
         ]
-
         read_only_fields = fields
 
-
+    def get_matiere_nom(self, obj):
+        return obj.matiere.nom if obj.matiere else '—'
 # ============================================================
 # REMARQUE
 # ============================================================
 
-class RemarqueParentSerializer(serializers.ModelSerializer):
+# class RemarqueParentSerializer(serializers.ModelSerializer):
 
+#     class Meta:
+#         model = Remarque
+
+#         fields = [
+#             'id_remarque',
+#             'type',
+#             'contenu',
+#             'date'
+#         ]
+
+#         read_only_fields = fields
+
+class RemarqueParentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Remarque
-
         fields = [
             'id_remarque',
             'type',
             'contenu',
-            'date'
+            'date_remarque',
         ]
-
         read_only_fields = fields
-
-
 # ============================================================
 # SANCTION
 # ============================================================
 
-class SanctionParentSerializer(serializers.ModelSerializer):
+# class SanctionParentSerializer(serializers.ModelSerializer):
 
+#     class Meta:
+#         model = Sanction
+
+#         fields = [
+#             'id_sanction',
+#             'type_sanction',
+#             'motif',
+#             'date'
+#         ]
+
+#         read_only_fields = fields
+
+class SanctionParentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sanction
-
         fields = [
             'id_sanction',
             'type_sanction',
             'motif',
-            'date'
+            'date_sanction',
         ]
-
         read_only_fields = fields
-
-
 # ============================================================
 # BULLETIN
 # ============================================================
 
+# class BulletinParentSerializer(serializers.ModelSerializer):
+#     fichier_url = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Bulletin
+#         fields = [
+#             'id_bulletin',
+#             'fichier',
+#             'fichier_url',
+#             'date_publication',
+#         ]
+#         read_only_fields = fields
+
+#     def get_fichier_url(self, obj):
+#         request = self.context.get('request')
+#         if obj.fichier and request:
+#             return request.build_absolute_uri(obj.fichier.url)
+#         return None
+
+
+
+
 class BulletinParentSerializer(serializers.ModelSerializer):
+    fichier_url = serializers.SerializerMethodField()
+    trimestre_display = serializers.CharField(source='get_trimestre_display', read_only=True)
+    sequence_display = serializers.CharField(source='get_sequence_display', read_only=True)
 
     class Meta:
         model = Bulletin
-
         fields = [
             'id_bulletin',
+            'trimestre',
+            'trimestre_display',
+            'sequence',
+            'sequence_display',
+            'annee_scolaire',
             'fichier',
-            'date'
+            'fichier_url',
+            'date_publication',
         ]
-
         read_only_fields = fields
+
+    def get_fichier_url(self, obj):
+        request = self.context.get('request')
+        if obj.fichier and request:
+            return request.build_absolute_uri(obj.fichier.url)
+        return None

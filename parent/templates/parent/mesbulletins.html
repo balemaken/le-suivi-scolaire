@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* ===== VARIABLES ===== */
     :root {
       --ink: #1C2E33;
       --cream: #FBF6EC;
@@ -69,18 +68,14 @@
     .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
 
     /* ===== MAIN ===== */
-    .dash-main {
-      flex: 1; padding: 30px 4% 60px; min-width: 0;
-    }
+    .dash-main { flex: 1; padding: 30px 4% 60px; min-width: 0; }
     .dash-topbar {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
     }
     .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
     .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
-    .topbar-actions {
-      display: flex; align-items: center; gap: 14px;
-    }
+    .topbar-actions { display: flex; align-items: center; gap: 14px; }
     .topbar-avatar {
       display: flex; align-items: center; gap: 10px;
       background: var(--paper); border: 1px solid var(--line);
@@ -94,9 +89,7 @@
     .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
 
     /* ===== CHILD TABS ===== */
-    .child-tabs {
-      display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap;
-    }
+    .child-tabs { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
     .child-tab {
       display: flex; align-items: center; gap: 10px;
       background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px;
@@ -107,7 +100,7 @@
     .child-tab:hover { transform: translateY(-2px); }
     .child-tab.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
 
-    /* ===== PANEL & TABLE ===== */
+    /* ===== PANEL ===== */
     .panel {
       background: var(--paper);
       border: 1px solid var(--line);
@@ -115,79 +108,200 @@
       padding: 26px 26px 22px;
     }
     .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 18px;
     }
-    .panel-head h2 {
-      font-size: 1.05rem;
-      font-weight: 600;
+    .panel-head h2 { font-size: 1.05rem; font-weight: 600; }
+    .panel-head span { font-size: 0.82rem; color: var(--text-soft); }
+
+    /* ===== LISTE BULLETINS ===== */
+    .bulletins-list { display: flex; flex-direction: column; gap: 12px; }
+    .bulletin-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; border: 1px solid var(--line); border-radius: 14px;
+      background: var(--cream);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .panel-head span {
+    .bulletin-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -8px rgba(28,46,51,0.15);
+    }
+    .bulletin-item .info { display: flex; align-items: center; gap: 16px; flex: 1; }
+    .bulletin-item .icon {
+      width: 50px; height: 50px; border-radius: 12px;
+      background: rgba(226, 114, 91, 0.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .bulletin-item .icon svg { width: 24px; height: 24px; stroke: var(--accent); }
+    .bulletin-item .details { display: flex; flex-direction: column; gap: 4px; }
+    .bulletin-item .details .periode {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .bulletin-item .details .meta {
       font-size: 0.82rem;
       color: var(--text-soft);
-    }
-
-    .notes-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .notes-table th {
-      text-align: left;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-soft);
-      padding: 0 0 10px;
-      border-bottom: 1px solid var(--line);
-    }
-    .notes-table td {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.9rem;
-    }
-    .notes-table tr:last-child td { border-bottom: none; }
-
-    .action-group {
       display: flex;
-      gap: 8px;
+      gap: 14px;
       flex-wrap: wrap;
     }
-    .action-btn {
+    .bulletin-item .details .meta span {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 5px 14px;
+    }
+    .bulletin-item .details .badge-seq {
+      display: inline-block;
+      padding: 2px 10px;
       border-radius: 999px;
-      font-size: 0.78rem;
+      background: rgba(74, 111, 165, 0.15);
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 0.72rem;
+    }
+
+    .bulletin-item .actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .bulletin-item .actions button {
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.82rem;
       font-weight: 600;
       border: none;
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .action-btn:hover {
-      transform: translateY(-2px);
+    .bulletin-item .actions .view-btn { background: var(--blue); color: white; }
+    .bulletin-item .actions .view-btn:hover { background: #3a5a8a; transform: translateY(-2px); }
+    .bulletin-item .actions .download-btn { background: var(--sage); color: white; }
+    .bulletin-item .actions .download-btn:hover { background: #5a7a5d; transform: translateY(-2px); }
+
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--text-soft); }
+    .empty-state svg { width: 56px; height: 56px; stroke: var(--text-soft); opacity: 0.4; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.95rem; margin-top: 6px; }
+    .loading-spinner {
+      display: inline-block; width: 24px; height: 24px;
+      border: 3px solid var(--line); border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
     }
-    .action-btn.voir {
-      background: var(--blue);
-      color: white;
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== MODAL PDF ===== */
+    .pdf-modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
     }
-    .action-btn.voir:hover {
-      background: #3a5a8a;
+    .pdf-modal-overlay.active { display: flex; }
+
+    .pdf-modal {
+      background: var(--paper);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 1000px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    .action-btn.telecharger {
+
+    .pdf-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--ink);
+      color: var(--cream);
+      flex-shrink: 0;
+    }
+    .pdf-modal-head h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      color: var(--cream);
+      margin: 0;
+    }
+    .pdf-modal-head .close-btn {
+      background: rgba(251, 246, 236, 0.15);
+      border: none;
+      color: var(--cream);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .pdf-modal-head .close-btn:hover {
+      background: rgba(251, 246, 236, 0.25);
+      transform: rotate(90deg);
+    }
+
+    .pdf-modal-body {
+      flex: 1;
+      overflow: auto;
+      background: #525659;
+      padding: 16px;
+    }
+    .pdf-modal-body iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 1200px;
+      border: none;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .pdf-modal-footer {
+      display: flex;
+      gap: 12px;
+      padding: 14px 24px;
+      background: var(--cream);
+      border-top: 1px solid var(--line);
+      flex-shrink: 0;
+      justify-content: flex-end;
+    }
+    .pdf-modal-footer a,
+    .pdf-modal-footer button {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .pdf-modal-footer .download-btn {
       background: var(--sage);
       color: white;
     }
-    .action-btn.telecharger:hover {
+    .pdf-modal-footer .download-btn:hover {
       background: #5a7a5d;
+      transform: translateY(-2px);
     }
-    .action-btn svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      flex-shrink: 0;
+    .pdf-modal-footer .close-modal-btn {
+      background: var(--text-soft);
+      color: white;
+    }
+    .pdf-modal-footer .close-modal-btn:hover {
+      background: var(--ink);
+      transform: translateY(-2px);
     }
 
     /* responsive */
@@ -195,15 +309,18 @@
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
       .sidebar.open { transform: translateX(0); }
       .dash-main { padding: 20px 5% 60px; }
-      .action-group { flex-direction: column; align-items: flex-start; }
+      .bulletin-item { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .bulletin-item .actions { width: 100%; }
+      .pdf-modal { height: 95vh; }
     }
     @media (max-width: 560px) {
       .child-tabs { flex-direction: column; }
-      .notes-table th, .notes-table td { padding: 8px 4px; font-size: 0.8rem; }
+      .bulletin-item .actions { flex-direction: column; width: 100%; }
+      .bulletin-item .actions button { width: 100%; justify-content: center; }
     }
   </style>
 </head>
-<body data-parent-id="{{ user.id_utilisateur }}">
+<body>
 
 <div class="dash-body">
 
@@ -255,7 +372,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -265,176 +382,303 @@
   <!-- ===== MAIN CONTENT ===== -->
   <main class="dash-main">
 
-    <!-- Topbar -->
     <div class="dash-topbar">
       <div>
         <h1>Bulletins</h1>
-        <p class="sub">Consultez et téléchargez les bulletins scolaires de vos enfants.</p>
+        <p class="sub">Consultez et téléchargez les bulletins de vos enfants.</p>
       </div>
       <div class="topbar-actions">
         <div class="topbar-avatar">
-          <span class="avatar-sm" id="parent-initial">P</span>
-          <span id="parent-nom-avatar">Parent</span>
+          <span class="avatar-sm" id="parent-initial">?</span>
+          <span id="parent-nom-avatar">...</span>
         </div>
       </div>
     </div>
 
     <!-- ===== SÉLECTEUR D'ENFANT ===== -->
     <div class="child-tabs" id="childTabs">
-      <!-- Généré par JavaScript -->
+      <div class="child-tab">
+        <div class="loading-spinner"></div>
+        Chargement...
+      </div>
     </div>
 
-    <!-- ===== TABLEAU DES BULLETINS ===== -->
+    <!-- ===== LISTE DES BULLETINS ===== -->
     <div class="panel">
       <div class="panel-head">
         <h2>Bulletins — <span id="eleveNom">...</span></h2>
-        <span>👁️ Voir · ⬇️ Télécharger</span>
+        <span id="bulletinCount">0 bulletin</span>
       </div>
-      <table class="notes-table">
-        <thead>
-          <tr>
-            <th>Période</th>
-            <th>Date de publication</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="bulletinsBody">
-          <!-- Généré par JavaScript -->
-        </tbody>
-      </table>
+      <div id="bulletinsList" class="bulletins-list">
+        <div class="empty-state">
+          <div class="loading-spinner"></div>
+          <p style="margin-top:12px;">Chargement...</p>
+        </div>
+      </div>
     </div>
 
   </main>
 </div>
 
+<!-- ===== MODAL PDF ===== -->
+<div class="pdf-modal-overlay" id="pdfModalOverlay">
+  <div class="pdf-modal">
+    <div class="pdf-modal-head">
+      <h3 id="pdfModalTitle">Bulletin</h3>
+      <button class="close-btn" id="pdfModalClose">✕</button>
+    </div>
+    <div class="pdf-modal-body">
+      <iframe id="pdfModalIframe" src="about:blank"></iframe>
+    </div>
+    <div class="pdf-modal-footer">
+      <a id="pdfModalDownload" class="download-btn" href="#" download>⬇️ Télécharger</a>
+      <button class="close-modal-btn" id="pdfModalCloseBtn">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <script>
   (function() {
-    const parentId = document.body.dataset.parentId;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
     // ======================================================
-    // 1. SIMULATION DE DONNÉES (à remplacer par API réelle)
+    // 2. UTILISATEUR CONNECTÉ
     // ======================================================
-    const fakeChildren = [
-      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: '5ᵉ' },
-      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 'CM2' },
-      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: '3ᵉ' }
-    ];
+    const token = localStorage.getItem('authToken');
+    const parentId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-    const fakeBulletins = {
-      1: [ // Sarah
-        { periode: 'Trimestre 1', date: '2026-06-30', fichier: '/bulletins/sarah_t1.pdf' },
-        { periode: 'Trimestre 2', date: '2026-07-31', fichier: '/bulletins/sarah_t2.pdf' },
-        { periode: 'Semestre 1', date: '2026-08-15', fichier: '/bulletins/sarah_s1.pdf' }
-      ],
-      2: [ // Paul
-        { periode: 'Trimestre 1', date: '2026-06-28', fichier: '/bulletins/paul_t1.pdf' },
-        { periode: 'Trimestre 2', date: '2026-07-29', fichier: '/bulletins/paul_t2.pdf' }
-      ],
-      3: [ // Marie
-        { periode: 'Trimestre 1', date: '2026-06-25', fichier: '/bulletins/marie_t1.pdf' },
-        { periode: 'Trimestre 2', date: '2026-07-28', fichier: '/bulletins/marie_t2.pdf' },
-        { periode: 'Semestre 1', date: '2026-08-10', fichier: '/bulletins/marie_s1.pdf' },
-        { periode: 'Semestre 2', date: '2026-08-20', fichier: '/bulletins/marie_s2.pdf' }
-      ]
-    };
-
-    // ======================================================
-    // 2. RÉCUPÉRER LE NOM DU PARENT (simulé)
-    // ======================================================
-    const parentNom = 'Mme Mballa';
-    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
-    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
-
-    // ======================================================
-    // 3. AFFICHER LES ONGLETS DES ENFANTS
-    // ======================================================
-    let currentEleveId = null;
-
-    function renderChildTabs(enfants) {
-      const container = document.getElementById('childTabs');
-      if (!enfants || enfants.length === 0) {
-        container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
-        return;
-      }
-
-      container.innerHTML = '';
-      enfants.forEach((enfant, index) => {
-        const tab = document.createElement('div');
-        tab.className = `child-tab${index === 0 ? ' active' : ''}`;
-        tab.dataset.eleveId = enfant.id;
-        tab.innerHTML = `
-          <span class="avatar-sm">${enfant.nom.charAt(0)}</span>
-          ${enfant.nom}, ${enfant.classe}
-        `;
-        tab.addEventListener('click', () => selectChild(enfant.id));
-        container.appendChild(tab);
-      });
-
-      // Sélectionner le premier par défaut
-      const first = enfants[0];
-      currentEleveId = first.id;
-      loadBulletins(first.id);
+    if (!token || !parentId || userRole !== 'parent') {
+      console.warn('⚠️ Non connecté en tant que parent');
+      window.location.href = '/login/';
+      return;
     }
 
     // ======================================================
-    // 4. CHARGER LES BULLETINS
+    // 3. FONCTION FETCH
     // ======================================================
-    function loadBulletins(eleveId) {
-      // Mettre à jour les onglets actifs
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM DU PARENT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Parent';
+      document.getElementById('parent-nom-avatar').textContent = nomComplet;
+      document.getElementById('parent-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'P';
+    }
+
+    // ======================================================
+    // 5. MODAL PDF
+    // ======================================================
+    const pdfModalOverlay = document.getElementById('pdfModalOverlay');
+    const pdfModalTitle = document.getElementById('pdfModalTitle');
+    const pdfModalIframe = document.getElementById('pdfModalIframe');
+    const pdfModalDownload = document.getElementById('pdfModalDownload');
+    const pdfModalClose = document.getElementById('pdfModalClose');
+    const pdfModalCloseBtn = document.getElementById('pdfModalCloseBtn');
+
+    function openPdfModal(url, titre) {
+      pdfModalTitle.textContent = titre || 'Bulletin';
+      pdfModalIframe.src = url + '#toolbar=1&navpanes=1';
+      pdfModalDownload.href = url;
+      pdfModalDownload.download = titre || 'bulletin.pdf';
+      pdfModalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePdfModal() {
+      pdfModalOverlay.classList.remove('active');
+      pdfModalIframe.src = 'about:blank';
+      document.body.style.overflow = '';
+    }
+
+    pdfModalClose.addEventListener('click', closePdfModal);
+    pdfModalCloseBtn.addEventListener('click', closePdfModal);
+    pdfModalOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closePdfModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && pdfModalOverlay.classList.contains('active')) {
+        closePdfModal();
+      }
+    });
+
+    // ======================================================
+    // 6. CHARGER LES ENFANTS
+    // ======================================================
+    let currentEleveId = null;
+    let enfantsData = [];
+
+    async function loadChildren() {
+      const container = document.getElementById('childTabs');
+      try {
+        enfantsData = await fetchAPI(`/api/parents/${parentId}/eleves/`);
+
+        if (!enfantsData || enfantsData.length === 0) {
+          container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
+          document.getElementById('bulletinsList').innerHTML =
+            '<div class="empty-state"><p>Aucun enfant rattaché.</p></div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        enfantsData.forEach((enfant, index) => {
+          const tab = document.createElement('div');
+          tab.className = `child-tab${index === 0 ? ' active' : ''}`;
+          tab.dataset.eleveId = enfant.id_eleve;
+          tab.innerHTML = `
+            <span class="avatar-sm">${enfant.nom.charAt(0)}</span>
+            ${enfant.nom}, ${enfant.classe}
+          `;
+          tab.addEventListener('click', () => selectChild(enfant.id_eleve));
+          container.appendChild(tab);
+        });
+
+        const first = enfantsData[0];
+        currentEleveId = first.id_eleve;
+        await loadBulletins(first.id_eleve);
+
+      } catch (err) {
+        console.error('Erreur chargement enfants :', err);
+        container.innerHTML = '<div class="child-tab" style="color:var(--coral);">Erreur de chargement</div>';
+      }
+    }
+
+    // ======================================================
+    // 7. CHARGER LES BULLETINS
+    // ======================================================
+    async function loadBulletins(eleveId) {
       document.querySelectorAll('.child-tab').forEach(tab => {
         tab.classList.toggle('active', parseInt(tab.dataset.eleveId) === eleveId);
       });
 
-      // Récupérer les données
-      const enfant = fakeChildren.find(e => e.id === eleveId);
+      const enfant = enfantsData.find(e => e.id_eleve === eleveId);
       if (enfant) {
         document.getElementById('eleveNom').textContent = enfant.nom;
       }
 
-      const bulletins = fakeBulletins[eleveId] || [];
+      const container = document.getElementById('bulletinsList');
+      const countEl = document.getElementById('bulletinCount');
 
-      // Afficher le tableau
-      const tbody = document.getElementById('bulletinsBody');
-      if (bulletins.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-soft);">Aucun bulletin disponible</td></tr>`;
-        return;
-      }
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="loading-spinner"></div>
+          <p style="margin-top:12px;">Chargement...</p>
+        </div>
+      `;
 
-      tbody.innerHTML = '';
-      // Trier par date décroissante
-      bulletins.sort((a, b) => new Date(b.date) - new Date(a.date));
-      bulletins.forEach(bulletin => {
-        const tr = document.createElement('tr');
-        const dateFr = new Date(bulletin.date).toLocaleDateString('fr-FR');
-        tr.innerHTML = `
-          <td><strong>${bulletin.periode}</strong></td>
-          <td>${dateFr}</td>
-          <td>
-            <div class="action-group">
-              <button class="action-btn voir" onclick="window.open('${bulletin.fichier}', '_blank')">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                Voir
-              </button>
-              <button class="action-btn telecharger" onclick="window.location.href='${bulletin.fichier}?download=1'">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Télécharger
-              </button>
+      try {
+        const bulletins = await fetchAPI(
+          `/api/parents/${parentId}/eleves/${eleveId}/bulletins/`
+        );
+
+        if (!bulletins || bulletins.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="3" width="16" height="18" rx="2"/>
+                <path d="M8 8h8M8 12h8M8 16h5"/>
+              </svg>
+              <p><strong>Aucun bulletin disponible</strong></p>
+              <p style="font-size:0.85rem;">Le bulletin sera publié par l'enseignant.</p>
             </div>
-          </td>
+          `;
+          countEl.textContent = '0 bulletin';
+          return;
+        }
+
+        // Trier par date décroissante
+        bulletins.sort((a, b) => new Date(b.date_publication) - new Date(a.date_publication));
+
+        container.innerHTML = '';
+        bulletins.forEach(b => {
+          const dateFr = new Date(b.date_publication).toLocaleDateString('fr-FR', {
+            day: '2-digit', month: 'long', year: 'numeric'
+          });
+
+          const fileName = b.fichier ? b.fichier.split('/').pop() : 'bulletin.pdf';
+          const titreComplet = `Bulletin - ${enfant ? enfant.nom : ''} - ${b.trimestre_display || b.trimestre} - ${b.sequence_display || 'Séquence ' + b.sequence}`;
+
+          const item = document.createElement('div');
+          item.className = 'bulletin-item';
+
+          item.innerHTML = `
+            <div class="info">
+              <div class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="details">
+                <div class="periode">${b.trimestre_display || b.trimestre}</div>
+                <div class="meta">
+                  <span class="badge-seq">${b.sequence_display || 'Séquence ' + b.sequence}</span>
+                  <span>📅 Publié le ${dateFr}</span>
+                  ${b.annee_scolaire ? '<span>🎓 ' + b.annee_scolaire + '</span>' : ''}
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="view-btn" onclick="voirBulletin('${b.fichier_url || b.fichier}', '${titreComplet.replace(/'/g, "\\'")}')">
+                👁️ Voir
+              </button>
+              <a class="download-btn" href="${b.fichier_url || b.fichier}" download="${fileName}">
+                ⬇️ Télécharger
+              </a>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+
+        countEl.textContent = `${bulletins.length} bulletin${bulletins.length > 1 ? 's' : ''}`;
+
+      } catch (err) {
+        console.error('Erreur chargement bulletins :', err);
+        container.innerHTML = `
+          <div class="empty-state" style="color:var(--coral);">
+            <p>⚠️ Erreur de chargement</p>
+          </div>
         `;
-        tbody.appendChild(tr);
-      });
+        countEl.textContent = '0 bulletin';
+      }
     }
 
     // ======================================================
-    // 5. SÉLECTIONNER UN ENFANT
+    // 8. VOIR UN BULLETIN (MODAL)
+    // ======================================================
+    window.voirBulletin = function(url, titre) {
+      openPdfModal(url, titre);
+    };
+
+    // ======================================================
+    // 9. SÉLECTIONNER UN ENFANT
     // ======================================================
     function selectChild(eleveId) {
       if (eleveId === currentEleveId) return;
@@ -443,10 +687,29 @@
     }
 
     // ======================================================
-    // 6. INITIALISATION
+    // 10. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 11. INITIALISATION
     // ======================================================
     document.addEventListener('DOMContentLoaded', function() {
-      renderChildTabs(fakeChildren);
+      afficherProfil();
+      loadChildren();
     });
 
   })();

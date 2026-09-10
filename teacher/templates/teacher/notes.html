@@ -41,7 +41,7 @@
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -54,17 +54,29 @@
       <a href="{% url 'notes' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Saisie des notes</h1><p class="sub">Sélectionnez une classe et une matière pour gérer les notes.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+    <div class="dash-topbar">
+      <div><h1>Saisie des notes</h1><p class="sub">Sélectionnez une classe et une matière pour gérer les notes.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
 
     <div class="filter-bar">
       <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
@@ -86,24 +98,75 @@
 
     <div class="panel">
       <div class="panel-head"><h2>Notes saisies</h2><span style="font-size:0.82rem;color:var(--text-soft);" id="noteCount">0 note</span></div>
-      <table class="notes-table"><thead><tr><th>Élève</th><th>Type</th><th>Séquence</th><th>Note</th><th>Actions</th></tr></thead><tbody id="notesBody"><tr><td colspan="5" class="empty-state">Sélectionnez une classe et une matière.</td></tr></tbody></table>
+      <table class="notes-table">
+        <thead><tr><th>Élève</th><th>Type</th><th>Séquence</th><th>Note</th><th>Actions</th></tr></thead>
+        <tbody id="notesBody"><tr><td colspan="5" class="empty-state">Sélectionnez une classe et une matière.</td></tr></tbody>
+      </table>
     </div>
   </main>
 </div>
 
 <script>
   (function() {
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, matieres: [{ id: 1, nom: 'Mathématiques' }, { id: 2, nom: 'Physique' }], eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
-      { classe: { id: 2, nom: '4ᵉ B' }, matieres: [{ id: 3, nom: 'Mathématiques' }], eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
-      { classe: { id: 3, nom: '3ᵉ A' }, matieres: [{ id: 4, nom: 'Mathématiques' }, { id: 5, nom: 'Informatique' }], eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
-    ];
-    let notesData = { '1_1': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', matiereId: 1, matiereNom: 'Mathématiques', type: 'controle_continu', sequence: 1, moyenne: 16 }, '2_1': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', matiereId: 1, matiereNom: 'Mathématiques', type: 'devoir_harmonise', sequence: 2, moyenne: 11 }, '3_2': { id: 3, eleveId: 3, eleveNom: 'Marie Ngono', matiereId: 2, matiereNom: 'Physique', type: 'controle_continu', sequence: 1, moyenne: 15 } };
-    let nextNoteId = 4, editingId = null;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ (localStorage)
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const response = await fetch(API_BASE + url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token,
+          ...(options.headers || {})
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM DE L'ENSEIGNANT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
+    // ======================================================
     const classeSelect = document.getElementById('classeSelect');
     const matiereSelect = document.getElementById('matiereSelect');
     const eleveSelect = document.getElementById('eleveSelect');
@@ -119,83 +182,326 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const editId = document.getElementById('editId');
 
-    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
-    classeSelect.addEventListener('change', function() {
+    // Cache
+    let classesData = [];
+    let matieresData = [];
+    let elevesData = [];
+    let currentMatiereId = null;
+    let currentClasseId = null;
+    let editingId = null;
+
+    // ======================================================
+    // 6. CHARGER LES CLASSES DE L'ENSEIGNANT
+    // ======================================================
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+
+        classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
+    }
+
+    // ======================================================
+    // 7. AU CHANGEMENT DE CLASSE → charger matières + élèves
+    // ======================================================
+    classeSelect.addEventListener('change', async function() {
       const classeId = parseInt(this.value);
-      const classe = affectations.find(a => a.classe.id === classeId);
+      currentClasseId = classeId;
+
+      // Réinitialiser
       matiereSelect.innerHTML = '<option value="">-- Choisir une matière --</option>';
-      if (classe) classe.matieres.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.nom; matiereSelect.appendChild(opt); });
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
       formNote.style.display = 'none';
-      infoBanner.textContent = 'Sélectionnez une matière, puis cliquez sur "Charger les notes".';
-      notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe et une matière.</td></tr>`;
+      notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une matière.</td></tr>`;
       noteCount.textContent = '0 note';
+
+      if (!classeId) {
+        infoBanner.textContent = 'Sélectionnez une classe et une matière.';
+        return;
+      }
+
+      try {
+        // Charger matières + élèves en parallèle
+        const [matieres, eleves] = await Promise.all([
+          fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/matieres/`),
+          fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`)
+        ]);
+
+        matieresData = matieres;
+        elevesData = eleves;
+
+        // Remplir le select matières
+        matieres.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id_matiere;
+          opt.textContent = m.nom;
+          matiereSelect.appendChild(opt);
+        });
+
+        // Remplir le select élèves
+        eleves.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_eleve;
+          opt.textContent = e.nom;
+          eleveSelect.appendChild(opt);
+        });
+
+        infoBanner.textContent = `Classe sélectionnée : ${this.options[this.selectedIndex].text}. Choisissez une matière.`;
+
+      } catch (err) {
+        console.error('Erreur chargement détails classe :', err);
+        infoBanner.textContent = '⚠️ Erreur lors du chargement des matières/élèves.';
+      }
     });
 
-    loadBtn.addEventListener('click', function() {
+    // ======================================================
+    // 8. CHARGER LES NOTES
+    // ======================================================
+    loadBtn.addEventListener('click', async function() {
       const classeId = parseInt(classeSelect.value);
       const matiereId = parseInt(matiereSelect.value);
-      if (!classeId || !matiereId) { alert('Veuillez sélectionner une classe et une matière.'); return; }
-      const classe = affectations.find(a => a.classe.id === classeId);
-      const matiere = classe.matieres.find(m => m.id === matiereId);
-      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
+
+      if (!classeId || !matiereId) {
+        alert('Veuillez sélectionner une classe et une matière.');
+        return;
+      }
+
+      currentMatiereId = matiereId;
+
+      // Trouver le nom de la matière
+      const matiere = matieresData.find(m => m.id_matiere === matiereId);
+      const matiereNom = matiere ? matiere.nom : '';
+      const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
+
+      infoBanner.textContent = `Gestion des notes pour ${classeNom} — ${matiereNom}`;
       formNote.style.display = 'grid';
-      infoBanner.textContent = `Gestion des notes pour ${classe.classe.nom} — ${matiere.nom}`;
-      const notes = Object.values(notesData).filter(n => n.matiereId === matiereId && classe.eleves.some(e => e.id === n.eleveId));
-      renderNotes(notes);
+
+      notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
+
+      try {
+        // Charger les notes de TOUS les élèves de la classe
+        const allNotes = [];
+
+        for (const e of elevesData) {
+          try {
+            const notes = await fetchAPI(
+              `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/notes/`
+            );
+            // Filtrer par matière
+            const filtered = notes.filter(n => n.matiere === matiereId);
+            // Enrichir avec le nom de l'élève
+            filtered.forEach(n => {
+              n.eleve_nom = n.eleve_nom || e.nom;
+              n.matiere_nom = n.matiere_nom || matiereNom;
+            });
+            allNotes.push(...filtered);
+          } catch (err) {
+            console.warn(`Erreur notes pour élève ${e.id_eleve}`, err);
+          }
+        }
+
+        renderNotes(allNotes);
+
+      } catch (err) {
+        console.error('Erreur chargement notes :', err);
+        notesBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>`;
+      }
     });
 
+    // ======================================================
+    // 9. AFFICHER LES NOTES
+    // ======================================================
     function renderNotes(notes) {
-      if (notes.length === 0) { notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune note saisie.</td></tr>`; noteCount.textContent = '0 note'; return; }
+      if (notes.length === 0) {
+        notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune note saisie pour cette matière.</td></tr>`;
+        noteCount.textContent = '0 note';
+        return;
+      }
+
       notesBody.innerHTML = '';
       notes.forEach(n => {
         const tr = document.createElement('tr');
-        const cls = n.moyenne >= 14 ? 'good' : (n.moyenne >= 10 ? 'mid' : 'low');
-        tr.innerHTML = `<td class="eleve-nom">${n.eleveNom}</td><td>${n.type === 'controle_continu' ? 'CC' : 'DH'}</td><td>Séquence ${n.sequence}</td><td><span class="note-value ${cls}">${n.moyenne}/20</span></td><td><div class="actions"><button class="edit-btn" onclick="editNote(${n.id})">✏️ Modifier</button><button class="delete-btn" onclick="deleteNote(${n.id})">🗑️ Supprimer</button></div></td>`;
+        const valeur = parseFloat(n.moyenne);
+        const cls = valeur >= 14 ? 'good' : (valeur >= 10 ? 'mid' : 'low');
+        const typeLabel = n.type_evaluation === 'controle_continu' ? 'CC' : 'DH';
+
+        tr.innerHTML = `
+          <td class="eleve-nom">${n.eleve_nom}</td>
+          <td>${typeLabel}</td>
+          <td>Séquence ${n.sequence}</td>
+          <td><span class="note-value ${cls}">${valeur}/20</span></td>
+          <td>
+            <div class="actions">
+              <button class="edit-btn" onclick="editNote(${n.id_note})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteNote(${n.id_note})">🗑️ Supprimer</button>
+            </div>
+          </td>
+        `;
         notesBody.appendChild(tr);
       });
       noteCount.textContent = `${notes.length} note${notes.length > 1 ? 's' : ''}`;
     }
 
-    saveBtn.addEventListener('click', function() {
+    // ======================================================
+    // 10. SAUVEGARDER UNE NOTE (POST ou PUT)
+    // ======================================================
+    saveBtn.addEventListener('click', async function() {
       const eleveId = parseInt(eleveSelect.value);
-      const matiereId = parseInt(matiereSelect.value);
+      const matiereId = currentMatiereId;
       const type = typeEval.value;
       const seq = parseInt(sequence.value);
       const valeur = parseFloat(noteValue.value);
-      if (!eleveId || !matiereId || isNaN(valeur)) { alert('Veuillez remplir tous les champs.'); return; }
-      if (valeur < 0 || valeur > 20) { alert('La note doit être comprise entre 0 et 20.'); return; }
-      const classe = affectations.find(a => a.matieres.some(m => m.id === matiereId));
-      const eleve = classe.eleves.find(e => e.id === eleveId);
-      const matiere = classe.matieres.find(m => m.id === matiereId);
-      const key = `${eleveId}_${matiereId}`;
-      if (editingId) {
-        const existing = Object.values(notesData).find(n => n.id === editingId);
-        if (existing) { existing.type = type; existing.sequence = seq; existing.moyenne = valeur; }
-        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
-      } else {
-        if (notesData[key]) { alert('Une note existe déjà pour cet élève et cette matière.'); return; }
-        notesData[key] = { id: nextNoteId++, eleveId, eleveNom: eleve.nom, matiereId, matiereNom: matiere.nom, type, sequence: seq, moyenne: valeur };
+
+      if (!eleveId || !matiereId || isNaN(valeur)) {
+        alert('Veuillez remplir tous les champs.');
+        return;
       }
-      noteValue.value = ''; eleveSelect.value = ''; loadBtn.click();
+      if (valeur < 0 || valeur > 20) {
+        alert('La note doit être comprise entre 0 et 20.');
+        return;
+      }
+
+      const payload = {
+        matiere: matiereId,
+        type_evaluation: type,
+        sequence: seq,
+        moyenne: valeur,
+      };
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (editingId) {
+          // MODIFICATION
+          await fetchAPI(`/api/enseignants/${enseignantId}/notes/${editingId}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // CRÉATION
+          await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/notes/`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        // Réinitialiser
+        editingId = null;
+        editId.value = '';
+        cancelBtn.style.display = 'none';
+        noteValue.value = '';
+        eleveSelect.value = '';
+
+        // Recharger
+        loadBtn.click();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde note :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = err.data.erreur || Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
-    window.editNote = function(id) {
-      const note = Object.values(notesData).find(n => n.id === id);
-      if (!note) return;
-      editingId = id; editId.value = id; eleveSelect.value = note.eleveId; typeEval.value = note.type; sequence.value = note.sequence; noteValue.value = note.moyenne;
-      cancelBtn.style.display = 'inline-block';
-      formNote.scrollIntoView({ behavior: 'smooth' });
-    };
-    window.deleteNote = function(id) {
-      if (!confirm('Supprimer cette note ?')) return;
-      const key = Object.keys(notesData).find(k => notesData[k].id === id);
-      if (key) delete notesData[key];
-      loadBtn.click();
-    };
-    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; noteValue.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+    // ======================================================
+    // 11. MODIFIER UNE NOTE
+    // ======================================================
+    window.editNote = async function(idNote) {
+      try {
+        // Récupérer la note
+        const note = await fetchAPI(`/api/enseignants/${enseignantId}/notes/${idNote}/`);
 
-    document.getElementById('msg-badge').textContent = '3';
+        editingId = idNote;
+        editId.value = idNote;
+
+        // Sélectionner l'élève
+        eleveSelect.value = note.eleve;
+        // (eleve doit être dans la liste car on a chargé tous les élèves de la classe)
+
+        typeEval.value = note.type_evaluation;
+        sequence.value = note.sequence;
+        noteValue.value = note.moyenne;
+
+        cancelBtn.style.display = 'inline-block';
+        formNote.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        console.error('Erreur récupération note :', err);
+        alert('❌ Impossible de charger la note.');
+      }
+    };
+
+    // ======================================================
+    // 12. SUPPRIMER UNE NOTE
+    // ======================================================
+    window.deleteNote = async function(idNote) {
+      if (!confirm('Supprimer cette note ? Cette action est irréversible.')) return;
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/notes/${idNote}/`, {
+          method: 'DELETE',
+        });
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur suppression note :', err);
+        alert('❌ Impossible de supprimer cette note.');
+      }
+    };
+
+    // ======================================================
+    // 13. ANNULER L'ÉDITION
+    // ======================================================
+    cancelBtn.addEventListener('click', function() {
+      editingId = null;
+      editId.value = '';
+      this.style.display = 'none';
+      noteValue.value = '';
+      eleveSelect.value = '';
+    });
+
+    // ======================================================
+    // 14. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 15. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
   })();
 </script>
 </body>

@@ -39,7 +39,7 @@
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -51,18 +51,30 @@
       <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'absences' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Gestion des absences</h1><p class="sub">Enregistrez et gérez les absences de vos élèves.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+    <div class="dash-topbar">
+      <div><h1>Gestion des absences</h1><p class="sub">Enregistrez et gérez les absences de vos élèves.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
 
     <div class="filter-bar">
       <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
@@ -91,17 +103,65 @@
 
 <script>
   (function() {
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, matieres: [{ id: 1, nom: 'Mathématiques' }, { id: 2, nom: 'Physique' }], eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
-      { classe: { id: 2, nom: '4ᵉ B' }, matieres: [{ id: 3, nom: 'Mathématiques' }], eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
-      { classe: { id: 3, nom: '3ᵉ A' }, matieres: [{ id: 4, nom: 'Mathématiques' }, { id: 5, nom: 'Informatique' }], eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
-    ];
-    let absencesData = { '1_1_2026-07-26': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', matiereId: 1, matiereNom: 'Mathématiques', date: '2026-07-26', statut: 'non-justifiee', motif: 'Maladie' }, '2_1_2026-07-20': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', matiereId: 1, matiereNom: 'Mathématiques', date: '2026-07-20', statut: 'justifiee', motif: 'Certificat médical' } };
-    let nextAbsenceId = 3, editingId = null;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const response = await fetch(API_BASE + url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token,
+          ...(options.headers || {})
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
+    // ======================================================
     const classeSelect = document.getElementById('classeSelect');
     const matiereSelect = document.getElementById('matiereSelect');
     const eleveSelect = document.getElementById('eleveSelect');
@@ -117,84 +177,302 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const editId = document.getElementById('editId');
 
-    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
-    classeSelect.addEventListener('change', function() {
+    // Cache
+    let classesData = [];
+    let matieresData = [];
+    let elevesData = [];
+    let currentMatiereId = null;
+    let editingId = null;
+
+    // ======================================================
+    // 6. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
+    }
+
+    // ======================================================
+    // 7. AU CHANGEMENT DE CLASSE
+    // ======================================================
+    classeSelect.addEventListener('change', async function() {
       const classeId = parseInt(this.value);
-      const classe = affectations.find(a => a.classe.id === classeId);
       matiereSelect.innerHTML = '<option value="">-- Choisir une matière --</option>';
-      if (classe) classe.matieres.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.nom; matiereSelect.appendChild(opt); });
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
       formAbsence.style.display = 'none';
-      infoBanner.textContent = 'Sélectionnez une matière, puis cliquez sur "Charger les absences".';
-      absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe et une matière.</td></tr>`;
+      absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une matière.</td></tr>`;
       absenceCount.textContent = '0 absence';
+
+      if (!classeId) {
+        infoBanner.textContent = 'Sélectionnez une classe et une matière.';
+        return;
+      }
+
+      try {
+        const [matieres, eleves] = await Promise.all([
+          fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/matieres/`),
+          fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`)
+        ]);
+
+        matieresData = matieres;
+        elevesData = eleves;
+
+        matieres.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id_matiere;
+          opt.textContent = m.nom;
+          matiereSelect.appendChild(opt);
+        });
+
+        eleves.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_eleve;
+          opt.textContent = e.nom;
+          eleveSelect.appendChild(opt);
+        });
+
+        infoBanner.textContent = `Classe sélectionnée : ${this.options[this.selectedIndex].text}`;
+      } catch (err) {
+        console.error('Erreur détails classe :', err);
+      }
     });
 
-    loadBtn.addEventListener('click', function() {
+    // ======================================================
+    // 8. CHARGER LES ABSENCES
+    // ======================================================
+    loadBtn.addEventListener('click', async function() {
       const classeId = parseInt(classeSelect.value);
       const matiereId = parseInt(matiereSelect.value);
-      if (!classeId || !matiereId) { alert('Veuillez sélectionner une classe et une matière.'); return; }
-      const classe = affectations.find(a => a.classe.id === classeId);
-      const matiere = classe.matieres.find(m => m.id === matiereId);
-      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
-      dateAbsence.value = new Date().toISOString().split('T')[0];
+
+      if (!classeId || !matiereId) {
+        alert('Veuillez sélectionner une classe et une matière.');
+        return;
+      }
+
+      currentMatiereId = matiereId;
+
+      const matiere = matieresData.find(m => m.id_matiere === matiereId);
+      const matiereNom = matiere ? matiere.nom : '';
+      const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
+
+      infoBanner.textContent = `Gestion des absences pour ${classeNom} — ${matiereNom}`;
       formAbsence.style.display = 'grid';
-      infoBanner.textContent = `Gestion des absences pour ${classe.classe.nom} — ${matiere.nom}`;
-      const absences = Object.values(absencesData).filter(a => a.matiereId === matiereId && classe.eleves.some(e => e.id === a.eleveId));
-      renderAbsences(absences);
+
+      dateAbsence.value = new Date().toISOString().split('T')[0];
+
+      absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
+
+      try {
+        // Charger les absences de tous les élèves de la classe
+        const allAbsences = [];
+
+        for (const e of elevesData) {
+          try {
+            const absences = await fetchAPI(
+              `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/absences/`
+            );
+            const filtered = absences.filter(a => a.matiere === matiereId);
+            filtered.forEach(a => {
+              a.eleve_nom = a.eleve_nom || e.nom;
+              a.matiere_nom = a.matiere_nom || matiereNom;
+            });
+            allAbsences.push(...filtered);
+          } catch (err) {
+            console.warn(`Erreur absences pour élève ${e.id_eleve}`, err);
+          }
+        }
+
+        renderAbsences(allAbsences);
+      } catch (err) {
+        console.error('Erreur chargement absences :', err);
+        absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>`;
+      }
     });
 
+    // ======================================================
+    // 9. AFFICHER LES ABSENCES
+    // ======================================================
     function renderAbsences(absences) {
-      if (absences.length === 0) { absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune absence enregistrée.</td></tr>`; absenceCount.textContent = '0 absence'; return; }
+      if (absences.length === 0) {
+        absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune absence enregistrée.</td></tr>`;
+        absenceCount.textContent = '0 absence';
+        return;
+      }
+
       absencesBody.innerHTML = '';
       absences.forEach(a => {
         const tr = document.createElement('tr');
-        const dateFr = new Date(a.date).toLocaleDateString('fr-FR');
-        const statutLabel = a.statut === 'justifiee' ? 'Justifiée' : (a.statut === 'non-justifiee' ? 'Non justifiée' : 'Autre');
-        tr.innerHTML = `<td class="eleve-nom">${a.eleveNom}</td><td>${dateFr}</td><td><span class="statut-badge ${a.statut}">${statutLabel}</span></td><td>${a.motif || '—'}</td><td><div class="actions"><button class="edit-btn" onclick="editAbsence(${a.id})">✏️</button><button class="delete-btn" onclick="deleteAbsence(${a.id})">🗑️</button></div></td>`;
+        const dateFr = new Date(a.date_absence).toLocaleDateString('fr-FR');
+        const statutLabel = a.statut === 'justifiee' ? 'Justifiée'
+                          : (a.statut === 'non-justifiee' ? 'Non justifiée' : 'Autre');
+
+        tr.innerHTML = `
+          <td class="eleve-nom">${a.eleve_nom}</td>
+          <td>${dateFr}</td>
+          <td><span class="statut-badge ${a.statut}">${statutLabel}</span></td>
+          <td>${a.motif || '—'}</td>
+          <td>
+            <div class="actions">
+              <button class="edit-btn" onclick="editAbsence(${a.id_absence})">✏️</button>
+              <button class="delete-btn" onclick="deleteAbsence(${a.id_absence})">🗑️</button>
+            </div>
+          </td>
+        `;
         absencesBody.appendChild(tr);
       });
       absenceCount.textContent = `${absences.length} absence${absences.length > 1 ? 's' : ''}`;
     }
 
-    saveBtn.addEventListener('click', function() {
+    // ======================================================
+    // 10. SAUVEGARDER UNE ABSENCE
+    // ======================================================
+    saveBtn.addEventListener('click', async function() {
       const eleveId = parseInt(eleveSelect.value);
-      const matiereId = parseInt(matiereSelect.value);
+      const matiereId = currentMatiereId;
       const statutValue = statut.value;
       const motifValue = motif.value.trim();
       const dateValue = dateAbsence.value;
-      if (!eleveId || !matiereId || !dateValue) { alert('Veuillez remplir tous les champs.'); return; }
-      const classe = affectations.find(a => a.matieres.some(m => m.id === matiereId));
-      const eleve = classe.eleves.find(e => e.id === eleveId);
-      const matiere = classe.matieres.find(m => m.id === matiereId);
-      const key = `${eleveId}_${matiereId}_${dateValue}`;
-      if (editingId) {
-        const existing = Object.values(absencesData).find(a => a.id === editingId);
-        if (existing) { const oldKey = `${existing.eleveId}_${existing.matiereId}_${existing.date}`; delete absencesData[oldKey]; const newKey = key; absencesData[newKey] = { id: editingId, eleveId, eleveNom: eleve.nom, matiereId, matiereNom: matiere.nom, date: dateValue, statut: statutValue, motif: motifValue }; }
-        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
-      } else {
-        if (absencesData[key]) { alert('Une absence existe déjà pour cet élève, cette matière et cette date.'); return; }
-        absencesData[key] = { id: nextAbsenceId++, eleveId, eleveNom: eleve.nom, matiereId, matiereNom: matiere.nom, date: dateValue, statut: statutValue, motif: motifValue };
+
+      if (!eleveId || !matiereId || !dateValue) {
+        alert('Veuillez remplir tous les champs.');
+        return;
       }
-      motif.value = ''; eleveSelect.value = ''; loadBtn.click();
+
+      const payload = {
+        matiere: matiereId,
+        date_absence: dateValue,
+        statut: statutValue,
+        motif: motifValue,
+      };
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (editingId) {
+          // MODIFICATION
+          await fetchAPI(`/api/enseignants/${enseignantId}/absences/${editingId}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // CRÉATION
+          await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/absences/`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        editingId = null;
+        editId.value = '';
+        cancelBtn.style.display = 'none';
+        motif.value = '';
+        eleveSelect.value = '';
+
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur sauvegarde absence :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = err.data.erreur || Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
-    window.editAbsence = function(id) {
-      const absence = Object.values(absencesData).find(a => a.id === id);
-      if (!absence) return;
-      editingId = id; editId.value = id; eleveSelect.value = absence.eleveId; statut.value = absence.statut; motif.value = absence.motif || ''; dateAbsence.value = absence.date;
-      cancelBtn.style.display = 'inline-block';
-      formAbsence.scrollIntoView({ behavior: 'smooth' });
-    };
-    window.deleteAbsence = function(id) {
-      if (!confirm('Supprimer cette absence ?')) return;
-      const key = Object.keys(absencesData).find(k => absencesData[k].id === id);
-      if (key) delete absencesData[key];
-      loadBtn.click();
-    };
-    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; motif.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+    // ======================================================
+    // 11. MODIFIER UNE ABSENCE
+    // ======================================================
+    window.editAbsence = async function(idAbsence) {
+      try {
+        const absence = await fetchAPI(`/api/enseignants/${enseignantId}/absences/${idAbsence}/`);
 
-    document.getElementById('msg-badge').textContent = '3';
+        editingId = idAbsence;
+        editId.value = idAbsence;
+        eleveSelect.value = absence.eleve;
+        statut.value = absence.statut || 'non-justifiee';
+        motif.value = absence.motif || '';
+        dateAbsence.value = absence.date_absence;
+
+        cancelBtn.style.display = 'inline-block';
+        formAbsence.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Erreur chargement absence :', err);
+        alert('❌ Impossible de charger l\'absence.');
+      }
+    };
+
+    // ======================================================
+    // 12. SUPPRIMER UNE ABSENCE
+    // ======================================================
+    window.deleteAbsence = async function(idAbsence) {
+      if (!confirm('Supprimer cette absence ?')) return;
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/absences/${idAbsence}/`, {
+          method: 'DELETE',
+        });
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur suppression absence :', err);
+        alert('❌ Impossible de supprimer cette absence.');
+      }
+    };
+
+    // ======================================================
+    // 13. ANNULER L'ÉDITION
+    // ======================================================
+    cancelBtn.addEventListener('click', function() {
+      editingId = null;
+      editId.value = '';
+      this.style.display = 'none';
+      motif.value = '';
+      eleveSelect.value = '';
+      statut.value = 'non-justifiee';
+    });
+
+    // ======================================================
+    // 14. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 15. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
   })();
 </script>
 </body>

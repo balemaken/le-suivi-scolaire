@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* ===== VARIABLES (mêmes que pageparent) ===== */
     :root {
       --ink: #1C2E33;
       --cream: #FBF6EC;
@@ -46,7 +45,7 @@
 
     .dash-body { display: flex; min-height: 100vh; background: var(--cream); }
 
-    /* ===== SIDEBAR (identique à pageparent) ===== */
+    /* ===== SIDEBAR ===== */
     .sidebar {
       width: 250px; flex-shrink: 0; background: var(--ink);
       padding: 26px 18px; display: flex; flex-direction: column;
@@ -78,18 +77,14 @@
     .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
 
     /* ===== MAIN ===== */
-    .dash-main {
-      flex: 1; padding: 30px 4% 60px; min-width: 0;
-    }
+    .dash-main { flex: 1; padding: 30px 4% 60px; min-width: 0; }
     .dash-topbar {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
     }
     .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
     .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
-    .topbar-actions {
-      display: flex; align-items: center; gap: 14px;
-    }
+    .topbar-actions { display: flex; align-items: center; gap: 14px; }
     .topbar-avatar {
       display: flex; align-items: center; gap: 10px;
       background: var(--paper); border: 1px solid var(--line);
@@ -130,13 +125,14 @@
       align-items: center;
     }
     .child-item:last-child { border-bottom: none; }
-    .child-item .nom {
-      font-weight: 600;
-      color: var(--ink);
+    .child-item .nom { font-weight: 600; color: var(--ink); }
+    .child-item .sexe { color: var(--text); }
+    .child-item .sexe-badge {
+      display: inline-block; padding: 2px 12px; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600;
     }
-    .child-item .sexe {
-      color: var(--text);
-    }
+    .child-item .sexe-badge.F { background: rgba(226,114,91,0.15); color: var(--coral); }
+    .child-item .sexe-badge.M { background: rgba(74,111,165,0.15); color: #4A6FA5; }
     .child-item .classe {
       background: rgba(110, 143, 113, 0.12);
       padding: 4px 12px;
@@ -161,9 +157,24 @@
       font-size: 0.8rem;
       transition: background 0.2s;
     }
-    .child-item .actions button:hover {
-      background: var(--cream);
+    .child-item .actions button:hover { background: var(--cream); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-soft);
     }
+    .empty-state svg {
+      width: 48px; height: 48px; stroke: var(--text-soft);
+      opacity: 0.4; margin-bottom: 12px;
+    }
+    .loading-spinner {
+      display: inline-block; width: 24px; height: 24px;
+      border: 3px solid var(--line); border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Responsive */
     @media (max-width: 820px) {
@@ -182,11 +193,11 @@
     }
   </style>
 </head>
-<body data-parent-id="{{ user.id_utilisateur }}">
+<body>
 
 <div class="dash-body">
 
-  <!-- ===== SIDEBAR (identique) ===== -->
+  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <span class="logo-mark">
@@ -215,6 +226,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Discipline
       </a>
+
+  <a href="{% url 'mesbulletins' %}" class="">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
+        Bulletins
+      </a>
+
+
       <a href="{% url 'mesremarques' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
         Remarques
@@ -234,7 +252,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -252,8 +270,8 @@
       </div>
       <div class="topbar-actions">
         <div class="topbar-avatar">
-          <span class="avatar-sm" id="parent-initial">P</span>
-          <span id="parent-nom-avatar">Parent</span>
+          <span class="avatar-sm" id="parent-initial">?</span>
+          <span id="parent-nom-avatar">...</span>
         </div>
       </div>
     </div>
@@ -264,10 +282,13 @@
         <span>Nom</span>
         <span>Sexe</span>
         <span>Classe</span>
-        <span></span> <!-- vide pour aligner -->
+        <span></span>
       </div>
       <div id="childrenContainer">
-        <!-- Les enfants seront injectés ici par JavaScript -->
+        <div class="empty-state">
+          <div class="loading-spinner"></div>
+          <p style="margin-top:12px;">Chargement de vos enfants...</p>
+        </div>
       </div>
     </div>
 
@@ -276,72 +297,165 @@
 
 <script>
   (function() {
-    const parentId = document.body.dataset.parentId;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
     // ======================================================
-    // 1. SIMULATION DE DONNÉES (à remplacer par API réelle)
+    // 2. UTILISATEUR CONNECTÉ (localStorage)
     // ======================================================
-    const fakeEnfants = [
-      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: '5ᵉ' },
-      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 'CM2' },
-      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: '3ᵉ' }
-    ];
+    const token = localStorage.getItem('authToken');
+    const parentId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+
+    if (!token || !parentId || userRole !== 'parent') {
+      console.warn('⚠️ Non connecté en tant que parent');
+      window.location.href = '/login/';
+      return;
+    }
 
     // ======================================================
-    // 2. RÉCUPÉRER LE NOM DU PARENT (simulé)
+    // 3. FONCTION FETCH
     // ======================================================
-    const parentNom = 'Mme Mballa';
-    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
-    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
-
-    // ======================================================
-    // 3. AFFICHER LA LISTE DES ENFANTS
-    // ======================================================
-    function renderChildren(enfants) {
-      const container = document.getElementById('childrenContainer');
-      if (!enfants || enfants.length === 0) {
-        container.innerHTML = `
-          <div style="padding: 30px 0; text-align: center; color: var(--text-soft);">
-            Aucun enfant n’est rattaché à votre compte.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = '';
-      enfants.forEach(enfant => {
-        const div = document.createElement('div');
-        div.className = 'child-item';
-        div.innerHTML = `
-          <span class="nom">${enfant.nom}</span>
-          <span class="sexe">${enfant.sexe}</span>
-          <span class="classe">${enfant.classe}</span>
-          <div class="actions">
-            <button onclick="alert('Voir le détail de ${enfant.nom}')">👁️</button>
-          </div>
-        `;
-        container.appendChild(div);
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
       });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
     }
 
     // ======================================================
-    // 4. APPEL API (SIMULÉ) - on utilise les données fictives
+    // 4. AFFICHER LE NOM DU PARENT
     // ======================================================
-    function loadChildren() {
-      // Ici, plus tard, tu feras :
-      // fetch(`/parents/${parentId}/eleves/`)
-      //   .then(res => res.json())
-      //   .then(data => renderChildren(data))
-      //   .catch(err => console.error(err));
-
-      // Pour la démonstration, on utilise fakeEnfants
-      renderChildren(fakeEnfants);
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Parent';
+      document.getElementById('parent-nom-avatar').textContent = nomComplet;
+      document.getElementById('parent-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'P';
     }
 
     // ======================================================
-    // 5. INITIALISATION
+    // 5. CHARGER LES ENFANTS
     // ======================================================
-    document.addEventListener('DOMContentLoaded', loadChildren);
+    async function loadChildren() {
+      const container = document.getElementById('childrenContainer');
+
+      try {
+        console.log(`📡 Appel API : /api/parents/${parentId}/eleves/`);
+
+        const enfants = await fetchAPI(`/api/parents/${parentId}/eleves/`);
+
+        console.log('📥 Enfants récupérés :', enfants);
+
+        if (!enfants || enfants.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="3.4"/>
+                <path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/>
+              </svg>
+              <p><strong>Aucun enfant rattaché</strong></p>
+              <p style="font-size:0.9rem;margin-top:6px;">
+                Contactez l'administration pour ajouter vos enfants.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        // Construire la liste
+        container.innerHTML = '';
+        enfants.forEach(enfant => {
+          const div = document.createElement('div');
+          div.className = 'child-item';
+
+          // Formatter le sexe
+          const sexeLabel = enfant.sexe === 'F' ? 'Féminin' : 'Masculin';
+          const sexeClass = enfant.sexe === 'F' ? 'F' : 'M';
+
+          div.innerHTML = `
+            <span class="nom">${enfant.nom}</span>
+            <span><span class="sexe-badge ${sexeClass}">${sexeLabel}</span></span>
+            <span class="classe">${enfant.classe || '—'}</span>
+            <div class="actions">
+              <button onclick="viewChildDetail(${enfant.id_eleve}, '${enfant.nom.replace(/'/g, "\\'")}')">👁️</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error('❌ Erreur chargement enfants :', err);
+
+        let message = err.message;
+        if (err.status === 404) {
+          message = "Parent introuvable (ID : " + parentId + "). Veuillez vous reconnecter.";
+        }
+
+        container.innerHTML = `
+          <div class="empty-state" style="color:var(--coral);">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--coral);opacity:0.6;">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <p><strong>⚠️ Impossible de charger vos enfants</strong></p>
+            <p style="font-size:0.85rem;margin-top:6px;">${message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 6. VOIR LE DÉTAIL D'UN ENFANT (redirection)
+    // ======================================================
+    window.viewChildDetail = function(idEleve, nom) {
+      // On redirige vers la page des notes avec l'ID de l'enfant
+      // (tu peux changer la destination selon ta logique)
+      window.location.href = "{% url 'mesnotes' %}?eleve=" + idEleve;
+    };
+
+    // ======================================================
+    // 7. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 8. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadChildren();
+    });
 
   })();
 </script>

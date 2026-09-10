@@ -18,7 +18,7 @@
     .tag.cours { background: var(--sage); color: white; }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -33,20 +33,26 @@
       <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="dash-main">
     <div class="dash-topbar">
-      <div><h1>Bonjour, <span id="enseignant-nom">M. Ngono</span> 👋</h1><p class="sub">Voici un aperçu de vos classes et de vos affectations.</p></div>
-      <div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div>
+      <div><h1>Bonjour, <span id="enseignant-nom">...</span> 👋</h1><p class="sub">Voici un aperçu de vos classes et de vos affectations.</p></div>
+      <div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">?</span><span id="enseignant-nom-avatar">...</span></div>
     </div>
 
     <div class="dash-stats" id="statsGrid"></div>
@@ -79,55 +85,246 @@
 
 <script>
   (function() {
-    // Simulation des affectations de l'enseignant
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, matieres: [{ id: 1, nom: 'Mathématiques' }, { id: 2, nom: 'Physique' }], nbEleves: 34, statutNotes: 'À jour' },
-      { classe: { id: 2, nom: '4ᵉ B' }, matieres: [{ id: 3, nom: 'Mathématiques' }], nbEleves: 31, statutNotes: 'En attente' },
-      { classe: { id: 3, nom: '3ᵉ A' }, matieres: [{ id: 4, nom: 'Mathématiques' }, { id: 5, nom: 'Informatique' }], nbEleves: 29, statutNotes: 'À jour' }
-    ];
-    const emploi = [{ heure: '08h00 - 09h00', classe: '5ᵉ A', salle: 'Salle 12' }, { heure: '10h00 - 11h00', classe: '4ᵉ B', salle: 'Salle 8' }, { heure: '14h00 - 15h00', classe: '3ᵉ A', salle: 'Salle 12' }];
-    const messages = [{ expediteur: 'Mme Mballa (parent)', message: 'Question sur le devoir de Sarah', date: 'Il y a 1 heure', lu: false }, { expediteur: 'Administration', message: 'Rappel saisie des notes', date: 'Hier', lu: false }, { expediteur: 'M. Tchoffo', message: 'Réunion demain 14h', date: 'Il y a 2 jours', lu: true }];
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-nom').textContent = 'M. Ngono';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
-    document.getElementById('enseignant-initial').textContent = 'N';
+    // ======================================================
+    // 2. RÉCUPÉRER L'UTILISATEUR CONNECTÉ (depuis localStorage)
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-    const nbClasses = affectations.length;
-    let totalEleves = 0, enAttente = 0;
-    affectations.forEach(a => { totalEleves += a.nbEleves; if (a.statutNotes === 'En attente') enAttente++; });
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="dash-stat stat-card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg></span><div><strong>${nbClasses}</strong><span>Classes en charge</span></div></div>
-      <div class="dash-stat stat-card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/></svg></span><div><strong>${totalEleves}</strong><span>Élèves suivis</span></div></div>
-      <div class="dash-stat stat-card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/></svg></span><div><strong>${enAttente}</strong><span>Saisies en attente</span></div></div>
-      <div class="dash-stat stat-card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"/></svg></span><div><strong>${messages.filter(m => !m.lu).length}</strong><span>Nouveaux messages</span></div></div>
-    `;
+    // ---- SÉCURITÉ : vérifier qu'on est bien connecté en tant qu'enseignant ----
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Utilisateur non connecté ou rôle incorrect');
+      window.location.href = '/login/';
+      return;
+    }
 
-    const classesBody = document.getElementById('classesBody');
-    affectations.forEach(a => {
-      const tr = document.createElement('tr');
-      const statusClass = a.statutNotes === 'À jour' ? 'status-pill on' : 'status-pill wait';
-      tr.innerHTML = `<td><strong>${a.classe.nom}</strong></td><td>${a.matieres.map(m => m.nom).join(', ')}</td><td>${a.nbEleves}</td><td><span class="${statusClass}">${a.statutNotes}</span></td>`;
-      classesBody.appendChild(tr);
+    console.log('✅ Enseignant connecté :', {
+      id: enseignantId,
+      nom: userPrenom + ' ' + userNom,
+      role: userRole
     });
 
-    const emploiList = document.getElementById('emploiList');
-    emploi.forEach(e => {
-      const div = document.createElement('div');
-      div.className = 'disc-item';
-      div.innerHTML = `<span>${e.heure} — ${e.classe}, ${e.salle}</span><span class="tag cours">Cours</span>`;
-      emploiList.appendChild(div);
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM DE L'ENSEIGNANT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+
+      document.getElementById('enseignant-nom').textContent = nomComplet;
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. CHARGER LE TABLEAU DE BORD
+    // ======================================================
+    async function loadDashboard() {
+      const statsGrid = document.getElementById('statsGrid');
+      const classesBody = document.getElementById('classesBody');
+
+      statsGrid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
+          ⏳ Chargement de vos classes...
+        </div>
+      `;
+
+      try {
+        const classes = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+
+        if (!classes || classes.length === 0) {
+          statsGrid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
+              📚 Aucune classe ne vous est affectée pour le moment.
+            </div>
+          `;
+          classesBody.innerHTML = `
+            <tr><td colspan="4" style="text-align:center;color:var(--text-soft);padding:20px;">
+              Aucune classe affectée
+            </td></tr>
+          `;
+          document.getElementById('saisieRappel').textContent = 'Aucune classe à saisir.';
+          return;
+        }
+
+        let totalEleves = 0;
+        const classesData = [];
+
+        for (const c of classes) {
+          try {
+            const [matieres, eleves] = await Promise.all([
+              fetchAPI(`/api/enseignants/${enseignantId}/classes/${c.id_classe}/matieres/`),
+              fetchAPI(`/api/enseignants/${enseignantId}/classes/${c.id_classe}/eleves/`)
+            ]);
+
+            const nbEleves = eleves ? eleves.length : 0;
+            totalEleves += nbEleves;
+
+            classesData.push({
+              id: c.id_classe,
+              nom: c.nom,
+              matieres: matieres.map(m => m.nom),
+              nbEleves: nbEleves,
+            });
+          } catch (e) {
+            console.warn(`Erreur pour la classe ${c.id_classe}`, e);
+            classesData.push({
+              id: c.id_classe,
+              nom: c.nom,
+              matieres: [],
+              nbEleves: 0,
+            });
+          }
+        }
+
+        const nbClasses = classesData.length;
+        const nbMatieres = classesData.reduce((acc, c) => acc + c.matieres.length, 0);
+
+        statsGrid.innerHTML = `
+          <div class="dash-stat stat-card">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg></span>
+            <div><strong>${nbClasses}</strong><span>Classes en charge</span></div>
+          </div>
+          <div class="dash-stat stat-card">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/></svg></span>
+            <div><strong>${totalEleves}</strong><span>Élèves suivis</span></div>
+          </div>
+          <div class="dash-stat stat-card">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/></svg></span>
+            <div><strong>${nbMatieres}</strong><span>Matières enseignées</span></div>
+          </div>
+          <div class="dash-stat stat-card">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"/></svg></span>
+            <div><strong>0</strong><span>Nouveaux messages</span></div>
+          </div>
+        `;
+
+        classesBody.innerHTML = '';
+        classesData.forEach(c => {
+          const tr = document.createElement('tr');
+          const matieresStr = c.matieres.length > 0 ? c.matieres.join(', ') : '—';
+          tr.innerHTML = `
+            <td><strong>${c.nom}</strong></td>
+            <td>${matieresStr}</td>
+            <td>${c.nbEleves}</td>
+            <td><span class="status-pill on">Active</span></td>
+          `;
+          classesBody.appendChild(tr);
+        });
+
+        document.getElementById('saisieRappel').textContent =
+          `Vous avez ${nbClasses} classe${nbClasses > 1 ? 's' : ''} et ${nbMatieres} matière${nbMatieres > 1 ? 's' : ''} à gérer.`;
+
+        const emploiList = document.getElementById('emploiList');
+        emploiList.innerHTML = '';
+        classesData.slice(0, 4).forEach((c, i) => {
+          const heures = ['08h00 - 09h00', '10h00 - 11h00', '14h00 - 15h00', '15h00 - 16h00'];
+          const div = document.createElement('div');
+          div.className = 'disc-item';
+          div.innerHTML = `
+            <span>${heures[i] || '—'} — ${c.nom}</span>
+            <span class="tag cours">Cours</span>
+          `;
+          emploiList.appendChild(div);
+        });
+
+        if (classesData.length === 0) {
+          emploiList.innerHTML = '<div style="text-align:center;color:var(--text-soft);padding:10px;">Aucun cours aujourd\'hui</div>';
+        }
+
+        const messagesList = document.getElementById('messagesList');
+        messagesList.innerHTML = `
+          <div style="text-align:center;color:var(--text-soft);padding:20px;">
+            Aucun message pour le moment
+          </div>
+        `;
+        document.getElementById('msg-badge').textContent = '0';
+
+      } catch (err) {
+        console.error('Erreur chargement dashboard :', err);
+        statsGrid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--coral);">
+            ⚠️ Impossible de charger vos classes : ${err.message}
+          </div>
+        `;
+        classesBody.innerHTML = `
+          <tr><td colspan="4" style="text-align:center;color:var(--coral);padding:20px;">
+            Erreur de chargement
+          </td></tr>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 6. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Token ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        console.warn('Erreur déconnexion serveur :', err);
+      }
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userNom');
+      localStorage.removeItem('userPrenom');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userRole');
+
+      window.location.href = '/login/';
     });
 
-    const messagesList = document.getElementById('messagesList');
-    messages.forEach(msg => {
-      const div = document.createElement('div');
-      div.className = `notif-item${msg.lu ? '' : ' unread'}`;
-      div.innerHTML = `<span class="ic" style="background:${msg.expediteur === 'Administration' ? 'var(--coral)' : 'var(--accent)'};"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5Z"/></svg></span><div><p><strong>${msg.expediteur}</strong> : « ${msg.message} »</p><small>${msg.date}</small></div>`;
-      messagesList.appendChild(div);
+    // ======================================================
+    // 7. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadDashboard();
     });
 
-    document.getElementById('saisieRappel').textContent = enAttente > 0 ? `${enAttente} classe${enAttente > 1 ? 's' : ''} ${enAttente > 1 ? 'sont' : 'est'} en attente.` : 'Toutes vos classes sont à jour.';
-    document.getElementById('msg-badge').textContent = messages.filter(m => !m.lu).length;
   })();
 </script>
 </body>

@@ -13,7 +13,7 @@
     .badge-dot { margin-left: auto; background: var(--coral); color: var(--cream); font-size: 0.68rem; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
     .msg-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
     .msg-item:last-child { border-bottom: none; }
-    .msg-item .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+    .msg-item .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; font-family: 'Fraunces', serif; font-size: 1rem; }
     .msg-item .content { flex: 1; }
     .msg-item .content .expediteur { font-weight: 600; }
     .msg-item .content .date { font-size: 0.78rem; color: var(--text-soft); }
@@ -25,9 +25,10 @@
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
     .form-grid input, .form-grid textarea { padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
     .form-grid input:focus, .form-grid textarea:focus { outline: none; border-color: var(--accent); }
+    .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -41,19 +42,34 @@
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Messages</h1><p class="sub">Tous vos messages.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+    <div class="dash-topbar">
+      <div><h1>Messages</h1><p class="sub">Tous vos messages.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
 
     <div class="panel">
-      <div class="panel-head"><h2>Boîte de réception</h2><button class="btn btn-sm" id="markAllRead" style="background:var(--sage);color:white;">✅ Tout marquer lu</button></div>
+      <div class="panel-head">
+        <h2>Boîte de réception</h2>
+        <button class="btn btn-sm" id="markAllRead" style="background:var(--sage);color:white;">✅ Tout marquer lu</button>
+      </div>
       <div id="messagesList"></div>
     </div>
 
@@ -70,51 +86,150 @@
 
 <script>
   (function() {
-    let messages = [
-      { id: 1, expediteur: 'Mme Mballa (parent)', message: 'Question sur le devoir de Sarah', date: 'Il y a 1 heure', lu: false },
-      { id: 2, expediteur: 'Administration', message: 'Rappel saisie des notes', date: 'Hier', lu: false },
-      { id: 3, expediteur: 'M. Tchoffo', message: 'Réunion demain 14h', date: 'Il y a 2 jours', lu: true }
-    ];
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // Vérification connexion
+    if (!token || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.href = '/login/';
+      return;
+    }
 
+    // ======================================================
+    // 2. AFFICHER LE NOM DE L'ENSEIGNANT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 3. DONNÉES SIMULÉES (frontend uniquement)
+    // ======================================================
+    // let messages = [
+    //   { id: 1, expediteur: 'Mme Mballa (parent)', message: 'Question sur le devoir de Sarah', date: 'Il y a 1 heure', lu: false },
+    //   { id: 2, expediteur: 'Administration', message: 'Rappel saisie des notes', date: 'Hier', lu: false },
+    //   { id: 3, expediteur: 'M. Tchoffo', message: 'Réunion demain 14h', date: 'Il y a 2 jours', lu: true }
+    // ];
+
+    // ======================================================
+    // 4. AFFICHER LES MESSAGES
+    // ======================================================
     function renderMessages() {
       const container = document.getElementById('messagesList');
-      if (messages.length === 0) { container.innerHTML = '<div class="empty-state">Aucun message.</div>'; return; }
+      if (messages.length === 0) {
+        container.innerHTML = '<div class="empty-state">Aucun message.</div>';
+        document.getElementById('msg-badge').textContent = '0';
+        return;
+      }
+
       container.innerHTML = '';
+      const colors = ['var(--accent)', 'var(--sage)', 'var(--coral)', 'var(--gold)', 'var(--blue)'];
+
       messages.forEach(msg => {
         const div = document.createElement('div');
         div.className = `msg-item${msg.lu ? '' : ' unread'}`;
-        const colors = ['var(--accent)', 'var(--sage)', 'var(--coral)', 'var(--gold)', 'var(--blue)'];
         div.innerHTML = `
           <div class="avatar" style="background:${colors[msg.id % colors.length]};">${msg.expediteur.charAt(0)}</div>
           <div class="content">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;"><span class="expediteur">${msg.expediteur}</span><span class="date">${msg.date}</span></div>
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;">
+              <span class="expediteur">${msg.expediteur}</span>
+              <span class="date">${msg.date}</span>
+            </div>
             <div class="message">${msg.message}</div>
           </div>
-          <div class="actions"><button onclick="toggleLu(${msg.id})">${msg.lu ? '📩 Non lu' : '✅ Lu'}</button><button onclick="deleteMsg(${msg.id})" style="color:var(--coral);">🗑️</button></div>
+          <div class="actions">
+            <button onclick="toggleLu(${msg.id})">${msg.lu ? '📩 Non lu' : '✅ Lu'}</button>
+            <button onclick="deleteMsg(${msg.id})" style="color:var(--coral);">🗑️</button>
+          </div>
         `;
         container.appendChild(div);
       });
+
       document.getElementById('msg-badge').textContent = messages.filter(m => !m.lu).length;
     }
 
-    window.toggleLu = function(id) { const msg = messages.find(m => m.id === id); if (msg) { msg.lu = !msg.lu; renderMessages(); } };
-    window.deleteMsg = function(id) { if (confirm('Supprimer ce message ?')) { messages = messages.filter(m => m.id !== id); renderMessages(); } };
+    // ======================================================
+    // 5. ACTIONS SUR LES MESSAGES
+    // ======================================================
+    window.toggleLu = function(id) {
+      const msg = messages.find(m => m.id === id);
+      if (msg) { msg.lu = !msg.lu; renderMessages(); }
+    };
 
-    document.getElementById('markAllRead').addEventListener('click', function() { messages.forEach(m => m.lu = true); renderMessages(); });
+    window.deleteMsg = function(id) {
+      if (!confirm('Supprimer ce message ?')) return;
+      messages = messages.filter(m => m.id !== id);
+      renderMessages();
+    };
+
+    // ======================================================
+    // 6. TOUT MARQUER LU
+    // ======================================================
+    document.getElementById('markAllRead').addEventListener('click', function() {
+      messages.forEach(m => m.lu = true);
+      renderMessages();
+    });
+
+    // ======================================================
+    // 7. ENVOYER UN MESSAGE (simulé)
+    // ======================================================
     document.getElementById('sendMsgBtn').addEventListener('click', function() {
       const destinataire = document.getElementById('destinataire').value.trim();
       const content = document.getElementById('msgContent').value.trim();
-      if (!destinataire || !content) { alert('Veuillez remplir tous les champs.'); return; }
-      messages.unshift({ id: Date.now(), expediteur: 'Moi', message: `À ${destinataire} : ${content}`, date: 'À l\'instant', lu: false });
+
+      if (!destinataire || !content) {
+        alert('Veuillez remplir tous les champs.');
+        return;
+      }
+
+      messages.unshift({
+        id: Date.now(),
+        expediteur: 'Moi',
+        message: `À ${destinataire} : ${content}`,
+        date: 'À l\'instant',
+        lu: false
+      });
+
       document.getElementById('destinataire').value = '';
       document.getElementById('msgContent').value = '';
       renderMessages();
     });
 
-    renderMessages();
+    // ======================================================
+    // 8. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 9. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      renderMessages();
+    });
+
   })();
 </script>
 </body>

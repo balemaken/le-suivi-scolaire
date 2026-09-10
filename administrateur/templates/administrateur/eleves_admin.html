@@ -437,46 +437,47 @@
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES
+    // 1. CONFIGURATION
     // ======================================================
-
-    // Classes existantes
-    const classesSimules = [
-      { id: 1, nom: '6ᵉ A' },
-      { id: 2, nom: '5ᵉ A' },
-      { id: 3, nom: '4ᵉ B' },
-      { id: 4, nom: '3ᵉ A' },
-      { id: 5, nom: '6ᵉ B' },
-      { id: 6, nom: '5ᵉ B' },
-      { id: 7, nom: '4ᵉ A' },
-      { id: 8, nom: '3ᵉ B' }
-    ];
-
-    // Élèves simulés
-    let elevesData = [
-      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: 1 },
-      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 1 },
-      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: 1 },
-      { id: 4, nom: 'Jean Tchoffo', sexe: 'M', classe: 2 },
-      { id: 5, nom: 'Aline Nana', sexe: 'F', classe: 2 },
-      { id: 6, nom: 'David Mballa', sexe: 'M', classe: 2 },
-      { id: 7, nom: 'Céline Ngono', sexe: 'F', classe: 3 },
-      { id: 8, nom: 'Marc Kamga', sexe: 'M', classe: 3 },
-      { id: 9, nom: 'Sophie Tchoffo', sexe: 'F', classe: 4 },
-      { id: 10, nom: 'Kevin Nana', sexe: 'M', classe: 4 },
-      { id: 11, nom: 'Laura Mballa', sexe: 'F', classe: 5 },
-      { id: 12, nom: 'Pierre Ngono', sexe: 'M', classe: 5 },
-      { id: 13, nom: 'Anne Tchoffo', sexe: 'F', classe: 6 },
-      { id: 14, nom: 'Luc Kamga', sexe: 'M', classe: 6 },
-      { id: 15, nom: 'Marie Nana', sexe: 'F', classe: 7 },
-      { id: 16, nom: 'Joseph Mballa', sexe: 'M', classe: 7 },
-      { id: 17, nom: 'Patricia Ngono', sexe: 'F', classe: 8 },
-      { id: 18, nom: 'Michel Tchoffo', sexe: 'M', classe: 8 }
-    ];
-    let nextId = 19;
+    const API_BASE = '';
 
     // ======================================================
-    // 2. RÉFÉRENCES DOM
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Admin';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const initiale = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-initial').textContent = initiale;
+    document.getElementById('admin-nom-avatar').textContent = (prenomAdmin + ' ' + nomAdmin).trim();
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const token = localStorage.getItem('authToken');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Token ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(API_BASE + url, { ...options, headers });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. RÉFÉRENCES DOM
     // ======================================================
     const elevesBody = document.getElementById('elevesBody');
     const eleveCount = document.getElementById('eleveCount');
@@ -489,48 +490,68 @@
     const sexeEleve = document.getElementById('sexeEleve');
     const classeEleve = document.getElementById('classeEleve');
     const editId = document.getElementById('editId');
+    const saveBtn = document.getElementById('saveBtn');
     const closeModal = document.getElementById('closeModal');
     const cancelBtn = document.getElementById('cancelBtn');
     const openAddBtn = document.getElementById('openAddModal');
 
-    // ======================================================
-    // 3. PROFIL ADMIN
-    // ======================================================
-    document.getElementById('admin-initial').textContent = 'A';
-    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+    // Caches
+    let elevesData = [];
+    let classesData = [];
 
     // ======================================================
-    // 4. REMPLIR LES FILTRES ET SELECTS
+    // 5. CHARGER LES CLASSES (POUR LE FILTRE ET LE SELECT)
     // ======================================================
-    function populateFilters() {
-      // Filtre classes
-      classeFilter.innerHTML = '<option value="">Toutes les classes</option>';
-      classesSimules.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nom;
-        classeFilter.appendChild(opt);
-      });
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI('/api/classes/');
 
-      // Select classe dans le modal
-      classeEleve.innerHTML = '<option value="">-- Choisir --</option>';
-      classesSimules.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nom;
-        classeEleve.appendChild(opt);
-      });
-    }
-    populateFilters();
+        // Filtre classes
+        classeFilter.innerHTML = '<option value="">Toutes les classes</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeFilter.appendChild(opt);
+        });
 
-    // ======================================================
-    // 5. AFFICHER LES ÉLÈVES
-    // ======================================================
-    function getClasseNom(id) {
-      const c = classesSimules.find(cls => cls.id === id);
-      return c ? c.nom : '—';
+        // Select modal
+        classeEleve.innerHTML = '<option value="">-- Choisir --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeEleve.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
     }
 
+    // ======================================================
+    // 6. CHARGER LES ÉLÈVES
+    // ======================================================
+    async function loadEleves() {
+      elevesBody.innerHTML = `
+        <tr><td colspan="4" class="empty-state">⏳ Chargement des élèves...</td></tr>
+      `;
+
+      try {
+        elevesData = await fetchAPI('/api/eleves/');
+        filterEleves();
+      } catch (err) {
+        console.error('Erreur chargement élèves :', err);
+        elevesBody.innerHTML = `
+          <tr><td colspan="4" class="empty-state" style="color:var(--coral);">
+            ⚠️ Impossible de charger les élèves : ${err.message}
+          </td></tr>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 7. AFFICHER LES ÉLÈVES
+    // ======================================================
     function renderEleves(eleves) {
       if (eleves.length === 0) {
         elevesBody.innerHTML = `<tr><td colspan="4" class="empty-state">Aucun élève trouvé.</td></tr>`;
@@ -544,11 +565,11 @@
         tr.innerHTML = `
           <td class="nom">${e.nom}</td>
           <td><span class="sexe ${e.sexe}">${e.sexe === 'F' ? 'Féminin' : 'Masculin'}</span></td>
-          <td class="classe">${getClasseNom(e.classe)}</td>
+          <td class="classe">${e.classe_nom || '—'}</td>
           <td>
             <div class="actions">
-              <button class="edit-btn" onclick="editEleve(${e.id})">✏️ Modifier</button>
-              <button class="delete-btn" onclick="deleteEleve(${e.id})">🗑️ Supprimer</button>
+              <button class="edit-btn" onclick="editEleve(${e.id_eleve})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteEleve(${e.id_eleve})">🗑️ Supprimer</button>
             </div>
           </td>
         `;
@@ -558,13 +579,13 @@
     }
 
     // ======================================================
-    // 6. FILTRER LES ÉLÈVES
+    // 8. FILTRER (CÔTÉ CLIENT)
     // ======================================================
     function filterEleves() {
       const searchTerm = searchInput.value.toLowerCase().trim();
       const classeId = parseInt(classeFilter.value) || null;
 
-      let filtered = elevesData.filter(e => {
+      const filtered = elevesData.filter(e => {
         const matchSearch = e.nom.toLowerCase().includes(searchTerm);
         const matchClasse = classeId ? e.classe === classeId : true;
         return matchSearch && matchClasse;
@@ -577,12 +598,12 @@
     classeFilter.addEventListener('change', filterEleves);
 
     // ======================================================
-    // 7. CRUD : AJOUT / MODIFICATION
+    // 9. MODAL AJOUT/MODIFICATION
     // ======================================================
     function openModal(eleveData = null) {
       if (eleveData) {
         modalTitle.textContent = 'Modifier l\'élève';
-        editId.value = eleveData.id;
+        editId.value = eleveData.id_eleve;
         nomEleve.value = eleveData.nom;
         sexeEleve.value = eleveData.sexe;
         classeEleve.value = eleveData.classe;
@@ -610,69 +631,100 @@
       if (e.target === this) closeModalFn();
     });
 
-    // Soumission du formulaire
-    eleveForm.addEventListener('submit', function(e) {
+    // ======================================================
+    // 10. SOUMISSION (CRÉATION / MODIFICATION)
+    // ======================================================
+    eleveForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const nom = nomEleve.value.trim();
       const sexe = sexeEleve.value;
-      const classe = parseInt(classeEleve.value);
+      const classeId = parseInt(classeEleve.value);
 
       if (!nom) {
         alert('Le nom de l\'élève est obligatoire.');
         return;
       }
-      if (!classe) {
+      if (!classeId) {
         alert('Veuillez sélectionner une classe.');
         return;
       }
 
       const id = parseInt(editId.value);
 
-      if (id) {
-        // Modification
-        const index = elevesData.findIndex(e => e.id === id);
-        if (index !== -1) {
-          elevesData[index].nom = nom;
-          elevesData[index].sexe = sexe;
-          elevesData[index].classe = classe;
-        }
-      } else {
-        // Nouvel élève
-        elevesData.push({
-          id: nextId++,
-          nom: nom,
-          sexe: sexe,
-          classe: classe
-        });
-      }
+      const payload = {
+        nom: nom,
+        sexe: sexe,
+        classe: classeId,
+      };
 
-      closeModalFn();
-      filterEleves();
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (id) {
+          // MODIFICATION
+          await fetchAPI(`/api/eleves/${id}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // CRÉATION
+          await fetchAPI('/api/eleves/', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        closeModalFn();
+        await loadEleves();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
     // ======================================================
-    // 8. CRUD : MODIFIER
+    // 11. MODIFIER
     // ======================================================
     window.editEleve = function(id) {
-      const eleve = elevesData.find(e => e.id === id);
-      if (!eleve) return;
-      openModal(eleve);
+      const e = elevesData.find(x => x.id_eleve === id);
+      if (!e) return;
+      openModal(e);
     };
 
     // ======================================================
-    // 9. CRUD : SUPPRIMER
+    // 12. SUPPRIMER
     // ======================================================
-    window.deleteEleve = function(id) {
+    window.deleteEleve = async function(id) {
       if (!confirm('Supprimer cet élève ? Cette action est irréversible.')) return;
-      elevesData = elevesData.filter(e => e.id !== id);
-      filterEleves();
+
+      try {
+        await fetchAPI(`/api/eleves/${id}/`, { method: 'DELETE' });
+        await loadEleves();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Impossible de supprimer cet élève (peut-être lié à des notes, absences ou liaisons parent).');
+      }
     };
 
     // ======================================================
-    // 10. INITIALISATION
+    // 13. INITIALISATION
     // ======================================================
-    renderEleves(elevesData);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadClasses();
+      await loadEleves();
+    });
 
   })();
 </script>

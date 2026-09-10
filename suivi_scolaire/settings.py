@@ -91,7 +91,7 @@ DATABASES = {
         # 'NAME': BASE_DIR / 'db.sqlite3',
 
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'suivi_scolaire',
+        'NAME': 'suivi',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
@@ -141,3 +141,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+# ===== FICHIERS MÉDIAS =====
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

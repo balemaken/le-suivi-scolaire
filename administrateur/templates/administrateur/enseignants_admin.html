@@ -442,44 +442,59 @@
     </form>
   </div>
 </div>
-
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES
+    // 1. CONFIGURATION
     // ======================================================
-
-    // Classes existantes (pour l'affichage)
-    const classesSimules = [
-      { id: 1, nom: '6ᵉ A' },
-      { id: 2, nom: '5ᵉ A' },
-      { id: 3, nom: '4ᵉ B' },
-      { id: 4, nom: '3ᵉ A' },
-      { id: 5, nom: '6ᵉ B' },
-      { id: 6, nom: '5ᵉ B' },
-      { id: 7, nom: '4ᵉ A' },
-      { id: 8, nom: '3ᵉ B' }
-    ];
-
-    // Matières existantes
-    const matieresSimules = {
-      1: ['Mathématiques', 'Physique'],
-      2: ['Français'],
-      3: ['Mathématiques'],
-      4: ['Informatique', 'Mathématiques']
-    };
-
-    // Enseignants simulés
-    let enseignantsData = [
-      { id: 1, nom: 'M. Ngono', email: 'ngono@schoolconnect.cm', telephone: '+237 6XX XX XX 01', statut: 'actif', classes: [1, 2], matieres: [1, 2] },
-      { id: 2, nom: 'Mme Tchoffo', email: 'tchoffo@schoolconnect.cm', telephone: '+237 6XX XX XX 02', statut: 'actif', classes: [3, 7], matieres: [3] },
-      { id: 3, nom: 'M. Kamga', email: 'kamga@schoolconnect.cm', telephone: '+237 6XX XX XX 03', statut: 'actif', classes: [4, 8], matieres: [4, 5] },
-      { id: 4, nom: 'Mme Nana', email: 'nana@schoolconnect.cm', telephone: '+237 6XX XX XX 04', statut: 'inactif', classes: [5], matieres: [6] }
-    ];
-    let nextId = 5;
+    const API_BASE = '';
 
     // ======================================================
-    // 2. RÉFÉRENCES DOM
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Admin';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const initiale = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-initial').textContent = initiale;
+    document.getElementById('admin-nom-avatar').textContent = (prenomAdmin + ' ' + nomAdmin).trim();
+
+    // ======================================================
+    // 3. CACHER LE BOUTON "NOUVEL ENSEIGNANT"
+    // (les enseignants s'inscrivent eux-mêmes)
+    // ======================================================
+    const openAddBtn = document.getElementById('openAddModal');
+    if (openAddBtn) {
+      openAddBtn.style.display = 'none';
+    }
+
+    // ======================================================
+    // 4. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const token = localStorage.getItem('authToken');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Token ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(API_BASE + url, { ...options, headers });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
     // ======================================================
     const enseignantsBody = document.getElementById('enseignantsBody');
     const enseignantCount = document.getElementById('enseignantCount');
@@ -493,42 +508,36 @@
     const telephoneEnseignant = document.getElementById('telephoneEnseignant');
     const statutEnseignant = document.getElementById('statutEnseignant');
     const editId = document.getElementById('editId');
+    const saveBtn = document.getElementById('saveBtn');
     const closeModal = document.getElementById('closeModal');
     const cancelBtn = document.getElementById('cancelBtn');
-    const openAddBtn = document.getElementById('openAddModal');
+
+    // Cache
+    let enseignantsData = [];
 
     // ======================================================
-    // 3. PROFIL ADMIN
+    // 6. CHARGER LES ENSEIGNANTS
     // ======================================================
-    document.getElementById('admin-initial').textContent = 'A';
-    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+    async function loadEnseignants() {
+      enseignantsBody.innerHTML = `
+        <tr><td colspan="6" class="empty-state">⏳ Chargement des enseignants...</td></tr>
+      `;
 
-    // ======================================================
-    // 4. FONCTIONS UTILITAIRES
-    // ======================================================
-    function getClassesNom(ids) {
-      if (!ids || ids.length === 0) return '—';
-      return ids.map(id => {
-        const c = classesSimules.find(cls => cls.id === id);
-        return c ? c.nom : '?';
-      }).join(', ');
-    }
-
-    function getMatieresNom(ids) {
-      if (!ids || ids.length === 0) return '—';
-      const allMatieres = {
-        1: 'Mathématiques',
-        2: 'Physique',
-        3: 'Français',
-        4: 'Informatique',
-        5: 'Histoire',
-        6: 'Anglais'
-      };
-      return ids.map(id => allMatieres[id] || '?').join(', ');
+      try {
+        enseignantsData = await fetchAPI('/api/enseignants/');
+        filterEnseignants();
+      } catch (err) {
+        console.error('Erreur chargement enseignants :', err);
+        enseignantsBody.innerHTML = `
+          <tr><td colspan="6" class="empty-state" style="color:var(--coral);">
+            ⚠️ Impossible de charger les enseignants : ${err.message}
+          </td></tr>
+        `;
+      }
     }
 
     // ======================================================
-    // 5. AFFICHER LES ENSEIGNANTS
+    // 7. AFFICHER LES ENSEIGNANTS
     // ======================================================
     function renderEnseignants(enseignants) {
       if (enseignants.length === 0) {
@@ -540,18 +549,22 @@
       enseignantsBody.innerHTML = '';
       enseignants.forEach(e => {
         const tr = document.createElement('tr');
-        const statusClass = e.statut === 'actif' ? 'active' : 'inactive';
-        const statusLabel = e.statut === 'actif' ? 'Actif' : 'Inactif';
+        const statusClass = e.is_active ? 'active' : 'inactive';
+        const statusLabel = e.is_active ? 'Actif' : 'Inactif';
+        const nomComplet = ((e.prenom || '') + ' ' + (e.nom || '')).trim() || '—';
+        const classesStr = (e.classes && e.classes.length > 0) ? e.classes.join(', ') : '—';
+        const matieresStr = (e.matieres && e.matieres.length > 0) ? e.matieres.join(', ') : '—';
+
         tr.innerHTML = `
-          <td class="nom">${e.nom}</td>
-          <td class="email">${e.email}</td>
-          <td class="classes">${getClassesNom(e.classes)}</td>
-          <td class="matieres">${getMatieresNom(e.matieres)}</td>
+          <td class="nom">${nomComplet}</td>
+          <td class="email">${e.email || '—'}</td>
+          <td class="classes">${classesStr}</td>
+          <td class="matieres">${matieresStr}</td>
           <td><span class="status ${statusClass}">${statusLabel}</span></td>
           <td>
             <div class="actions">
-              <button class="edit-btn" onclick="editEnseignant(${e.id})">✏️ Modifier</button>
-              <button class="delete-btn" onclick="deleteEnseignant(${e.id})">🗑️ Supprimer</button>
+              <button class="edit-btn" onclick="editEnseignant(${e.id_utilisateur})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteEnseignant(${e.id_utilisateur})">🗑️ Supprimer</button>
             </div>
           </td>
         `;
@@ -561,16 +574,21 @@
     }
 
     // ======================================================
-    // 6. FILTRER LES ENSEIGNANTS
+    // 8. FILTRER (CÔTÉ CLIENT)
     // ======================================================
     function filterEnseignants() {
       const searchTerm = searchInput.value.toLowerCase().trim();
-      const statut = statutFilter.value;
+      const statut = statutFilter.value; // '', 'actif', 'inactif'
 
-      let filtered = enseignantsData.filter(e => {
-        const matchSearch = e.nom.toLowerCase().includes(searchTerm) || 
-                           e.email.toLowerCase().includes(searchTerm);
-        const matchStatut = statut ? e.statut === statut : true;
+      const filtered = enseignantsData.filter(e => {
+        const nomComplet = ((e.prenom || '') + ' ' + (e.nom || '')).toLowerCase();
+        const email = (e.email || '').toLowerCase();
+        const matchSearch = nomComplet.includes(searchTerm) || email.includes(searchTerm);
+
+        let matchStatut = true;
+        if (statut === 'actif') matchStatut = e.is_active === true;
+        else if (statut === 'inactif') matchStatut = e.is_active === false;
+
         return matchSearch && matchStatut;
       });
 
@@ -581,23 +599,16 @@
     statutFilter.addEventListener('change', filterEnseignants);
 
     // ======================================================
-    // 7. CRUD : AJOUT / MODIFICATION
+    // 9. MODAL MODIFICATION
     // ======================================================
     function openModal(enseignantData = null) {
       if (enseignantData) {
         modalTitle.textContent = 'Modifier l\'enseignant';
-        editId.value = enseignantData.id;
-        nomEnseignant.value = enseignantData.nom;
-        emailEnseignant.value = enseignantData.email;
+        editId.value = enseignantData.id_utilisateur;
+        nomEnseignant.value = ((enseignantData.prenom || '') + ' ' + (enseignantData.nom || '')).trim();
+        emailEnseignant.value = enseignantData.email || '';
         telephoneEnseignant.value = enseignantData.telephone || '';
-        statutEnseignant.value = enseignantData.statut;
-      } else {
-        modalTitle.textContent = 'Nouvel enseignant';
-        editId.value = '';
-        nomEnseignant.value = '';
-        emailEnseignant.value = '';
-        telephoneEnseignant.value = '';
-        statutEnseignant.value = 'actif';
+        statutEnseignant.value = enseignantData.is_active ? 'actif' : 'inactif';
       }
       modalOverlay.classList.add('active');
     }
@@ -608,7 +619,6 @@
       editId.value = '';
     }
 
-    openAddBtn.addEventListener('click', () => openModal());
     closeModal.addEventListener('click', closeModalFn);
     cancelBtn.addEventListener('click', closeModalFn);
 
@@ -616,84 +626,98 @@
       if (e.target === this) closeModalFn();
     });
 
-    // Soumission du formulaire
-    enseignantForm.addEventListener('submit', function(e) {
+    // ======================================================
+    // 10. SOUMISSION (MODIFICATION UNIQUEMENT)
+    // ======================================================
+    enseignantForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const nom = nomEnseignant.value.trim();
+      const nomComplet = nomEnseignant.value.trim();
       const email = emailEnseignant.value.trim();
       const telephone = telephoneEnseignant.value.trim();
       const statut = statutEnseignant.value;
 
-      if (!nom) {
-        alert('Le nom de l\'enseignant est obligatoire.');
+      if (!nomComplet || !email) {
+        alert('Le nom et l\'email sont obligatoires.');
         return;
       }
-      if (!email) {
-        alert('L\'email est obligatoire.');
-        return;
-      }
+
+      // Séparer nom et prénom (1er mot = prénom, reste = nom)
+      const parties = nomComplet.split(' ');
+      const prenom = parties.length > 1 ? parties[0] : '';
+      const nom = parties.length > 1 ? parties.slice(1).join(' ') : parties[0];
 
       const id = parseInt(editId.value);
-
-      // Vérifier unicité de l'email
-      const exists = enseignantsData.some(e => 
-        e.email.toLowerCase() === email.toLowerCase() && 
-        e.id !== id
-      );
-      if (exists) {
-        alert('Cet email est déjà utilisé par un autre enseignant.');
+      if (!id) {
+        alert('Impossible de modifier : ID manquant.');
         return;
       }
 
-      if (id) {
-        // Modification
-        const index = enseignantsData.findIndex(e => e.id === id);
-        if (index !== -1) {
-          enseignantsData[index].nom = nom;
-          enseignantsData[index].email = email;
-          enseignantsData[index].telephone = telephone;
-          enseignantsData[index].statut = statut;
-        }
-      } else {
-        // Nouvel enseignant
-        enseignantsData.push({
-          id: nextId++,
-          nom: nom,
-          email: email,
-          telephone: telephone,
-          statut: statut,
-          classes: [],
-          matieres: []
-        });
-      }
+      const payload = {
+        nom: nom,
+        prenom: prenom,
+        email: email,
+        telephone: telephone,
+        is_active: statut === 'actif',
+      };
 
-      closeModalFn();
-      filterEnseignants();
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        await fetchAPI(`/api/enseignants/${id}/`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+
+        closeModalFn();
+        await loadEnseignants();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
     // ======================================================
-    // 8. CRUD : MODIFIER
+    // 11. MODIFIER
     // ======================================================
     window.editEnseignant = function(id) {
-      const enseignant = enseignantsData.find(e => e.id === id);
-      if (!enseignant) return;
-      openModal(enseignant);
+      const e = enseignantsData.find(x => x.id_utilisateur === id);
+      if (!e) return;
+      openModal(e);
     };
 
     // ======================================================
-    // 9. CRUD : SUPPRIMER
+    // 12. SUPPRIMER
     // ======================================================
-    window.deleteEnseignant = function(id) {
+    window.deleteEnseignant = async function(id) {
       if (!confirm('Supprimer cet enseignant ? Cette action est irréversible.')) return;
-      enseignantsData = enseignantsData.filter(e => e.id !== id);
-      filterEnseignants();
+
+      try {
+        await fetchAPI(`/api/enseignants/${id}/`, { method: 'DELETE' });
+        await loadEnseignants();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Impossible de supprimer cet enseignant (peut-être lié à des classes ou matières).');
+      }
     };
 
     // ======================================================
-    // 10. INITIALISATION
+    // 13. INITIALISATION
     // ======================================================
-    renderEnseignants(enseignantsData);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadEnseignants();
+    });
 
   })();
 </script>

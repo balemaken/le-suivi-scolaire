@@ -16,7 +16,7 @@
     .filter-bar select:focus { outline: none; border-color: var(--accent); background: var(--paper); }
     .filter-bar .btn-filter { padding: 10px 24px; border-radius: 999px; background: var(--sage); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; }
     .filter-bar .btn-filter:hover { background: #5a7a5d; transform: translateY(-2px); }
-    .form-remarque { display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 12px; align-items: end; padding: 16px 20px; background: var(--cream); border-radius: 16px; border: 1px solid var(--line); margin-bottom: 24px; }
+    .form-remarque { display: grid; grid-template-columns: 1fr 1fr 2fr auto auto; gap: 12px; align-items: end; padding: 16px 20px; background: var(--cream); border-radius: 16px; border: 1px solid var(--line); margin-bottom: 24px; }
     .form-remarque .field { display: flex; flex-direction: column; gap: 4px; }
     .form-remarque .field label { font-size: 0.75rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
     .form-remarque .field select, .form-remarque .field input, .form-remarque .field textarea { padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
@@ -31,7 +31,7 @@
     .type-badge.positif { background: rgba(110,143,113,0.15); color: var(--sage); }
     .type-badge.negatif { background: rgba(226,114,91,0.15); color: var(--coral); }
     .type-badge.autre { background: rgba(217,164,65,0.18); color: #a97416; }
-    .contenu-text { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .contenu-text { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .actions button { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; }
     .actions button:hover { background: var(--cream); }
     .actions .edit-btn { color: var(--blue); border-color: var(--blue); }
@@ -40,7 +40,7 @@
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -53,17 +53,29 @@
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+    <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Gestion des remarques</h1><p class="sub">Enregistrez et gérez les remarques sur vos élèves.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+    <div class="dash-topbar">
+      <div><h1>Gestion des remarques</h1><p class="sub">Enregistrez et gérez les remarques sur vos élèves.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
 
     <div class="filter-bar">
       <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
@@ -75,8 +87,7 @@
     <div class="form-remarque" id="formRemarque" style="display:none;">
       <div class="field"><label for="eleveSelect">Élève</label><select id="eleveSelect"><option value="">-- Choisir --</option></select></div>
       <div class="field"><label for="typeRemarque">Type</label><select id="typeRemarque"><option value="positif">Positif</option><option value="negatif">Négatif</option><option value="autre">Autre</option></select></div>
-      <div class="field"><label for="contenu">Contenu</label><textarea id="contenu" placeholder="Votre remarque..." rows="2"></textarea></div>
-      <div class="field"><label for="dateRemarque">Date</label><input type="date" id="dateRemarque"></div>
+      <div class="field"><label for="contenu">Contenu</label><textarea id="contenu" placeholder="Votre remarque..." rows="1"></textarea></div>
       <input type="hidden" id="editId" value="">
       <button class="btn-save" id="saveBtn">💾 Enregistrer</button>
       <button class="btn-cancel" id="cancelBtn">❌ Annuler</button>
@@ -91,17 +102,65 @@
 
 <script>
   (function() {
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
-      { classe: { id: 2, nom: '4ᵉ B' }, eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
-      { classe: { id: 3, nom: '3ᵉ A' }, eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
-    ];
-    let remarquesData = { '1_2026-07-28': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', type: 'positif', contenu: 'Très bon travail en classe.', date: '2026-07-28' }, '2_2026-07-25': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', type: 'negatif', contenu: 'Difficultés en mathématiques.', date: '2026-07-25' } };
-    let nextRemarqueId = 3, editingId = null;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const response = await fetch(API_BASE + url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token,
+          ...(options.headers || {})
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
+    // ======================================================
     const classeSelect = document.getElementById('classeSelect');
     const eleveSelect = document.getElementById('eleveSelect');
     const loadBtn = document.getElementById('loadBtn');
@@ -111,85 +170,268 @@
     const infoBanner = document.getElementById('infoBanner');
     const typeRemarque = document.getElementById('typeRemarque');
     const contenu = document.getElementById('contenu');
-    const dateRemarque = document.getElementById('dateRemarque');
     const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelBtn');
     const editId = document.getElementById('editId');
 
-    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
-    classeSelect.addEventListener('change', function() {
+    // Cache
+    let classesData = [];
+    let elevesData = [];
+    let editingId = null;
+
+    // ======================================================
+    // 6. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
+    }
+
+    // ======================================================
+    // 7. AU CHANGEMENT DE CLASSE
+    // ======================================================
+    classeSelect.addEventListener('change', async function() {
       const classeId = parseInt(this.value);
-      const classe = affectations.find(a => a.classe.id === classeId);
       eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      if (classe) classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
       formRemarque.style.display = 'none';
-      infoBanner.textContent = 'Sélectionnez une classe, puis cliquez sur "Charger les remarques".';
-      remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe.</td></tr>`;
+      remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe puis cliquez sur "Charger les remarques".</td></tr>`;
       remarqueCount.textContent = '0 remarque';
+
+      if (!classeId) {
+        infoBanner.textContent = 'Sélectionnez une classe.';
+        return;
+      }
+
+      try {
+        elevesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`);
+        elevesData.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_eleve;
+          opt.textContent = e.nom;
+          eleveSelect.appendChild(opt);
+        });
+        infoBanner.textContent = `Classe sélectionnée : ${this.options[this.selectedIndex].text}`;
+      } catch (err) {
+        console.error('Erreur chargement élèves :', err);
+      }
     });
 
-    loadBtn.addEventListener('click', function() {
+    // ======================================================
+    // 8. CHARGER LES REMARQUES
+    // ======================================================
+    loadBtn.addEventListener('click', async function() {
       const classeId = parseInt(classeSelect.value);
-      if (!classeId) { alert('Veuillez sélectionner une classe.'); return; }
-      const classe = affectations.find(a => a.classe.id === classeId);
-      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
-      dateRemarque.value = new Date().toISOString().split('T')[0];
+      if (!classeId) {
+        alert('Veuillez sélectionner une classe.');
+        return;
+      }
+
+      const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
+      infoBanner.textContent = `Gestion des remarques pour ${classeNom}`;
       formRemarque.style.display = 'grid';
-      infoBanner.textContent = `Gestion des remarques pour ${classe.classe.nom}`;
-      const remarques = Object.values(remarquesData).filter(r => classe.eleves.some(e => e.id === r.eleveId));
-      renderRemarques(remarques);
+
+      remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
+
+      try {
+        const allRemarques = [];
+
+        for (const e of elevesData) {
+          try {
+            const remarques = await fetchAPI(
+              `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/remarques/`
+            );
+            remarques.forEach(r => {
+              r.eleve_nom = r.eleve_nom || e.nom;
+            });
+            allRemarques.push(...remarques);
+          } catch (err) {
+            console.warn(`Erreur remarques pour élève ${e.id_eleve}`, err);
+          }
+        }
+
+        renderRemarques(allRemarques);
+      } catch (err) {
+        console.error('Erreur chargement remarques :', err);
+        remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>`;
+      }
     });
 
+    // ======================================================
+    // 9. AFFICHER LES REMARQUES
+    // ======================================================
     function renderRemarques(remarques) {
-      if (remarques.length === 0) { remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune remarque enregistrée.</td></tr>`; remarqueCount.textContent = '0 remarque'; return; }
+      if (remarques.length === 0) {
+        remarquesBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune remarque enregistrée.</td></tr>`;
+        remarqueCount.textContent = '0 remarque';
+        return;
+      }
+
       remarquesBody.innerHTML = '';
       remarques.forEach(r => {
         const tr = document.createElement('tr');
-        const dateFr = new Date(r.date).toLocaleDateString('fr-FR');
+        const dateFr = new Date(r.date_remarque).toLocaleDateString('fr-FR');
         const typeLabel = r.type.charAt(0).toUpperCase() + r.type.slice(1);
-        tr.innerHTML = `<td class="eleve-nom">${r.eleveNom}</td><td><span class="type-badge ${r.type}">${typeLabel}</span></td><td>${dateFr}</td><td><span class="contenu-text" title="${r.contenu}">${r.contenu}</span></td><td><div class="actions"><button class="edit-btn" onclick="editRemarque(${r.id})">✏️</button><button class="delete-btn" onclick="deleteRemarque(${r.id})">🗑️</button></div></td>`;
+
+        tr.innerHTML = `
+          <td class="eleve-nom">${r.eleve_nom}</td>
+          <td><span class="type-badge ${r.type}">${typeLabel}</span></td>
+          <td>${dateFr}</td>
+          <td><span class="contenu-text" title="${r.contenu}">${r.contenu}</span></td>
+          <td>
+            <div class="actions">
+              <button class="edit-btn" onclick="editRemarque(${r.id_remarque})">✏️</button>
+              <button class="delete-btn" onclick="deleteRemarque(${r.id_remarque})">🗑️</button>
+            </div>
+          </td>
+        `;
         remarquesBody.appendChild(tr);
       });
       remarqueCount.textContent = `${remarques.length} remarque${remarques.length > 1 ? 's' : ''}`;
     }
 
-    saveBtn.addEventListener('click', function() {
+    // ======================================================
+    // 10. SAUVEGARDER UNE REMARQUE
+    // ======================================================
+    saveBtn.addEventListener('click', async function() {
       const eleveId = parseInt(eleveSelect.value);
-      const type = typeRemarque.value;
+      const typeValue = typeRemarque.value;
       const contenuValue = contenu.value.trim();
-      const dateValue = dateRemarque.value;
-      if (!eleveId || !contenuValue || !dateValue) { alert('Veuillez remplir tous les champs.'); return; }
-      const classe = affectations.find(a => a.eleves.some(e => e.id === eleveId));
-      const eleve = classe.eleves.find(e => e.id === eleveId);
-      const key = `${eleveId}_${dateValue}`;
-      if (editingId) {
-        const existing = Object.values(remarquesData).find(r => r.id === editingId);
-        if (existing) { const oldKey = `${existing.eleveId}_${existing.date}`; delete remarquesData[oldKey]; const newKey = key; remarquesData[newKey] = { id: editingId, eleveId, eleveNom: eleve.nom, type, contenu: contenuValue, date: dateValue }; }
-        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
-      } else {
-        if (remarquesData[key]) { alert('Une remarque existe déjà pour cet élève à cette date.'); return; }
-        remarquesData[key] = { id: nextRemarqueId++, eleveId, eleveNom: eleve.nom, type, contenu: contenuValue, date: dateValue };
+
+      if (!eleveId || !contenuValue) {
+        alert('Veuillez sélectionner un élève et écrire le contenu.');
+        return;
       }
-      contenu.value = ''; eleveSelect.value = ''; loadBtn.click();
+
+      const payload = {
+        type: typeValue,
+        contenu: contenuValue,
+      };
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (editingId) {
+          await fetchAPI(`/api/enseignants/${enseignantId}/remarques/${editingId}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/remarques/`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        editingId = null;
+        editId.value = '';
+        cancelBtn.style.display = 'none';
+        contenu.value = '';
+        eleveSelect.value = '';
+
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur sauvegarde remarque :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = err.data.erreur || Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
-    window.editRemarque = function(id) {
-      const remarque = Object.values(remarquesData).find(r => r.id === id);
-      if (!remarque) return;
-      editingId = id; editId.value = id; eleveSelect.value = remarque.eleveId; typeRemarque.value = remarque.type; contenu.value = remarque.contenu; dateRemarque.value = remarque.date;
-      cancelBtn.style.display = 'inline-block';
-      formRemarque.scrollIntoView({ behavior: 'smooth' });
-    };
-    window.deleteRemarque = function(id) {
-      if (!confirm('Supprimer cette remarque ?')) return;
-      const key = Object.keys(remarquesData).find(k => remarquesData[k].id === id);
-      if (key) delete remarquesData[key];
-      loadBtn.click();
-    };
-    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; contenu.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+    // ======================================================
+    // 11. MODIFIER UNE REMARQUE
+    // ======================================================
+    window.editRemarque = async function(idRemarque) {
+      try {
+        const remarque = await fetchAPI(`/api/enseignants/${enseignantId}/remarques/${idRemarque}/`);
 
-    document.getElementById('msg-badge').textContent = '3';
+        editingId = idRemarque;
+        editId.value = idRemarque;
+        eleveSelect.value = remarque.eleve;
+        typeRemarque.value = remarque.type;
+        contenu.value = remarque.contenu || '';
+
+        cancelBtn.style.display = 'inline-block';
+        formRemarque.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Erreur chargement remarque :', err);
+        alert('❌ Impossible de charger la remarque.');
+      }
+    };
+
+    // ======================================================
+    // 12. SUPPRIMER UNE REMARQUE
+    // ======================================================
+    window.deleteRemarque = async function(idRemarque) {
+      if (!confirm('Supprimer cette remarque ?')) return;
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/remarques/${idRemarque}/`, {
+          method: 'DELETE',
+        });
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur suppression remarque :', err);
+        alert('❌ Impossible de supprimer cette remarque.');
+      }
+    };
+
+    // ======================================================
+    // 13. ANNULER L'ÉDITION
+    // ======================================================
+    cancelBtn.addEventListener('click', function() {
+      editingId = null;
+      editId.value = '';
+      this.style.display = 'none';
+      contenu.value = '';
+      eleveSelect.value = '';
+      typeRemarque.value = 'positif';
+    });
+
+    // ======================================================
+    // 14. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 15. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
   })();
 </script>
 </body>

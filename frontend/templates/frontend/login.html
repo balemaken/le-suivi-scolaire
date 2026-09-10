@@ -1,16 +1,47 @@
-{%load static%}
-
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SchoolConnect/login</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{%static 'frontend/css/login.css'%}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolConnect / Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'frontend/css/login.css' %}" />
+  <style>
+    .error-message {
+      color: #E2725B;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+    }
+    .error-message.visible {
+      display: block;
+    }
+    .success-message {
+      background: rgba(110, 143, 113, 0.12);
+      border-left: 4px solid #6E8F71;
+      color: #2E7D5E;
+      font-size: 0.92rem;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 14px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .success-message.visible {
+      display: block;
+    }
+    .success-message strong {
+      color: #1C2E33;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 <section class="auth-section">
@@ -20,25 +51,14 @@
     <p class="sub">Accédez au suivi scolaire de votre enfant en quelques secondes.</p>
 
     <form id="loginForm" novalidate>
-      <!-- <div class="field-row">
-        <div class="field">
-          <label for="nom">Nom</label>
-          <input type="text" id="nom" name="nom" placeholder="Ex : Balemaken" required>
-        </div>
-        <div class="field">
-          <label for="prenom">Prénom</label>
-          <input type="text" id="prenom" name="prenom" placeholder="Ex : Bale" required>
-        </div>
-      </div> -->
-
       <div class="field">
         <label for="email">Adresse e-mail</label>
-        <input type="email" id="email" name="email" placeholder="vous@exemple.com" required>
+        <input type="email" id="email" name="email" placeholder="vous@exemple.com" required />
       </div>
 
       <div class="field field-pw">
         <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required>
+        <input type="password" id="password" name="password" placeholder="••••••••" required />
         <button type="button" class="toggle-pw" aria-label="Afficher le mot de passe" data-target="password">
           <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
             <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"></path>
@@ -47,7 +67,11 @@
         </button>
       </div>
 
-      <button type="submit" class="btn auth-submit">
+      <!-- Zone de messages -->
+      <div id="loginError" class="error-message"></div>
+      <div id="loginSuccess" class="success-message"></div>
+
+      <button type="submit" class="btn auth-submit" id="loginBtn">
         Se connecter
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14"></path>
@@ -68,17 +92,143 @@
 </footer>
 
 <script>
-  document.querySelectorAll('.toggle-pw').forEach(function(btn){
-    btn.addEventListener('click', function(){
+  // ============================================================
+  // AFFICHER / MASQUER LE MOT DE PASSE
+  // ============================================================
+  document.querySelectorAll('.toggle-pw').forEach(function(btn) {
+    btn.addEventListener('click', function() {
       var input = document.getElementById(btn.dataset.target);
       input.type = input.type === 'password' ? 'text' : 'password';
     });
   });
 
-  document.getElementById('loginForm').addEventListener('submit', function(e){
+  // ============================================================
+  // SOUMISSION DU FORMULAIRE DE CONNEXION
+  // ============================================================
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    // Emplacement prévu pour la logique d'authentification (appel API, etc.)
-    alert('Connexion : à relier à votre backend.');
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('loginError');
+    const successDiv = document.getElementById('loginSuccess');
+    const loginBtn = document.getElementById('loginBtn');
+
+    // Réinitialiser
+    errorDiv.textContent = '';
+    errorDiv.classList.remove('visible');
+    successDiv.textContent = '';
+    successDiv.classList.remove('visible');
+
+    // Vérification simple
+    if (!email || !password) {
+      errorDiv.textContent = 'Veuillez remplir tous les champs.';
+      errorDiv.classList.add('visible');
+      return;
+    }
+
+    // Désactiver le bouton pendant la requête
+    loginBtn.disabled = true;
+    loginBtn.style.opacity = '0.7';
+
+    // Appel API
+    fetch('/api/connexion/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        return { status: response.status, body: data };
+      });
+    })
+    .then(function(result) {
+      const status = result.status;
+      const body = result.body;
+
+      if (status === 200) {
+        // ============================================================
+        // ✅ CONNEXION RÉUSSIE
+        // ============================================================
+        const token = body.token;
+        const user = body.utilisateur;
+
+        // Stocker les infos utilisateur
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userId', user.id_utilisateur);
+        localStorage.setItem('userNom', user.nom || '');
+        localStorage.setItem('userPrenom', user.prenom || '');
+        localStorage.setItem('userEmail', user.email || '');
+        localStorage.setItem('userRole', user.role || '');
+
+        // Construire le message de bienvenue
+        const nomComplet = (user.prenom ? user.prenom + ' ' : '') + (user.nom || '');
+        let roleLabel = '';
+        if (user.role === 'parent') roleLabel = '👨‍👩‍👧 Parent';
+        else if (user.role === 'enseignant') roleLabel = '👨‍🏫 Enseignant';
+        else if (user.role === 'admin') roleLabel = '🛡️ Administrateur';
+
+        // Afficher le message de succès
+        successDiv.innerHTML =
+          '✅ <strong>Connexion réussie !</strong><br>' +
+          'Bienvenue <strong>' + nomComplet + '</strong> ' + roleLabel + '<br>' +
+          '<small>Redirection en cours...</small>';
+        successDiv.classList.add('visible');
+
+        // Redirection selon le rôle (après 1,5 seconde pour laisser voir le message)
+        setTimeout(function() {
+          let redirectUrl = '/';
+
+          if (user.role === 'parent') {
+            redirectUrl = '/parent/dashboarparent/';
+          } else if (user.role === 'enseignant') {
+            redirectUrl = '/teacher/pageteacher/';
+          } else if (user.role === 'admin') {
+            redirectUrl = '/administrateur/dashboard/';
+          }
+
+          window.location.href = redirectUrl;
+        }, 1500);
+
+      } else {
+        // ============================================================
+        // ❌ ERREUR DE CONNEXION
+        // ============================================================
+        let errorMsg = 'Erreur de connexion.';
+
+        if (body.non_field_errors && body.non_field_errors.length > 0) {
+          errorMsg = body.non_field_errors[0];
+        } else if (body.detail) {
+          errorMsg = body.detail;
+        } else if (typeof body === 'object') {
+          // Récupérer la première erreur de champ
+          for (const key in body) {
+            if (Array.isArray(body[key]) && body[key].length > 0) {
+              errorMsg = body[key][0];
+              break;
+            }
+          }
+        }
+
+        errorDiv.textContent = '❌ ' + errorMsg;
+        errorDiv.classList.add('visible');
+
+        // Réactiver le bouton
+        loginBtn.disabled = false;
+        loginBtn.style.opacity = '1';
+      }
+    })
+    .catch(function(error) {
+      errorDiv.textContent = '❌ Une erreur réseau est survenue. Veuillez réessayer.';
+      errorDiv.classList.add('visible');
+      console.error('Erreur:', error);
+
+      // Réactiver le bouton
+      loginBtn.disabled = false;
+      loginBtn.style.opacity = '1';
+    });
   });
 </script>
 

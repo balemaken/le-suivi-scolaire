@@ -71,7 +71,43 @@ class Note(models.Model):
 # ABSENCE
 # ============================================================
 
+# class Absence(models.Model):
+
+#     id_absence = models.AutoField(primary_key=True)
+
+#     eleve = models.ForeignKey(
+#         Eleve,
+#         on_delete=models.CASCADE,
+#         related_name='absences'
+#     )
+
+#     enseignant = models.ForeignKey(
+#         Utilisateur,
+#         on_delete=models.CASCADE,
+#         related_name='absences_saisies',
+#         limit_choices_to={'role': 'enseignant'}
+#     )
+
+#     date_absence = models.DateField()
+
+#     matiere = models.ForeignKey(
+#         Matiere,
+#         on_delete=models.CASCADE,
+#         related_name='absences'
+#     )
+
+#     def __str__(self):
+#         return f"Absence - {self.eleve.nom}"
+
+
+
 class Absence(models.Model):
+
+    STATUT_CHOICES = [
+        ('justifiee', 'Justifiée'),
+        ('non-justifiee', 'Non justifiée'),
+        ('autre', 'Autre'),
+    ]
 
     id_absence = models.AutoField(primary_key=True)
 
@@ -94,6 +130,17 @@ class Absence(models.Model):
         Matiere,
         on_delete=models.CASCADE,
         related_name='absences'
+    )
+
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default='non-justifiee'
+    )
+
+    motif = models.TextField(
+        blank=True,
+        default=''
     )
 
     def __str__(self):
@@ -194,6 +241,21 @@ class Sanction(models.Model):
 
 class Bulletin(models.Model):
 
+    TRIMESTRE_CHOICES = [
+        ('Trimestre 1', 'Trimestre 1'),
+        ('Trimestre 2', 'Trimestre 2'),
+        ('Trimestre 3', 'Trimestre 3'),
+    ]
+
+    SEQUENCE_CHOICES = [
+        (1, 'Séquence 1'),
+        (2, 'Séquence 2'),
+        (3, 'Séquence 3'),
+        (4, 'Séquence 4'),
+        (5, 'Séquence 5'),
+        (6, 'Séquence 6'),
+    ]
+
     id_bulletin = models.AutoField(primary_key=True)
 
     eleve = models.ForeignKey(
@@ -209,6 +271,23 @@ class Bulletin(models.Model):
         limit_choices_to={'role': 'enseignant'}
     )
 
+    trimestre = models.CharField(
+        max_length=20,
+        choices=TRIMESTRE_CHOICES,
+        default='Trimestre 1'
+    )
+
+    sequence = models.PositiveSmallIntegerField(
+        choices=SEQUENCE_CHOICES,
+        default=1
+    )
+
+    annee_scolaire = models.CharField(
+        max_length=20,
+        blank=True,
+        default=''
+    )
+
     fichier = models.FileField(
         upload_to='bulletins/'
     )
@@ -218,4 +297,4 @@ class Bulletin(models.Model):
     )
 
     def __str__(self):
-        return f"Bulletin - {self.eleve.nom}"
+        return f"Bulletin - {self.eleve.nom} ({self.trimestre} - S{self.sequence})"

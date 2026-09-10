@@ -32,66 +32,272 @@
     .status-pill.on::before { background: var(--sage); }
     .status-pill.wait { background: rgba(217,164,65,0.18); color: #a97416; }
     .status-pill.wait::before { background: var(--gold); }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-soft); }
+    .empty-state svg { width: 48px; height: 48px; stroke: var(--text-soft); opacity: 0.4; margin-bottom: 12px; }
+    .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--line); border-radius: 50%; border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
-  <!-- ===== SIDEBAR (identique) ===== -->
+  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
-    <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>SchoolConnect</div>
+    <div class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>
+      SchoolConnect
+    </div>
     <nav>
       <a href="{% url 'pageteacher' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Tableau de bord</a>
       <a href="{% url 'classes' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- ===== MAIN ===== -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Mes classes</h1><p class="sub">Liste des classes et matières qui vous sont affectées.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
-    <div id="classesContainer"></div>
+    <div class="dash-topbar">
+      <div>
+        <h1>Mes classes</h1>
+        <p class="sub">Liste des classes et matières qui vous sont affectées.</p>
+      </div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
+    <div id="classesContainer">
+      <div class="empty-state">
+        <div class="loading-spinner"></div>
+        <p style="margin-top:12px;">Chargement de vos classes...</p>
+      </div>
+    </div>
   </main>
 </div>
 
 <script>
   (function() {
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, matieres: [{ id: 1, nom: 'Mathématiques' }, { id: 2, nom: 'Physique' }], nbEleves: 34, statutNotes: 'À jour' },
-      { classe: { id: 2, nom: '4ᵉ B' }, matieres: [{ id: 3, nom: 'Mathématiques' }], nbEleves: 31, statutNotes: 'En attente' },
-      { classe: { id: 3, nom: '3ᵉ A' }, matieres: [{ id: 4, nom: 'Mathématiques' }, { id: 5, nom: 'Informatique' }], nbEleves: 29, statutNotes: 'À jour' }
-    ];
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // ======================================================
+    // 2. RÉCUPÉRER L'UTILISATEUR CONNECTÉ (depuis localStorage)
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-    const container = document.getElementById('classesContainer');
-    affectations.forEach(a => {
-      const card = document.createElement('div');
-      card.className = 'classe-card';
-      const statusClass = a.statutNotes === 'À jour' ? 'status-pill on' : 'status-pill wait';
-      card.innerHTML = `
-        <div class="header"><h3>${a.classe.nom}</h3><span class="${statusClass}">${a.statutNotes}</span></div>
-        <div class="matieres">${a.matieres.map(m => `<span class="matiere-tag">${m.nom}</span>`).join('')}</div>
-        <div class="infos"><span class="eleves">👨‍🎓 <strong>${a.nbEleves}</strong> élèves</span></div>
-        <div class="actions">
-          <a href="{% url 'notes' %}?classe=${a.classe.id}" class="btn-sm btn-notes">📝 Saisir notes</a>
-          <a href="{% url 'élève' %}?classe=${a.classe.id}" class="btn-sm btn-eleves">👨‍🎓 Voir élèves</a>
-          <a href="{% url 'absences' %}?classe=${a.classe.id}" class="btn-sm" style="background:var(--coral);color:white;">📋 Absences</a>
-          <a href="{% url 'sanctions' %}?classe=${a.classe.id}" class="btn-sm" style="background:var(--blue);color:white;">⚠️ Sanctions</a>
-        </div>
-      `;
-      container.appendChild(card);
+    console.log('🔍 Utilisateur connecté :', {
+      token: token ? 'présent' : 'absent',
+      userId: enseignantId,
+      nom: userPrenom + ' ' + userNom,
+      role: userRole
     });
-    document.getElementById('msg-badge').textContent = '3';
+
+    // ---- SÉCURITÉ : rediriger si non connecté ou mauvais rôle ----
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Utilisateur non connecté ou rôle incorrect — redirection vers /login/');
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM DE L'ENSEIGNANT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      const container = document.getElementById('classesContainer');
+
+      try {
+        console.log(`📡 Appel API : /api/enseignants/${enseignantId}/classes/`);
+
+        const classes = await fetchAPI(
+          `/api/enseignants/${enseignantId}/classes/`
+        );
+
+        console.log('📥 Réponse classes :', classes);
+
+        // ---- Cas 1 : aucune classe ----
+        if (!classes || classes.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="3"/>
+                <path d="M3.5 9h17"/>
+              </svg>
+              <p><strong>Aucune classe affectée</strong></p>
+              <p style="font-size:0.9rem;margin-top:6px;">
+                Contactez l'administration pour obtenir vos affectations.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        // ---- Cas 2 : afficher les classes ----
+        container.innerHTML = '';
+
+        for (const c of classes) {
+          let matieres = [];
+          let nbEleves = 0;
+
+          try {
+            const [matieresData, elevesData] = await Promise.all([
+              fetchAPI(`/api/enseignants/${enseignantId}/classes/${c.id_classe}/matieres/`),
+              fetchAPI(`/api/enseignants/${enseignantId}/classes/${c.id_classe}/eleves/`)
+            ]);
+            matieres = matieresData || [];
+            nbEleves = elevesData ? elevesData.length : 0;
+          } catch (e) {
+            console.warn(`Erreur chargement détails classe ${c.id_classe} :`, e);
+          }
+
+          const card = document.createElement('div');
+          card.className = 'classe-card';
+
+          const matieresHtml = matieres.length > 0
+            ? matieres.map(m => `<span class="matiere-tag">${m.nom}</span>`).join('')
+            : '<span class="matiere-tag" style="opacity:0.5;">Aucune matière</span>';
+
+          card.innerHTML = `
+            <div class="header">
+              <h3>${c.nom}</h3>
+              <span class="status-pill on">Active</span>
+            </div>
+            <div class="matieres">${matieresHtml}</div>
+            <div class="infos">
+              <span class="eleves">👨‍🎓 <strong>${nbEleves}</strong> élève${nbEleves > 1 ? 's' : ''}</span>
+              <span class="eleves">📚 <strong>${matieres.length}</strong> matière${matieres.length > 1 ? 's' : ''}</span>
+            </div>
+            <div class="actions">
+              <a href="{% url 'notes' %}?classe=${c.id_classe}" class="btn-sm btn-notes">📝 Saisir notes</a>
+              <a href="{% url 'élève' %}?classe=${c.id_classe}" class="btn-sm btn-eleves">👨‍🎓 Voir élèves</a>
+              <a href="{% url 'absences' %}?classe=${c.id_classe}" class="btn-sm" style="background:var(--coral);color:white;">📋 Absences</a>
+              <a href="{% url 'sanctions' %}?classe=${c.id_classe}" class="btn-sm" style="background:var(--blue);color:white;">⚠️ Sanctions</a>
+            </div>
+          `;
+          container.appendChild(card);
+        }
+
+      } catch (err) {
+        console.error('❌ Erreur chargement classes :', err);
+
+        let message = err.message;
+        if (err.status === 404) {
+          message = "Enseignant introuvable (ID : " + enseignantId + "). Veuillez vous reconnecter.";
+        } else if (err.status === 401) {
+          message = "Session expirée. Veuillez vous reconnecter.";
+        }
+
+        container.innerHTML = `
+          <div class="empty-state" style="color:var(--coral);">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--coral);opacity:0.6;">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <p><strong>⚠️ Impossible de charger vos classes</strong></p>
+            <p style="font-size:0.85rem;margin-top:6px;">${message}</p>
+            <p style="font-size:0.8rem;margin-top:12px;">
+              <button onclick="localStorage.clear(); window.location.href='/login/';" style="background:var(--coral);color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;">
+                Se reconnecter
+              </button>
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 6. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Token ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        console.warn('Erreur déconnexion serveur :', err);
+      }
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userNom');
+      localStorage.removeItem('userPrenom');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userRole');
+
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 7. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
   })();
 </script>
 </body>

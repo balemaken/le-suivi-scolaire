@@ -1,0 +1,678 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulletins — Espace enseignant — SchoolConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'teacher/css/pageteacher.css' %}" />
+  <style>
+    .badge-dot { margin-left: auto; background: var(--coral); color: var(--cream); font-size: 0.68rem; font-weight: 700; min-width: 19px; height: 19px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; align-items: center; }
+    .filter-bar select { padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--cream); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; min-width: 160px; flex: 1; max-width: 220px; }
+    .filter-bar select:focus { outline: none; border-color: var(--accent); background: var(--paper); }
+    .filter-bar .btn-filter { padding: 10px 24px; border-radius: 999px; background: var(--sage); color: white; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+    .filter-bar .btn-filter:hover { background: #5a7a5d; transform: translateY(-2px); }
+
+    /* Formulaire en grille */
+    .form-bulletin { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.2fr 1.2fr auto; gap: 12px; align-items: end; padding: 16px 20px; background: var(--cream); border-radius: 16px; border: 1px solid var(--line); margin-bottom: 24px; }
+    .form-bulletin .field { display: flex; flex-direction: column; gap: 4px; }
+    .form-bulletin .field label { font-size: 0.75rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-bulletin .field select, .form-bulletin .field input { padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; }
+    .form-bulletin .field select:focus, .form-bulletin .field input:focus { outline: none; border-color: var(--accent); }
+    .form-bulletin .btn-save { padding: 10px 24px; border-radius: 999px; background: var(--accent); color: var(--ink); border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s, transform 0.2s; height: 42px; align-self: end; }
+    .form-bulletin .btn-save:hover { background: var(--accent-dark); transform: translateY(-2px); }
+    .form-bulletin .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Input file custom */
+    .file-input-wrapper { position: relative; overflow: hidden; }
+    .file-input-wrapper input[type="file"] { position: absolute; left: -9999px; }
+    .file-input-label { display: block; padding: 10px 14px; border-radius: 10px; border: 1.5px dashed var(--line); background: var(--paper); font-family: 'Work Sans', sans-serif; font-size: 0.85rem; cursor: pointer; color: var(--text-soft); text-align: center; transition: border-color 0.2s, background 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-input-label:hover { border-color: var(--accent); background: var(--cream); }
+    .file-input-label.has-file { border-color: var(--sage); color: var(--sage); font-weight: 600; border-style: solid; }
+
+    /* Tableau */
+    .bulletins-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-soft); padding: 0 0 10px 0; border-bottom: 1px solid var(--line); }
+    .bulletins-table td { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; vertical-align: middle; }
+    .bulletins-table tr:last-child td { border-bottom: none; }
+
+    .periode-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(74, 111, 165, 0.15);
+      color: var(--blue);
+    }
+
+    .actions { display: flex; gap: 6px; }
+    .actions button, .actions a { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 0.78rem; text-decoration: none; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+    .actions .view-btn { color: var(--blue); border-color: var(--blue); }
+    .actions .view-btn:hover { background: rgba(74, 111, 165, 0.1); }
+    .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
+    .actions .delete-btn:hover { background: rgba(226, 114, 91, 0.1); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-soft); }
+    .empty-state svg { width: 48px; height: 48px; stroke: var(--text-soft); opacity: 0.4; margin-bottom: 12px; }
+    .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--line); border-radius: 50%; border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+
+    /* ===== MODAL PDF ===== */
+    .pdf-modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+    }
+    .pdf-modal-overlay.active { display: flex; }
+
+    .pdf-modal {
+      background: var(--paper);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 1000px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .pdf-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--ink);
+      color: var(--cream);
+      flex-shrink: 0;
+    }
+    .pdf-modal-head h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      color: var(--cream);
+      margin: 0;
+    }
+    .pdf-modal-head .close-btn {
+      background: rgba(251, 246, 236, 0.15);
+      border: none;
+      color: var(--cream);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .pdf-modal-head .close-btn:hover {
+      background: rgba(251, 246, 236, 0.25);
+      transform: rotate(90deg);
+    }
+
+    .pdf-modal-body {
+      flex: 1;
+      overflow: auto;  /* ← SCROLL ACTIVÉ */
+      background: #525659;
+      padding: 16px;
+    }
+    .pdf-modal-body iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 1200px;  /* Force une hauteur pour permettre le scroll */
+      border: none;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .pdf-modal-footer {
+      display: flex;
+      gap: 12px;
+      padding: 14px 24px;
+      background: var(--cream);
+      border-top: 1px solid var(--line);
+      flex-shrink: 0;
+      justify-content: flex-end;
+    }
+    .pdf-modal-footer a,
+    .pdf-modal-footer button {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .pdf-modal-footer .download-btn {
+      background: var(--sage);
+      color: white;
+    }
+    .pdf-modal-footer .download-btn:hover {
+      background: #5a7a5d;
+      transform: translateY(-2px);
+    }
+    .pdf-modal-footer .close-modal-btn {
+      background: var(--text-soft);
+      color: white;
+    }
+    .pdf-modal-footer .close-modal-btn:hover {
+      background: var(--ink);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
+      .sidebar.open { transform: translateX(0); }
+      .dash-main { padding: 20px 5% 60px; }
+      .form-bulletin { grid-template-columns: 1fr; }
+      .pdf-modal { height: 95vh; }
+      .pdf-modal-head h3 { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dash-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" /></svg></span>SchoolConnect</div>
+    <nav>
+      <a href="{% url 'pageteacher' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Tableau de bord</a>
+      <a href="{% url 'classes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/></svg>Mes classes</a>
+      <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
+      <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
+      <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
+      <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
+      <a href="{% url 'bulletins' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
+      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
+    </nav>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div><h1>Gestion des bulletins</h1><p class="sub">Publiez les bulletins scolaires de vos élèves.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
+      <button class="btn-filter" id="loadBtn">📊 Charger les bulletins</button>
+    </div>
+
+    <div class="info-banner" id="infoBanner">Sélectionnez une classe, puis cliquez sur "Charger les bulletins".</div>
+
+    <!-- ===== FORMULAIRE DE PUBLICATION ===== -->
+    <div class="form-bulletin" id="formBulletin" style="display:none;">
+      <div class="field">
+        <label for="eleveSelect">Élève</label>
+        <select id="eleveSelect"><option value="">-- Choisir --</option></select>
+      </div>
+      <div class="field">
+        <label for="trimestreInput">Trimestre</label>
+        <select id="trimestreInput">
+          <option value="Trimestre 1">Trimestre 1</option>
+          <option value="Trimestre 2">Trimestre 2</option>
+          <option value="Trimestre 3">Trimestre 3</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sequenceInput">Séquence</label>
+        <select id="sequenceInput">
+          <option value="1">Séquence 1</option>
+          <option value="2">Séquence 2</option>
+          <option value="3">Séquence 3</option>
+          <option value="4">Séquence 4</option>
+          <option value="5">Séquence 5</option>
+          <option value="6">Séquence 6</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="anneeInput">Année scolaire</label>
+        <input type="text" id="anneeInput" placeholder="2025-2026" value="2025-2026" />
+      </div>
+      <div class="field">
+        <label for="fichierInput">Fichier PDF</label>
+        <div class="file-input-wrapper">
+          <label for="fichierInput" class="file-input-label" id="fileLabel">📄 Choisir un PDF...</label>
+          <input type="file" id="fichierInput" accept=".pdf" />
+        </div>
+      </div>
+      <button class="btn-save" id="saveBtn">📤 Publier</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Bulletins publiés</h2>
+        <span style="font-size:0.82rem;color:var(--text-soft);" id="bulletinCount">0 bulletin</span>
+      </div>
+      <table class="bulletins-table">
+        <thead>
+          <tr>
+            <th>Élève</th>
+            <th>Trimestre</th>
+            <th>Séquence</th>
+            <th>Année</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bulletinsBody">
+          <tr><td colspan="6" class="empty-state">Sélectionnez une classe.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- ===== MODAL PDF ===== -->
+<div class="pdf-modal-overlay" id="pdfModalOverlay">
+  <div class="pdf-modal">
+    <div class="pdf-modal-head">
+      <h3 id="pdfModalTitle">Bulletin</h3>
+      <button class="close-btn" id="pdfModalClose">✕</button>
+    </div>
+    <div class="pdf-modal-body">
+      <iframe id="pdfModalIframe" src="about:blank"></iframe>
+    </div>
+    <div class="pdf-modal-footer">
+      <a id="pdfModalDownload" class="download-btn" href="#" download>⬇️ Télécharger</a>
+      <button class="close-modal-btn" id="pdfModalCloseBtn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
+
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const opts = {
+        ...options,
+        headers: {
+          'Authorization': 'Token ' + token,
+          ...(options.headers || {})
+        }
+      };
+
+      if (!(options.body instanceof FormData)) {
+        opts.headers['Content-Type'] = 'application/json';
+      }
+
+      const response = await fetch(API_BASE + url, opts);
+      if (response.status === 204) return null;
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM
+    // ======================================================
+    const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+    document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+    document.getElementById('enseignant-initial').textContent =
+      (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
+    // ======================================================
+    const classeSelect = document.getElementById('classeSelect');
+    const eleveSelect = document.getElementById('eleveSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    const bulletinsBody = document.getElementById('bulletinsBody');
+    const bulletinCount = document.getElementById('bulletinCount');
+    const formBulletin = document.getElementById('formBulletin');
+    const infoBanner = document.getElementById('infoBanner');
+    const trimestreInput = document.getElementById('trimestreInput');
+    const sequenceInput = document.getElementById('sequenceInput');
+    const anneeInput = document.getElementById('anneeInput');
+    const fichierInput = document.getElementById('fichierInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Modal PDF
+    const pdfModalOverlay = document.getElementById('pdfModalOverlay');
+    const pdfModalTitle = document.getElementById('pdfModalTitle');
+    const pdfModalIframe = document.getElementById('pdfModalIframe');
+    const pdfModalDownload = document.getElementById('pdfModalDownload');
+    const pdfModalClose = document.getElementById('pdfModalClose');
+    const pdfModalCloseBtn = document.getElementById('pdfModalCloseBtn');
+
+    let classesData = [];
+    let elevesData = [];
+    let bulletinsData = [];
+
+    // ======================================================
+    // 6. OUVRIR LA MODAL PDF
+    // ======================================================
+    function openPdfModal(url, titre) {
+      pdfModalTitle.textContent = titre || 'Bulletin';
+      pdfModalIframe.src = url + '#toolbar=1&navpanes=1';
+      pdfModalDownload.href = url;
+      pdfModalDownload.download = titre || 'bulletin.pdf';
+      pdfModalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Empêche le scroll de la page derrière
+    }
+
+    function closePdfModal() {
+      pdfModalOverlay.classList.remove('active');
+      pdfModalIframe.src = 'about:blank';
+      document.body.style.overflow = '';
+    }
+
+    pdfModalClose.addEventListener('click', closePdfModal);
+    pdfModalCloseBtn.addEventListener('click', closePdfModal);
+    pdfModalOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closePdfModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && pdfModalOverlay.classList.contains('active')) {
+        closePdfModal();
+      }
+    });
+
+    // ======================================================
+    // 7. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur classes :', err);
+      }
+    }
+
+    // ======================================================
+    // 8. CHANGEMENT DE CLASSE → Charger élèves
+    // ======================================================
+    classeSelect.addEventListener('change', async function() {
+      const classeId = parseInt(this.value);
+      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
+      formBulletin.style.display = 'none';
+      bulletinsBody.innerHTML = `<tr><td colspan="6" class="empty-state">Choisissez une classe puis cliquez sur "Charger les bulletins".</td></tr>`;
+      bulletinCount.textContent = '0 bulletin';
+
+      if (!classeId) {
+        infoBanner.textContent = 'Sélectionnez une classe.';
+        return;
+      }
+
+      try {
+        elevesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`);
+        elevesData.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_eleve;
+          opt.textContent = e.nom;
+          eleveSelect.appendChild(opt);
+        });
+        infoBanner.textContent = `Classe sélectionnée : ${this.options[this.selectedIndex].text}`;
+      } catch (err) {
+        console.error('Erreur élèves :', err);
+      }
+    });
+
+    // ======================================================
+    // 9. CHARGER LES BULLETINS
+    // ======================================================
+    loadBtn.addEventListener('click', async function() {
+      const classeId = parseInt(classeSelect.value);
+      if (!classeId) { alert('Veuillez sélectionner une classe.'); return; }
+
+      const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
+      infoBanner.textContent = `Gestion des bulletins pour ${classeNom}`;
+      formBulletin.style.display = 'grid';
+
+      bulletinsBody.innerHTML = `<tr><td colspan="6" class="empty-state">⏳ Chargement...</td></tr>`;
+
+      try {
+        const allBulletins = [];
+        for (const e of elevesData) {
+          try {
+            const bulletins = await fetchAPI(
+              `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/bulletins/`
+            );
+            bulletins.forEach(b => { b.eleve_nom = e.nom; });
+            allBulletins.push(...bulletins);
+          } catch (err) {
+            console.warn('Erreur bulletins élève', e.id_eleve, err);
+          }
+        }
+        bulletinsData = allBulletins;
+        renderBulletins(bulletinsData);
+      } catch (err) {
+        console.error('Erreur chargement bulletins :', err);
+        bulletinsBody.innerHTML = `<tr><td colspan="6" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>`;
+      }
+    });
+
+    // ======================================================
+    // 10. AFFICHER LES BULLETINS
+    // ======================================================
+    function renderBulletins(bulletins) {
+      if (bulletins.length === 0) {
+        bulletinsBody.innerHTML = `
+          <tr><td colspan="6" class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="16" height="18" rx="2"/>
+              <path d="M8 8h8M8 12h8M8 16h5"/>
+            </svg>
+            <p>Aucun bulletin publié.</p>
+          </td></tr>
+        `;
+        bulletinCount.textContent = '0 bulletin';
+        return;
+      }
+
+      bulletins.sort((a, b) => new Date(b.date_publication) - new Date(a.date_publication));
+
+      bulletinsBody.innerHTML = '';
+      bulletins.forEach(b => {
+        const dateFr = new Date(b.date_publication).toLocaleDateString('fr-FR', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+        const fileName = b.fichier ? b.fichier.split('/').pop() : 'bulletin.pdf';
+        const titreComplet = `Bulletin - ${b.eleve_nom} - ${b.trimestre} - Séquence ${b.sequence}`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${b.eleve_nom}</strong></td>
+          <td><span class="periode-badge">${b.trimestre_display || b.trimestre}</span></td>
+          <td>${b.sequence_display || 'Séquence ' + b.sequence}</td>
+          <td>${b.annee_scolaire || '—'}</td>
+          <td>${dateFr}</td>
+          <td>
+            <div class="actions">
+              <button class="view-btn" onclick="voirBulletin('${b.fichier_url || b.fichier}', '${titreComplet.replace(/'/g, "\\'")}')">👁️ Voir</button>
+              <button class="delete-btn" onclick="deleteBulletin(${b.id_bulletin})">🗑️</button>
+            </div>
+          </td>
+        `;
+        bulletinsBody.appendChild(tr);
+      });
+      bulletinCount.textContent = `${bulletins.length} bulletin${bulletins.length > 1 ? 's' : ''}`;
+    }
+
+    // ======================================================
+    // 11. VOIR UN BULLETIN (MODAL)
+    // ======================================================
+    window.voirBulletin = function(url, titre) {
+      openPdfModal(url, titre);
+    };
+
+    // ======================================================
+    // 12. AFFICHER LE NOM DU FICHIER SÉLECTIONNÉ
+    // ======================================================
+    fichierInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        fileLabel.textContent = '✅ ' + this.files[0].name;
+        fileLabel.classList.add('has-file');
+      } else {
+        fileLabel.textContent = '📄 Choisir un PDF...';
+        fileLabel.classList.remove('has-file');
+      }
+    });
+
+    // ======================================================
+    // 13. PUBLIER UN BULLETIN (UPLOAD)
+    // ======================================================
+    saveBtn.addEventListener('click', async function() {
+      const eleveId = parseInt(eleveSelect.value);
+      const trimestre = trimestreInput.value;
+      const sequence = parseInt(sequenceInput.value);
+      const anneeScolaire = anneeInput.value.trim();
+      const fichier = fichierInput.files[0];
+
+      if (!eleveId) { alert('Veuillez sélectionner un élève.'); return; }
+      if (!fichier) { alert('Veuillez sélectionner un fichier PDF.'); return; }
+      if (!fichier.name.toLowerCase().endsWith('.pdf')) {
+        alert('Le fichier doit être un PDF.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('fichier', fichier);
+      formData.append('trimestre', trimestre);
+      formData.append('sequence', sequence);
+      formData.append('annee_scolaire', anneeScolaire);
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Publication...';
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/bulletins/`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        eleveSelect.value = '';
+        trimestreInput.value = 'Trimestre 1';
+        sequenceInput.value = '1';
+        fichierInput.value = '';
+        fileLabel.textContent = '📄 Choisir un PDF...';
+        fileLabel.classList.remove('has-file');
+
+        loadBtn.click();
+
+      } catch (err) {
+        console.error('Erreur publication :', err);
+        let msg = 'Erreur lors de la publication.';
+        if (err.data && typeof err.data === 'object') {
+          msg = err.data.erreur || Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '📤 Publier';
+      }
+    });
+
+    // ======================================================
+    // 14. SUPPRIMER UN BULLETIN
+    // ======================================================
+    window.deleteBulletin = async function(idBulletin) {
+      if (!confirm('Supprimer ce bulletin ? Cette action est irréversible.')) return;
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/bulletins/${idBulletin}/`, {
+          method: 'DELETE',
+        });
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Impossible de supprimer ce bulletin.');
+      }
+    };
+
+    // ======================================================
+    // 15. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 16. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
+  })();
+</script>
+
+</body>
+</html>

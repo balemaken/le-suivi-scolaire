@@ -432,56 +432,50 @@
     </form>
   </div>
 </div>
-
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES
+    // 1. CONFIGURATION
     // ======================================================
-
-    // Classes existantes
-    const classesSimules = [
-      { id: 1, nom: '6ᵉ A' },
-      { id: 2, nom: '5ᵉ A' },
-      { id: 3, nom: '4ᵉ B' },
-      { id: 4, nom: '3ᵉ A' },
-      { id: 5, nom: '6ᵉ B' },
-      { id: 6, nom: '5ᵉ B' },
-      { id: 7, nom: '4ᵉ A' },
-      { id: 8, nom: '3ᵉ B' }
-    ];
-
-    // Enseignants existants
-    const enseignantsSimules = [
-      { id: 1, nom: 'M. Ngono' },
-      { id: 2, nom: 'Mme Tchoffo' },
-      { id: 3, nom: 'M. Kamga' },
-      { id: 4, nom: 'Mme Nana' }
-    ];
-
-    // Matières simulées
-    let matieresData = [
-      { id: 1, nom: 'Mathématiques', classe: 1, enseignant: 1 },
-      { id: 2, nom: 'Français', classe: 1, enseignant: 2 },
-      { id: 3, nom: 'Anglais', classe: 1, enseignant: null },
-      { id: 4, nom: 'Physique', classe: 2, enseignant: 1 },
-      { id: 5, nom: 'Chimie', classe: 2, enseignant: null },
-      { id: 6, nom: 'Histoire', classe: 3, enseignant: 2 },
-      { id: 7, nom: 'Géographie', classe: 3, enseignant: null },
-      { id: 8, nom: 'Informatique', classe: 4, enseignant: 3 },
-      { id: 9, nom: 'Mathématiques', classe: 4, enseignant: 3 },
-      { id: 10, nom: 'Espagnol', classe: 4, enseignant: null },
-      { id: 11, nom: 'SVT', classe: 5, enseignant: 4 },
-      { id: 12, nom: 'Mathématiques', classe: 6, enseignant: 4 },
-      { id: 13, nom: 'Français', classe: 6, enseignant: 2 },
-      { id: 14, nom: 'Anglais', classe: 7, enseignant: null },
-      { id: 15, nom: 'Physique', classe: 8, enseignant: 1 },
-      { id: 16, nom: 'Informatique', classe: 8, enseignant: 3 }
-    ];
-    let nextId = 17;
+    const API_BASE = '';
 
     // ======================================================
-    // 2. RÉFÉRENCES DOM
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Admin';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const initiale = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-initial').textContent = initiale;
+    document.getElementById('admin-nom-avatar').textContent = (prenomAdmin + ' ' + nomAdmin).trim();
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const token = localStorage.getItem('authToken');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Token ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(API_BASE + url, { ...options, headers });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. RÉFÉRENCES DOM
     // ======================================================
     const matieresBody = document.getElementById('matieresBody');
     const matiereCount = document.getElementById('matiereCount');
@@ -500,68 +494,86 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const openAddBtn = document.getElementById('openAddModal');
 
-    // ======================================================
-    // 3. PROFIL ADMIN
-    // ======================================================
-    document.getElementById('admin-initial').textContent = 'A';
-    document.getElementById('admin-nom-avatar').textContent = 'Admin';
+    // Caches
+    let matieresData = [];
+    let classesData = [];
+    let enseignantsData = [];
 
     // ======================================================
-    // 4. REMPLIR LES FILTRES ET SELECTS
+    // 5. CHARGER CLASSES + ENSEIGNANTS (POUR LES FILTRES)
     // ======================================================
-    function populateFilters() {
-      // Filtre classes
-      classeFilter.innerHTML = '<option value="">Toutes les classes</option>';
-      classesSimules.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nom;
-        classeFilter.appendChild(opt);
-      });
-
-      // Filtre enseignants
-      enseignantFilter.innerHTML = '<option value="">Tous les enseignants</option>';
-      enseignantsSimules.forEach(e => {
-        const opt = document.createElement('option');
-        opt.value = e.id;
-        opt.textContent = e.nom;
-        enseignantFilter.appendChild(opt);
-      });
-
-      // Select classe dans le modal
-      classeMatiere.innerHTML = '<option value="">-- Choisir --</option>';
-      classesSimules.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nom;
-        classeMatiere.appendChild(opt);
-      });
-
-      // Select enseignant dans le modal
-      enseignantMatiere.innerHTML = '<option value="">-- Aucun --</option>';
-      enseignantsSimules.forEach(e => {
-        const opt = document.createElement('option');
-        opt.value = e.id;
-        opt.textContent = e.nom;
-        enseignantMatiere.appendChild(opt);
-      });
-    }
-    populateFilters();
-
-    // ======================================================
-    // 5. AFFICHER LES MATIÈRES
-    // ======================================================
-    function getClasseNom(id) {
-      const c = classesSimules.find(cls => cls.id === id);
-      return c ? c.nom : '—';
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI('/api/classes/');
+        // Filtre classes
+        classeFilter.innerHTML = '<option value="">Toutes les classes</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeFilter.appendChild(opt);
+        });
+        // Select modal
+        classeMatiere.innerHTML = '<option value="">-- Choisir --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeMatiere.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
     }
 
-    function getEnseignantNom(id) {
-      if (!id) return 'Non affecté';
-      const e = enseignantsSimules.find(ens => ens.id === id);
-      return e ? e.nom : 'Non affecté';
+    async function loadEnseignants() {
+      try {
+        enseignantsData = await fetchAPI('/api/enseignants/');
+        // Filtre enseignants
+        enseignantFilter.innerHTML = '<option value="">Tous les enseignants</option>';
+        enseignantsData.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_utilisateur;
+          opt.textContent = (e.prenom + ' ' + e.nom).trim() || e.email;
+          enseignantFilter.appendChild(opt);
+        });
+        // Select modal
+        enseignantMatiere.innerHTML = '<option value="">-- Aucun --</option>';
+        enseignantsData.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_utilisateur;
+          opt.textContent = (e.prenom + ' ' + e.nom).trim() || e.email;
+          enseignantMatiere.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement enseignants :', err);
+      }
     }
 
+    // ======================================================
+    // 6. CHARGER LES MATIÈRES
+    // ======================================================
+    async function loadMatieres() {
+      matieresBody.innerHTML = `
+        <tr><td colspan="4" class="empty-state">⏳ Chargement des matières...</td></tr>
+      `;
+
+      try {
+        matieresData = await fetchAPI('/api/matieres/');
+        filterMatieres();
+      } catch (err) {
+        console.error('Erreur chargement matières :', err);
+        matieresBody.innerHTML = `
+          <tr><td colspan="4" class="empty-state" style="color:var(--coral);">
+            ⚠️ Impossible de charger les matières : ${err.message}
+          </td></tr>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 7. AFFICHER LES MATIÈRES
+    // ======================================================
     function renderMatieres(matieres) {
       if (matieres.length === 0) {
         matieresBody.innerHTML = `<tr><td colspan="4" class="empty-state">Aucune matière trouvée.</td></tr>`;
@@ -574,12 +586,12 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="nom">${m.nom}</td>
-          <td class="classe">${getClasseNom(m.classe)}</td>
-          <td class="enseignant">${getEnseignantNom(m.enseignant)}</td>
+          <td class="classe">${m.classe_nom || '—'}</td>
+          <td class="enseignant">${m.enseignant_nom || 'Non affecté'}</td>
           <td>
             <div class="actions">
-              <button class="edit-btn" onclick="editMatiere(${m.id})">✏️ Modifier</button>
-              <button class="delete-btn" onclick="deleteMatiere(${m.id})">🗑️ Supprimer</button>
+              <button class="edit-btn" onclick="editMatiere(${m.id_matiere})">✏️ Modifier</button>
+              <button class="delete-btn" onclick="deleteMatiere(${m.id_matiere})">🗑️ Supprimer</button>
             </div>
           </td>
         `;
@@ -589,14 +601,14 @@
     }
 
     // ======================================================
-    // 6. FILTRER LES MATIÈRES
+    // 8. FILTRER (CÔTÉ CLIENT)
     // ======================================================
     function filterMatieres() {
       const searchTerm = searchInput.value.toLowerCase().trim();
       const classeId = parseInt(classeFilter.value) || null;
       const enseignantId = parseInt(enseignantFilter.value) || null;
 
-      let filtered = matieresData.filter(m => {
+      const filtered = matieresData.filter(m => {
         const matchSearch = m.nom.toLowerCase().includes(searchTerm);
         const matchClasse = classeId ? m.classe === classeId : true;
         const matchEnseignant = enseignantId ? m.enseignant === enseignantId : true;
@@ -611,12 +623,12 @@
     enseignantFilter.addEventListener('change', filterMatieres);
 
     // ======================================================
-    // 7. CRUD : AJOUT / MODIFICATION
+    // 9. MODAL AJOUT/MODIFICATION
     // ======================================================
     function openModal(matiereData = null) {
       if (matiereData) {
         modalTitle.textContent = 'Modifier la matière';
-        editId.value = matiereData.id;
+        editId.value = matiereData.id_matiere;
         nomMatiere.value = matiereData.nom;
         classeMatiere.value = matiereData.classe;
         enseignantMatiere.value = matiereData.enseignant || '';
@@ -644,83 +656,104 @@
       if (e.target === this) closeModalFn();
     });
 
-    // Soumission du formulaire
-    matiereForm.addEventListener('submit', function(e) {
+    // ======================================================
+    // 10. SOUMISSION (CRÉATION / MODIFICATION)
+    // ======================================================
+    matiereForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const nom = nomMatiere.value.trim();
-      const classe = parseInt(classeMatiere.value);
-      const enseignant = parseInt(enseignantMatiere.value) || null;
+      const classeId = parseInt(classeMatiere.value);
+      const enseignantValue = enseignantMatiere.value;
+      const enseignantId = enseignantValue ? parseInt(enseignantValue) : null;
 
       if (!nom) {
         alert('Le nom de la matière est obligatoire.');
         return;
       }
-      if (!classe) {
+      if (!classeId) {
         alert('Veuillez sélectionner une classe.');
         return;
       }
 
       const id = parseInt(editId.value);
 
-      // Vérifier unicité (nom + classe)
-      const exists = matieresData.some(m => 
-        m.nom.toLowerCase() === nom.toLowerCase() && 
-        m.classe === classe && 
-        m.id !== id
-      );
-      if (exists) {
-        alert('Cette matière existe déjà pour cette classe.');
-        return;
-      }
+      const payload = {
+        nom: nom,
+        classe: classeId,
+        enseignant: enseignantId,
+      };
 
-      if (id) {
-        // Modification
-        const index = matieresData.findIndex(m => m.id === id);
-        if (index !== -1) {
-          matieresData[index].nom = nom;
-          matieresData[index].classe = classe;
-          matieresData[index].enseignant = enseignant;
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (id) {
+          // MODIFICATION
+          await fetchAPI(`/api/matieres/${id}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          // CRÉATION
+          await fetchAPI('/api/matieres/', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
         }
-      } else {
-        // Nouvelle matière
-        matieresData.push({
-          id: nextId++,
-          nom: nom,
-          classe: classe,
-          enseignant: enseignant
-        });
-      }
 
-      closeModalFn();
-      filterMatieres();
+        closeModalFn();
+        await loadMatieres();
+
+      } catch (err) {
+        console.error('Erreur sauvegarde :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
     // ======================================================
-    // 8. CRUD : MODIFIER
+    // 11. MODIFIER
     // ======================================================
     window.editMatiere = function(id) {
-      const matiere = matieresData.find(m => m.id === id);
-      if (!matiere) return;
-      openModal(matiere);
+      const m = matieresData.find(x => x.id_matiere === id);
+      if (!m) return;
+      openModal(m);
     };
 
     // ======================================================
-    // 9. CRUD : SUPPRIMER
+    // 12. SUPPRIMER
     // ======================================================
-    window.deleteMatiere = function(id) {
+    window.deleteMatiere = async function(id) {
       if (!confirm('Supprimer cette matière ? Cette action est irréversible.')) return;
-      matieresData = matieresData.filter(m => m.id !== id);
-      filterMatieres();
+
+      try {
+        await fetchAPI(`/api/matieres/${id}/`, { method: 'DELETE' });
+        await loadMatieres();
+      } catch (err) {
+        console.error('Erreur suppression :', err);
+        alert('❌ Impossible de supprimer cette matière (peut-être liée à des notes ou absences).');
+      }
     };
 
     // ======================================================
-    // 10. INITIALISATION
+    // 13. INITIALISATION
     // ======================================================
-    renderMatieres(matieresData);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadClasses();
+      await loadEnseignants();
+      await loadMatieres();
+    });
 
   })();
 </script>
-
 </body>
 </html>

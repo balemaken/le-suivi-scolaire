@@ -41,7 +41,7 @@
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -54,17 +54,29 @@
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'sanctions' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
-      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
+      <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="dash-main">
-    <div class="dash-topbar"><div><h1>Gestion des sanctions</h1><p class="sub">Enregistrez et gérez les sanctions de vos élèves.</p></div><div class="topbar-avatar"><span class="avatar-sm" id="enseignant-initial">N</span><span id="enseignant-nom-avatar">M. Ngono</span></div></div>
+    <div class="dash-topbar">
+      <div><h1>Gestion des sanctions</h1><p class="sub">Enregistrez et gérez les sanctions de vos élèves.</p></div>
+      <div class="topbar-avatar">
+        <span class="avatar-sm" id="enseignant-initial">E</span>
+        <span id="enseignant-nom-avatar">Enseignant</span>
+      </div>
+    </div>
 
     <div class="filter-bar">
       <select id="classeSelect"><option value="">-- Choisir une classe --</option></select>
@@ -92,17 +104,65 @@
 
 <script>
   (function() {
-    const affectations = [
-      { classe: { id: 1, nom: '5ᵉ A' }, eleves: [{ id: 1, nom: 'Sarah Mballa' }, { id: 2, nom: 'Paul Mballa' }, { id: 3, nom: 'Marie Ngono' }] },
-      { classe: { id: 2, nom: '4ᵉ B' }, eleves: [{ id: 4, nom: 'Jean Tchoffo' }, { id: 5, nom: 'Aline Nana' }] },
-      { classe: { id: 3, nom: '3ᵉ A' }, eleves: [{ id: 6, nom: 'David Mballa' }, { id: 7, nom: 'Céline Ngono' }] }
-    ];
-    let sanctionsData = { '1_2026-07-20': { id: 1, eleveId: 1, eleveNom: 'Sarah Mballa', type: 'avertissement', motif: 'Retard récurrent', date: '2026-07-20' }, '2_2026-07-10': { id: 2, eleveId: 2, eleveNom: 'Paul Mballa', type: 'retenue', motif: 'Comportement perturbateur', date: '2026-07-10' } };
-    let nextSanctionId = 3, editingId = null;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const enseignantId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
+    if (!token || !enseignantId || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.href = '/login/';
+      return;
+    }
+
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url, options = {}) {
+      const response = await fetch(API_BASE + url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token,
+          ...(options.headers || {})
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 5. RÉFÉRENCES DOM
+    // ======================================================
     const classeSelect = document.getElementById('classeSelect');
     const eleveSelect = document.getElementById('eleveSelect');
     const loadBtn = document.getElementById('loadBtn');
@@ -117,80 +177,265 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const editId = document.getElementById('editId');
 
-    affectations.forEach(a => { const opt = document.createElement('option'); opt.value = a.classe.id; opt.textContent = a.classe.nom; classeSelect.appendChild(opt); });
-    classeSelect.addEventListener('change', function() {
+    // Cache
+    let classesData = [];
+    let elevesData = [];
+    let editingId = null;
+
+    // ======================================================
+    // 6. CHARGER LES CLASSES
+    // ======================================================
+    async function loadClasses() {
+      try {
+        classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
+        classesData.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id_classe;
+          opt.textContent = c.nom;
+          classeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erreur chargement classes :', err);
+      }
+    }
+
+    // ======================================================
+    // 7. AU CHANGEMENT DE CLASSE
+    // ======================================================
+    classeSelect.addEventListener('change', async function() {
       const classeId = parseInt(this.value);
-      const classe = affectations.find(a => a.classe.id === classeId);
       eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      if (classe) classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
       formSanction.style.display = 'none';
-      infoBanner.textContent = 'Sélectionnez une classe, puis cliquez sur "Charger les sanctions".';
-      sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe.</td></tr>`;
+      sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Choisissez une classe puis cliquez sur "Charger les sanctions".</td></tr>`;
       sanctionCount.textContent = '0 sanction';
+
+      if (!classeId) {
+        infoBanner.textContent = 'Sélectionnez une classe.';
+        return;
+      }
+
+      try {
+        elevesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`);
+        elevesData.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id_eleve;
+          opt.textContent = e.nom;
+          eleveSelect.appendChild(opt);
+        });
+        infoBanner.textContent = `Classe sélectionnée : ${this.options[this.selectedIndex].text}`;
+      } catch (err) {
+        console.error('Erreur chargement élèves :', err);
+      }
     });
 
-    loadBtn.addEventListener('click', function() {
+    // ======================================================
+    // 8. CHARGER LES SANCTIONS
+    // ======================================================
+    loadBtn.addEventListener('click', async function() {
       const classeId = parseInt(classeSelect.value);
-      if (!classeId) { alert('Veuillez sélectionner une classe.'); return; }
-      const classe = affectations.find(a => a.classe.id === classeId);
-      eleveSelect.innerHTML = '<option value="">-- Choisir --</option>';
-      classe.eleves.forEach(e => { const opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.nom; eleveSelect.appendChild(opt); });
-      dateSanction.value = new Date().toISOString().split('T')[0];
+      if (!classeId) {
+        alert('Veuillez sélectionner une classe.');
+        return;
+      }
+
+      const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
+      infoBanner.textContent = `Gestion des sanctions pour ${classeNom}`;
       formSanction.style.display = 'grid';
-      infoBanner.textContent = `Gestion des sanctions pour ${classe.classe.nom}`;
-      const sanctions = Object.values(sanctionsData).filter(s => classe.eleves.some(e => e.id === s.eleveId));
-      renderSanctions(sanctions);
+      dateSanction.value = new Date().toISOString().split('T')[0];
+
+      sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
+
+      try {
+        const allSanctions = [];
+
+        for (const e of elevesData) {
+          try {
+            const sanctions = await fetchAPI(
+              `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/sanctions/`
+            );
+            sanctions.forEach(s => {
+              s.eleve_nom = s.eleve_nom || e.nom;
+            });
+            allSanctions.push(...sanctions);
+          } catch (err) {
+            console.warn(`Erreur sanctions pour élève ${e.id_eleve}`, err);
+          }
+        }
+
+        renderSanctions(allSanctions);
+      } catch (err) {
+        console.error('Erreur chargement sanctions :', err);
+        sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>`;
+      }
     });
 
+    // ======================================================
+    // 9. AFFICHER LES SANCTIONS
+    // ======================================================
     function renderSanctions(sanctions) {
-      if (sanctions.length === 0) { sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune sanction enregistrée.</td></tr>`; sanctionCount.textContent = '0 sanction'; return; }
+      if (sanctions.length === 0) {
+        sanctionsBody.innerHTML = `<tr><td colspan="5" class="empty-state">Aucune sanction enregistrée.</td></tr>`;
+        sanctionCount.textContent = '0 sanction';
+        return;
+      }
+
       sanctionsBody.innerHTML = '';
       sanctions.forEach(s => {
         const tr = document.createElement('tr');
-        const dateFr = new Date(s.date).toLocaleDateString('fr-FR');
-        const typeLabel = s.type.charAt(0).toUpperCase() + s.type.slice(1);
-        tr.innerHTML = `<td class="eleve-nom">${s.eleveNom}</td><td><span class="type-badge ${s.type}">${typeLabel}</span></td><td>${dateFr}</td><td>${s.motif || '—'}</td><td><div class="actions"><button class="edit-btn" onclick="editSanction(${s.id})">✏️</button><button class="delete-btn" onclick="deleteSanction(${s.id})">🗑️</button></div></td>`;
+        const dateFr = new Date(s.date_sanction).toLocaleDateString('fr-FR');
+        const typeLabel = s.type_sanction.charAt(0).toUpperCase() + s.type_sanction.slice(1);
+
+        tr.innerHTML = `
+          <td class="eleve-nom">${s.eleve_nom}</td>
+          <td><span class="type-badge ${s.type_sanction}">${typeLabel}</span></td>
+          <td>${dateFr}</td>
+          <td>${s.motif || '—'}</td>
+          <td>
+            <div class="actions">
+              <button class="edit-btn" onclick="editSanction(${s.id_sanction})">✏️</button>
+              <button class="delete-btn" onclick="deleteSanction(${s.id_sanction})">🗑️</button>
+            </div>
+          </td>
+        `;
         sanctionsBody.appendChild(tr);
       });
       sanctionCount.textContent = `${sanctions.length} sanction${sanctions.length > 1 ? 's' : ''}`;
     }
 
-    saveBtn.addEventListener('click', function() {
+    // ======================================================
+    // 10. SAUVEGARDER UNE SANCTION
+    // ======================================================
+    saveBtn.addEventListener('click', async function() {
       const eleveId = parseInt(eleveSelect.value);
-      const type = typeSanction.value;
+      const typeValue = typeSanction.value;
       const motifValue = motif.value.trim();
-      const dateValue = dateSanction.value;
-      if (!eleveId || !dateValue) { alert('Veuillez sélectionner un élève et une date.'); return; }
-      const classe = affectations.find(a => a.eleves.some(e => e.id === eleveId));
-      const eleve = classe.eleves.find(e => e.id === eleveId);
-      const key = `${eleveId}_${dateValue}`;
-      if (editingId) {
-        const existing = Object.values(sanctionsData).find(s => s.id === editingId);
-        if (existing) { const oldKey = `${existing.eleveId}_${existing.date}`; delete sanctionsData[oldKey]; const newKey = key; sanctionsData[newKey] = { id: editingId, eleveId, eleveNom: eleve.nom, type, motif: motifValue, date: dateValue }; }
-        editingId = null; editId.value = ''; cancelBtn.style.display = 'none';
-      } else {
-        if (sanctionsData[key]) { alert('Une sanction existe déjà pour cet élève à cette date.'); return; }
-        sanctionsData[key] = { id: nextSanctionId++, eleveId, eleveNom: eleve.nom, type, motif: motifValue, date: dateValue };
+
+      if (!eleveId) {
+        alert('Veuillez sélectionner un élève.');
+        return;
       }
-      motif.value = ''; eleveSelect.value = ''; loadBtn.click();
+
+      const payload = {
+        type_sanction: typeValue,
+        motif: motifValue,
+      };
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Enregistrement...';
+
+      try {
+        if (editingId) {
+          await fetchAPI(`/api/enseignants/${enseignantId}/sanctions/${editingId}/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/sanctions/`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        editingId = null;
+        editId.value = '';
+        cancelBtn.style.display = 'none';
+        motif.value = '';
+        eleveSelect.value = '';
+
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur sauvegarde sanction :', err);
+        let msg = 'Erreur lors de l\'enregistrement.';
+        if (err.data && typeof err.data === 'object') {
+          msg = err.data.erreur || Object.keys(err.data)
+            .map(k => k + ' : ' + [].concat(err.data[k]).join(', '))
+            .join('\n');
+        }
+        alert('❌ ' + msg);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Enregistrer';
+      }
     });
 
-    window.editSanction = function(id) {
-      const sanction = Object.values(sanctionsData).find(s => s.id === id);
-      if (!sanction) return;
-      editingId = id; editId.value = id; eleveSelect.value = sanction.eleveId; typeSanction.value = sanction.type; motif.value = sanction.motif || ''; dateSanction.value = sanction.date;
-      cancelBtn.style.display = 'inline-block';
-      formSanction.scrollIntoView({ behavior: 'smooth' });
-    };
-    window.deleteSanction = function(id) {
-      if (!confirm('Supprimer cette sanction ?')) return;
-      const key = Object.keys(sanctionsData).find(k => sanctionsData[k].id === id);
-      if (key) delete sanctionsData[key];
-      loadBtn.click();
-    };
-    cancelBtn.addEventListener('click', function() { editingId = null; editId.value = ''; this.style.display = 'none'; motif.value = ''; eleveSelect.value = ''; loadBtn.click(); });
+    // ======================================================
+    // 11. MODIFIER UNE SANCTION
+    // ======================================================
+    window.editSanction = async function(idSanction) {
+      try {
+        const sanction = await fetchAPI(`/api/enseignants/${enseignantId}/sanctions/${idSanction}/`);
 
-    document.getElementById('msg-badge').textContent = '3';
+        editingId = idSanction;
+        editId.value = idSanction;
+        eleveSelect.value = sanction.eleve;
+        typeSanction.value = sanction.type_sanction;
+        motif.value = sanction.motif || '';
+
+        cancelBtn.style.display = 'inline-block';
+        formSanction.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Erreur chargement sanction :', err);
+        alert('❌ Impossible de charger la sanction.');
+      }
+    };
+
+    // ======================================================
+    // 12. SUPPRIMER UNE SANCTION
+    // ======================================================
+    window.deleteSanction = async function(idSanction) {
+      if (!confirm('Supprimer cette sanction ?')) return;
+
+      try {
+        await fetchAPI(`/api/enseignants/${enseignantId}/sanctions/${idSanction}/`, {
+          method: 'DELETE',
+        });
+        loadBtn.click();
+      } catch (err) {
+        console.error('Erreur suppression sanction :', err);
+        alert('❌ Impossible de supprimer cette sanction.');
+      }
+    };
+
+    // ======================================================
+    // 13. ANNULER L'ÉDITION
+    // ======================================================
+    cancelBtn.addEventListener('click', function() {
+      editingId = null;
+      editId.value = '';
+      this.style.display = 'none';
+      motif.value = '';
+      eleveSelect.value = '';
+      typeSanction.value = 'avertissement';
+    });
+
+    // ======================================================
+    // 14. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 15. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadClasses();
+      document.getElementById('msg-badge').textContent = '0';
+    });
+
   })();
 </script>
 </body>

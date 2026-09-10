@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<!-- <link rel="stylesheet" href="style.css"> -->
 <link rel="stylesheet" href="{%static 'frontend/css/login.css'%}">
 </head>
 <body>
@@ -134,8 +134,8 @@
               <label>Sexe</label>
               <select name="enfant_sexe[]" required>
                 <option value="" disabled selected>Sélectionner</option>
-                <option value="feminin">Féminin</option>
-                <option value="masculin">Masculin</option>
+<option value="F">Féminin</option>
+<option value="M">Masculin</option>
               </select>
             </div>
             <div class="field">
@@ -228,10 +228,98 @@
     });
   });
 
+  // ============================================================
+  // SOUMISSION DU FORMULAIRE D'INSCRIPTION PARENT
+  // ============================================================
   document.getElementById('registerForm').addEventListener('submit', function(e){
     e.preventDefault();
-    // Emplacement prévu pour la logique d'inscription (appel API, enregistrement des enfants, etc.)
-    alert('Inscription : à relier à votre backend.');
+
+    // 1. Récupérer les données du parent
+    var nom = document.getElementById('r-nom').value.trim();
+    var prenom = document.getElementById('r-prenom').value.trim();
+    var telephone = document.getElementById('r-tel').value.trim();
+    var email = document.getElementById('r-email').value.trim();
+    var password = document.getElementById('r-password').value;
+
+    // 2. Vérification simple
+    if (!nom || !prenom || !email || !password) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    // 3. Récupérer les enfants
+    var enfantNoms = document.getElementsByName('enfant_nom[]');
+    var enfantSexes = document.getElementsByName('enfant_sexe[]');
+    var enfantClasses = document.getElementsByName('enfant_classe[]');
+
+    var enfants = [];
+    for (var i = 0; i < enfantNoms.length; i++) {
+      var nomE = enfantNoms[i].value.trim();
+      var sexeE = enfantSexes[i].value;    // "F" ou "M"
+      var classeE = enfantClasses[i].value;
+
+      if (nomE && sexeE && classeE) {
+        enfants.push({
+          nom: nomE,
+          sexe: sexeE,
+          classe: classeE
+        });
+      }
+    }
+
+    // 4. Construction du payload
+    var payload = {
+      nom: nom,
+      prenom: prenom,
+      email: email,
+      telephone: telephone,
+      password: password,
+      enfants: enfants
+    };
+
+    console.log('📤 Envoi:', payload);
+
+    // 5. Envoi à l'API
+    fetch('/api/inscription/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        return { status: response.status, body: data };
+      });
+    })
+    .then(function(result) {
+      console.log('📥 Réponse:', result);
+
+      if (result.status === 201) {
+        // Succès
+        alert('✅ Inscription réussie ! Vous allez être redirigé vers la connexion.');
+        window.location.href = "{% url 'login' %}";
+      } else {
+        // Erreur : afficher les détails
+        var erreurs = '';
+        if (typeof result.body === 'object') {
+          for (var key in result.body) {
+            if (Array.isArray(result.body[key])) {
+              erreurs += key + ' : ' + result.body[key].join(', ') + '\n';
+            } else {
+              erreurs += key + ' : ' + result.body[key] + '\n';
+            }
+          }
+        } else {
+          erreurs = result.body;
+        }
+        alert('❌ Erreur :\n' + erreurs);
+      }
+    })
+    .catch(function(error) {
+      console.error('❌ Erreur réseau:', error);
+      alert('Erreur réseau : impossible de contacter le serveur.');
+    });
   });
 </script>
 

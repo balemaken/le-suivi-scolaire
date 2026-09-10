@@ -22,7 +22,15 @@ from .views import (
       EnfantsDuParentAPIView,
         LierParentEleveAPIView,
           ElevesDuParentAPIView,
-            RetirerParentEleveAPIView
+            RetirerParentEleveAPIView,
+
+            EnseignantsAPIView,   # ← Ajouter
+    LiaisonsAPIView,
+
+
+     EnseignantDetailAPIView,
+
+     SupprimerLiaisonAPIView
 )
 
 
@@ -130,6 +138,65 @@ path( 'parents/<int:id_utilisateur>/enfants/', EnfantsDuParentAPIView.as_view(),
  path( 'parents/<int:id_utilisateur>/eleves/', ElevesDuParentAPIView.as_view(), name='eleves_parent' ),
  # Supprimer une liaison
   path( 'parents/<int:id_utilisateur>/liaison/<int:id_eleve>/', RetirerParentEleveAPIView.as_view(), name='retirer_parent_eleve' ),
+
+
+
+
+
+
+    path(
+        'enseignants/',
+        EnseignantsAPIView.as_view(),
+        name='api_enseignants'
+    ),
+
+    # =====================================================
+    # ENSEIGNANTS
+    # =====================================================
+    path(
+        'enseignants/',
+        EnseignantsAPIView.as_view(),
+        name='api_enseignants'
+    ),
+
+    # DÉTAIL D'UN ENSEIGNANT (GET/PUT/PATCH/DELETE)
+    path(
+        'enseignants/<int:id_enseignant>/',
+        EnseignantDetailAPIView.as_view(),
+        name='api_enseignant_detail'
+    ),
+
+
+
+
+
+
+    # =====================================================
+    # LIAISONS
+    # =====================================================
+    # path(
+    #     'liaisons/',
+    #     LiaisonsAPIView.as_view(),
+    #     name='api_liaisons'
+    # ),
+
+
+    # =====================================================
+    # LIAISONS
+    # =====================================================
+    path(
+        'liaisons/',
+        LiaisonsAPIView.as_view(),
+        name='api_liaisons'
+    ),
+
+    # Suppression d'une liaison (lie) ou d'un enfant déclaré (declare)
+    path(
+        'liaisons/<str:type_item>/<int:id_item>/',
+        SupprimerLiaisonAPIView.as_view(),
+        name='api_supprimer_liaison'
+    ),
+
 
 ]
 

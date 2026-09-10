@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* ===== VARIABLES ===== */
     :root {
       --ink: #1C2E33;
       --cream: #FBF6EC;
@@ -71,18 +70,14 @@
     .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
 
     /* ===== MAIN ===== */
-    .dash-main {
-      flex: 1; padding: 30px 4% 60px; min-width: 0;
-    }
+    .dash-main { flex: 1; padding: 30px 4% 60px; min-width: 0; }
     .dash-topbar {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
     }
     .dash-topbar h1 { font-size: 1.5rem; font-weight: 600; }
     .dash-topbar .sub { color: var(--text-soft); font-size: 0.9rem; margin-top: 2px; }
-    .topbar-actions {
-      display: flex; align-items: center; gap: 14px;
-    }
+    .topbar-actions { display: flex; align-items: center; gap: 14px; }
     .topbar-avatar {
       display: flex; align-items: center; gap: 10px;
       background: var(--paper); border: 1px solid var(--line);
@@ -96,9 +91,7 @@
     .topbar-avatar span { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
 
     /* ===== CHILD TABS ===== */
-    .child-tabs {
-      display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap;
-    }
+    .child-tabs { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
     .child-tab {
       display: flex; align-items: center; gap: 10px;
       background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px;
@@ -117,38 +110,25 @@
       padding: 26px 26px 22px;
     }
     .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 18px;
     }
-    .panel-head h2 {
-      font-size: 1.05rem;
-      font-weight: 600;
-    }
+    .panel-head h2 { font-size: 1.05rem; font-weight: 600; }
     .panel-head a {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent-dark);
+      font-size: 0.82rem; font-weight: 600; color: var(--accent-dark);
     }
     .panel-head a:hover { color: var(--ink); }
 
-    .notes-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .notes-table { width: 100%; border-collapse: collapse; }
     .notes-table th {
-      text-align: left;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      text-align: left; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
       color: var(--text-soft);
       padding: 0 0 10px;
       border-bottom: 1px solid var(--line);
     }
     .notes-table td {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line);
+      padding: 12px 0; border-bottom: 1px solid var(--line);
       font-size: 0.9rem;
     }
     .notes-table tr:last-child td { border-bottom: none; }
@@ -176,7 +156,15 @@
       display: block;
     }
 
-    /* responsive */
+    .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
+    .loading-spinner {
+      display: inline-block; width: 24px; height: 24px;
+      border: 3px solid var(--line); border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     @media (max-width: 820px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
       .sidebar.open { transform: translateX(0); }
@@ -189,7 +177,7 @@
     }
   </style>
 </head>
-<body data-parent-id="{{ user.id_utilisateur }}">
+<body>
 
 <div class="dash-body">
 
@@ -230,7 +218,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
         Sanctions
       </a>
-      <a href="{% url 'mesbulletins' %}">
+        <a href="{% url 'mesbulletins' %}" class="">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
         Bulletins
       </a>
@@ -241,7 +229,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -251,7 +239,6 @@
   <!-- ===== MAIN CONTENT ===== -->
   <main class="dash-main">
 
-    <!-- Topbar -->
     <div class="dash-topbar">
       <div>
         <h1>Sanctions</h1>
@@ -259,22 +246,25 @@
       </div>
       <div class="topbar-actions">
         <div class="topbar-avatar">
-          <span class="avatar-sm" id="parent-initial">P</span>
-          <span id="parent-nom-avatar">Parent</span>
+          <span class="avatar-sm" id="parent-initial">?</span>
+          <span id="parent-nom-avatar">...</span>
         </div>
       </div>
     </div>
 
     <!-- ===== SÉLECTEUR D'ENFANT ===== -->
     <div class="child-tabs" id="childTabs">
-      <!-- Généré par JavaScript -->
+      <div class="child-tab">
+        <div class="loading-spinner"></div>
+        Chargement...
+      </div>
     </div>
 
     <!-- ===== TABLEAU DES SANCTIONS ===== -->
     <div class="panel">
       <div class="panel-head">
         <h2>Sanctions — <span id="eleveNom">...</span></h2>
-        <a href="#" id="exportBtn">📊 Exporter</a>
+        <span style="font-size:0.82rem;color:var(--text-soft);" id="sanctionCount">0 sanction</span>
       </div>
       <table class="notes-table">
         <thead>
@@ -285,7 +275,7 @@
           </tr>
         </thead>
         <tbody id="sanctionsBody">
-          <!-- Généré par JavaScript -->
+          <tr><td colspan="3" class="empty-state">Chargement...</td></tr>
         </tbody>
       </table>
     </div>
@@ -295,129 +285,178 @@
 
 <script>
   (function() {
-    const parentId = document.body.dataset.parentId;
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
     // ======================================================
-    // 1. SIMULATION DE DONNÉES (à remplacer par API réelle)
+    // 2. UTILISATEUR CONNECTÉ
     // ======================================================
-    const fakeChildren = [
-      { id: 1, nom: 'Sarah Mballa', sexe: 'F', classe: '5ᵉ' },
-      { id: 2, nom: 'Paul Mballa', sexe: 'M', classe: 'CM2' },
-      { id: 3, nom: 'Marie Ngono', sexe: 'F', classe: '3ᵉ' }
-    ];
+    const token = localStorage.getItem('authToken');
+    const parentId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-    const fakeSanctions = {
-      1: [ // Sarah
-        { type: 'Avertissement', motif: 'Retard récurrent en cours de Français', date: '2026-07-20' },
-        { type: 'Retenue', motif: 'Comportement perturbateur en classe', date: '2026-07-10' },
-        { type: 'Blâme', motif: 'Non-respect des consignes de sécurité', date: '2026-06-28' }
-      ],
-      2: [ // Paul
-        { type: 'Avertissement', motif: 'Devoir non rendu à temps', date: '2026-07-25' },
-        { type: 'Exclusion temporaire', motif: 'Bagarre en récréation', date: '2026-07-18' },
-        { type: 'Retenue', motif: 'Travail non terminé en classe', date: '2026-07-05' },
-        { type: 'Blâme', motif: 'Non-respect du règlement intérieur', date: '2026-06-15' }
-      ],
-      3: [ // Marie
-        { type: 'Avertissement', motif: 'Téléphone utilisé en classe', date: '2026-07-22' },
-        { type: 'Retenue', motif: 'Devoir non fait', date: '2026-07-08' }
-      ]
-    };
-
-    // ======================================================
-    // 2. RÉCUPÉRER LE NOM DU PARENT (simulé)
-    // ======================================================
-    const parentNom = 'Mme Mballa';
-    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
-    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
-
-    // ======================================================
-    // 3. AFFICHER LES ONGLETS DES ENFANTS
-    // ======================================================
-    let currentEleveId = null;
-
-    function renderChildTabs(enfants) {
-      const container = document.getElementById('childTabs');
-      if (!enfants || enfants.length === 0) {
-        container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
-        return;
-      }
-
-      container.innerHTML = '';
-      enfants.forEach((enfant, index) => {
-        const tab = document.createElement('div');
-        tab.className = `child-tab${index === 0 ? ' active' : ''}`;
-        tab.dataset.eleveId = enfant.id;
-        tab.innerHTML = `
-          <span class="avatar-sm">${enfant.nom.charAt(0)}</span>
-          ${enfant.nom}, ${enfant.classe}
-        `;
-        tab.addEventListener('click', () => selectChild(enfant.id));
-        container.appendChild(tab);
-      });
-
-      // Sélectionner le premier par défaut
-      const first = enfants[0];
-      currentEleveId = first.id;
-      loadSanctions(first.id);
+    if (!token || !parentId || userRole !== 'parent') {
+      console.warn('⚠️ Non connecté en tant que parent');
+      window.location.href = '/login/';
+      return;
     }
 
     // ======================================================
-    // 4. CHARGER LES SANCTIONS
+    // 3. FONCTION FETCH
     // ======================================================
-    function loadSanctions(eleveId) {
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
+      });
+
+      if (response.status === 204) return null;
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    // ======================================================
+    // 4. AFFICHER LE NOM DU PARENT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Parent';
+      document.getElementById('parent-nom-avatar').textContent = nomComplet;
+      document.getElementById('parent-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'P';
+    }
+
+    // ======================================================
+    // 5. CHARGER LES ENFANTS
+    // ======================================================
+    let currentEleveId = null;
+    let enfantsData = [];
+
+    async function loadChildren() {
+      const container = document.getElementById('childTabs');
+      try {
+        enfantsData = await fetchAPI(`/api/parents/${parentId}/eleves/`);
+
+        if (!enfantsData || enfantsData.length === 0) {
+          container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
+          document.getElementById('sanctionsBody').innerHTML =
+            '<tr><td colspan="3" class="empty-state">Aucun enfant rattaché.</td></tr>';
+          return;
+        }
+
+        container.innerHTML = '';
+        enfantsData.forEach((enfant, index) => {
+          const tab = document.createElement('div');
+          tab.className = `child-tab${index === 0 ? ' active' : ''}`;
+          tab.dataset.eleveId = enfant.id_eleve;
+          tab.innerHTML = `
+            <span class="avatar-sm">${enfant.nom.charAt(0)}</span>
+            ${enfant.nom}, ${enfant.classe}
+          `;
+          tab.addEventListener('click', () => selectChild(enfant.id_eleve));
+          container.appendChild(tab);
+        });
+
+        const first = enfantsData[0];
+        currentEleveId = first.id_eleve;
+        await loadSanctions(first.id_eleve);
+
+      } catch (err) {
+        console.error('Erreur chargement enfants :', err);
+        container.innerHTML = '<div class="child-tab" style="color:var(--coral);">Erreur de chargement</div>';
+      }
+    }
+
+    // ======================================================
+    // 6. CHARGER LES SANCTIONS
+    // ======================================================
+    async function loadSanctions(eleveId) {
       // Mettre à jour les onglets actifs
       document.querySelectorAll('.child-tab').forEach(tab => {
         tab.classList.toggle('active', parseInt(tab.dataset.eleveId) === eleveId);
       });
 
-      // Récupérer les données
-      const enfant = fakeChildren.find(e => e.id === eleveId);
+      const enfant = enfantsData.find(e => e.id_eleve === eleveId);
       if (enfant) {
         document.getElementById('eleveNom').textContent = enfant.nom;
       }
 
-      const sanctions = fakeSanctions[eleveId] || [];
-
-      // Afficher le tableau
       const tbody = document.getElementById('sanctionsBody');
-      if (sanctions.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-soft);">Aucune sanction enregistrée</td></tr>`;
-        return;
-      }
+      const countEl = document.getElementById('sanctionCount');
 
-      tbody.innerHTML = '';
-      // Trier par date décroissante
-      sanctions.sort((a, b) => new Date(b.date) - new Date(a.date));
-      sanctions.forEach(sanction => {
-        // Déterminer la classe CSS pour le type
-        let typeClass = '';
-        const typeLower = sanction.type.toLowerCase();
-        if (typeLower.includes('avertissement')) {
-          typeClass = 'warning';
-        } else if (typeLower.includes('retenue')) {
-          typeClass = 'detention';
-        } else if (typeLower.includes('exclusion')) {
-          typeClass = 'exclusion';
-        } else if (typeLower.includes('blâme') || typeLower.includes('blame')) {
-          typeClass = 'blame';
-        } else {
-          typeClass = 'other';
+      tbody.innerHTML = '<tr><td colspan="3" class="empty-state">⏳ Chargement...</td></tr>';
+
+      try {
+        const sanctions = await fetchAPI(
+          `/api/parents/${parentId}/eleves/${eleveId}/sanctions/`
+        );
+
+        if (!sanctions || sanctions.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Aucune sanction enregistrée</td></tr>';
+          countEl.textContent = '0 sanction';
+          return;
         }
 
-        const tr = document.createElement('tr');
-        const dateFr = new Date(sanction.date).toLocaleDateString('fr-FR');
-        tr.innerHTML = `
-          <td><span class="sanction-badge ${typeClass}">${sanction.type}</span></td>
-          <td><span class="motif-text" title="${sanction.motif}">${sanction.motif}</span></td>
-          <td>${dateFr}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+        // Trier par date décroissante
+        sanctions.sort((a, b) => new Date(b.date_sanction) - new Date(a.date_sanction));
+
+        tbody.innerHTML = '';
+        sanctions.forEach(sanction => {
+          // Déterminer la classe CSS selon le type
+          let typeClass = 'other';
+          let typeLabel = sanction.type_sanction;
+
+          if (sanction.type_sanction === 'avertissement') {
+            typeClass = 'warning';
+            typeLabel = 'Avertissement';
+          } else if (sanction.type_sanction === 'retenue') {
+            typeClass = 'detention';
+            typeLabel = 'Retenue';
+          } else if (sanction.type_sanction === 'exclusion') {
+            typeClass = 'exclusion';
+            typeLabel = 'Exclusion';
+          } else if (sanction.type_sanction === 'blame') {
+            typeClass = 'blame';
+            typeLabel = 'Blâme';
+          } else if (sanction.type_sanction === 'autre') {
+            typeClass = 'other';
+            typeLabel = 'Autre';
+          }
+
+          const tr = document.createElement('tr');
+          const dateFr = new Date(sanction.date_sanction).toLocaleDateString('fr-FR');
+          tr.innerHTML = `
+            <td><span class="sanction-badge ${typeClass}">${typeLabel}</span></td>
+            <td><span class="motif-text" title="${sanction.motif}">${sanction.motif || '—'}</span></td>
+            <td>${dateFr}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        countEl.textContent = `${sanctions.length} sanction${sanctions.length > 1 ? 's' : ''}`;
+
+      } catch (err) {
+        console.error('Erreur chargement sanctions :', err);
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-state" style="color:var(--coral);">⚠️ Erreur de chargement</td></tr>';
+        countEl.textContent = '0 sanction';
+      }
     }
 
     // ======================================================
-    // 5. SÉLECTIONNER UN ENFANT
+    // 7. SÉLECTIONNER UN ENFANT
     // ======================================================
     function selectChild(eleveId) {
       if (eleveId === currentEleveId) return;
@@ -426,10 +465,29 @@
     }
 
     // ======================================================
-    // 6. INITIALISATION
+    // 8. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 9. INITIALISATION
     // ======================================================
     document.addEventListener('DOMContentLoaded', function() {
-      renderChildTabs(fakeChildren);
+      afficherProfil();
+      loadChildren();
     });
 
   })();

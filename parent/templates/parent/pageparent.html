@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'parent/css/pageparent.css' %}">
 <style>
-  /* Petits ajustements pour les cartes cliquables */
   .stat-card-link {
     text-decoration: none;
     color: inherit;
@@ -25,9 +24,16 @@
     transform: translateY(-4px);
     box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
   }
+  .loading-spinner {
+    display: inline-block; width: 24px; height: 24px;
+    border: 3px solid var(--line); border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-<body data-parent-id="{{ user.id_utilisateur }}">
+<body>
 
 <div class="dash-body">
 
@@ -79,7 +85,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
         Déconnexion
       </a>
@@ -91,7 +97,7 @@
 
     <div class="dash-topbar">
       <div>
-        <h1>Bonjour, <span id="parent-nom">Parent</span> 👋</h1>
+        <h1>Bonjour, <span id="parent-nom">...</span> 👋</h1>
         <p class="sub">Voici un aperçu global du suivi de vos enfants.</p>
       </div>
       <div class="topbar-actions">
@@ -103,18 +109,21 @@
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"></path></svg>
         </a>
         <div class="topbar-avatar">
-          <span class="avatar-sm" id="parent-initial">P</span>
-          <span id="parent-nom-avatar">Parent</span>
+          <span class="avatar-sm" id="parent-initial">?</span>
+          <span id="parent-nom-avatar">...</span>
         </div>
       </div>
     </div>
 
     <!-- ===== STATISTIQUES GLOBALES (CARTES CLIQUABLES) ===== -->
     <div class="dash-stats" id="stats-container">
-      <!-- Les cartes seront générées par JavaScript -->
+      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
+        <div class="loading-spinner"></div>
+        <p style="margin-top:12px;">Chargement de vos statistiques...</p>
+      </div>
     </div>
 
-    <!-- ===== PETIT RÉSUMÉ DES DERNIÈRES ACTIVITÉS (optionnel) ===== -->
+    <!-- ===== ACTIVITÉS RÉCENTES ===== -->
     <div class="panel" style="margin-top:24px;">
       <div class="panel-head">
         <h2>Activités récentes</h2>
@@ -129,153 +138,226 @@
 </div>
 
 <script>
-//   (function() {
-//     const parentId = document.body.dataset.parentId;
-//     if (!parentId) {
-//       console.error('Aucun parent ID trouvé.');
-//       return;
-//     }
+  (function() {
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
+    const API_BASE = '';
 
-//     // Fonction fetch simplifiée
-//     async function fetchAPI(url) {
-//       const response = await fetch(url);
-//       if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
-//       return response.json();
-//     }
+    // ======================================================
+    // 2. UTILISATEUR CONNECTÉ (localStorage)
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const parentId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
 
-//     // Charger le profil du parent
-//     async function loadParentProfile() {
-//       try {
-//         const data = await fetchAPI(`/parents/${parentId}/`);
-//         const prenom = data.prenom || data.nom || 'Parent';
-//         document.getElementById('parent-nom').textContent = prenom;
-//         document.getElementById('parent-nom-avatar').textContent = prenom;
-//         document.getElementById('parent-initial').textContent = prenom.charAt(0).toUpperCase();
-//       } catch (e) {
-//         console.warn('Profil parent:', e);
-//       }
-//     }
+    if (!token || !parentId || userRole !== 'parent') {
+      console.warn('⚠️ Non connecté en tant que parent');
+      window.location.href = '/login/';
+      return;
+    }
 
-//     // Charger les stats globales : enfants, notes, absences, etc.
-//     async function loadGlobalStats() {
-//       const container = document.getElementById('stats-container');
-//       container.innerHTML = '<div style="grid-column:1/-1;text-align:center;">Chargement...</div>';
+    // ======================================================
+    // 3. FONCTION FETCH
+    // ======================================================
+    async function fetchAPI(url) {
+      const response = await fetch(API_BASE + url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + token
+        }
+      });
 
-//       try {
-//         // 1. Récupérer la liste des enfants
-//         const enfants = await fetchAPI(`/parents/${parentId}/eleves/`);
-//         const nbEnfants = enfants.length;
+      if (response.status === 204) return null;
 
-//         // 2. Pour chaque enfant, récupérer le suivi complet et agréger
-//         let totalNotes = 0;
-//         let totalAbsences = 0;
-//         let totalRemarques = 0;
-//         let totalSanctions = 0;
-//         let totalBulletins = 0;
+      const data = await response.json().catch(() => ({}));
 
-//         for (const enfant of enfants) {
-//           try {
-//             const suivi = await fetchAPI(`/parents/${parentId}/eleves/${enfant.id_eleve}/suivi/`);
-//             totalNotes += (suivi.notes || []).length;
-//             totalAbsences += (suivi.absences || []).length;
-//             totalRemarques += (suivi.remarques || []).length;
-//             totalSanctions += (suivi.sanctions || []).length;
-//             totalBulletins += (suivi.bulletins || []).length;
-//           } catch (e) {
-//             console.warn('Erreur pour enfant', enfant.id_eleve, e);
-//           }
-//         }
+      if (!response.ok) {
+        const error = new Error('Erreur API');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
 
-//         // Construire les cartes cliquables
-//         // On définit pour chaque carte : titre, valeur, icône, couleur, lien
-//         const cards = [
-//           { label: 'Enfants', value: nbEnfants, icon: '👨‍👧‍👦', color: 'var(--accent)', url: "{% url 'monenfant' %}" },
-//           { label: 'Notes', value: totalNotes, icon: '📝', color: 'var(--sage)', url: "{% url 'mesnotes' %}" },
-//           { label: 'Absences', value: totalAbsences, icon: '📅', color: 'var(--coral)', url: "{% url 'madiscipline' %}" },
-//           { label: 'Remarques', value: totalRemarques, icon: '💬', color: 'var(--ink)', url: "#" },
-//           { label: 'Sanctions', value: totalSanctions, icon: '⚖️', color: '#b33c3c', url: "#" },
-//           { label: 'Bulletins', value: totalBulletins, icon: '📄', color: 'var(--gold)', url: "#" },
-//         ];
+    // ======================================================
+    // 4. AFFICHER LE NOM DU PARENT
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Parent';
+      document.getElementById('parent-nom').textContent = userPrenom || nomComplet;
+      document.getElementById('parent-nom-avatar').textContent = nomComplet;
+      document.getElementById('parent-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'P';
+    }
 
-//         container.innerHTML = '';
-//         cards.forEach(card => {
-//           const link = document.createElement('a');
-//           link.href = card.url;
-//           link.className = 'stat-card-link';
-//           link.innerHTML = `
-//             <div class="dash-stat">
-//               <span class="ic" style="background:${card.color};">
-//                 <span style="font-size:22px;line-height:1;color:white;">${card.icon}</span>
-//               </span>
-//               <div>
-//                 <strong>${card.value}</strong>
-//                 <span>${card.label}</span>
-//               </div>
-//             </div>
-//           `;
-//           container.appendChild(link);
-//         });
+    // ======================================================
+    // 5. CHARGER LES STATISTIQUES GLOBALES
+    // ======================================================
+    async function loadGlobalStats() {
+      const container = document.getElementById('stats-container');
 
-//         // Optionnel : afficher les activités récentes (ex: dernières notes)
-//         await loadRecentActivities(enfants);
+      try {
+        // 5a. Récupérer la liste des enfants
+        const enfants = await fetchAPI(`/api/parents/${parentId}/eleves/`);
+        const nbEnfants = enfants.length;
 
-//       } catch (error) {
-//         container.innerHTML = '<div style="grid-column:1/-1;color:var(--coral);">Erreur de chargement des statistiques</div>';
-//         console.error('Erreur stats:', error);
-//       }
-//     }
+        if (nbEnfants === 0) {
+          container.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
+              👨‍👩‍👧 Aucun enfant rattaché à votre compte.
+              <br><small>Contactez l'administration pour ajouter vos enfants.</small>
+            </div>
+          `;
+          document.getElementById('recent-activities').innerHTML =
+            '<p style="color:var(--text-soft);">Aucune activité pour le moment.</p>';
+          return;
+        }
 
-//     // Afficher quelques activités récentes (dernières notes, absences, etc.)
-//     async function loadRecentActivities(enfants) {
-//       const container = document.getElementById('recent-activities');
-//       let activities = [];
+        // 5b. Agréger les données de suivi pour tous les enfants
+        let totalNotes = 0;
+        let totalAbsences = 0;
+        let totalRemarques = 0;
+        let totalSanctions = 0;
+        let totalBulletins = 0;
+        let allActivities = [];
 
-//       for (const enfant of enfants) {
-//         try {
-//           const suivi = await fetchAPI(`/parents/${parentId}/eleves/${enfant.id_eleve}/suivi/`);
-//           const notes = (suivi.notes || []).map(n => ({
-//             type: 'Note',
-//             date: n.date || new Date(),
-//             message: `${n.matiere?.nom || 'Matière'} : ${n.moyenne || 0}/20 — ${enfant.nom}`,
-//           }));
-//           const absences = (suivi.absences || []).map(a => ({
-//             type: 'Absence',
-//             date: a.date_absence || new Date(),
-//             message: `Absence le ${new Date(a.date_absence).toLocaleDateString('fr-FR')} — ${enfant.nom}`,
-//           }));
-//           activities = [...activities, ...notes, ...absences];
-//         } catch (e) { /* ignore */ }
-//       }
+        for (const enfant of enfants) {
+          try {
+            const suivi = await fetchAPI(
+              `/api/parents/${parentId}/eleves/${enfant.id_eleve}/suivi/`
+            );
 
-//       if (activities.length === 0) {
-//         container.innerHTML = '<p style="color:var(--text-soft);">Aucune activité récente.</p>';
-//         return;
-//       }
+            totalNotes += (suivi.notes || []).length;
+            totalAbsences += (suivi.absences || []).length;
+            totalRemarques += (suivi.remarques || []).length;
+            totalSanctions += (suivi.sanctions || []).length;
+            totalBulletins += (suivi.bulletins || []).length;
 
-//       // Trier par date décroissante et prendre les 5 dernières
-//       activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-//       const recent = activities.slice(0, 5);
+            // Collecter les activités récentes
+            (suivi.notes || []).forEach(n => {
+              allActivities.push({
+                type: 'Note',
+                date: n.date || new Date(),
+                message: `Note en ${n.matiere?.nom || 'matière'} : ${n.moyenne || 0}/20 — ${enfant.nom}`,
+              });
+            });
 
-//       container.innerHTML = '';
-//       recent.forEach(act => {
-//         const div = document.createElement('div');
-//         div.style.cssText = 'padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;';
-//         div.innerHTML = `
-//           <span>${act.message}</span>
-//           <span style="font-size:0.8rem;color:var(--text-soft);">${new Date(act.date).toLocaleDateString('fr-FR')}</span>
-//         `;
-//         container.appendChild(div);
-//       });
-//     }
+            (suivi.absences || []).forEach(a => {
+              allActivities.push({
+                type: 'Absence',
+                date: a.date_absence || new Date(),
+                message: `Absence le ${new Date(a.date_absence).toLocaleDateString('fr-FR')} — ${enfant.nom}`,
+              });
+            });
 
-//     // Lancer au chargement
-//     document.addEventListener('DOMContentLoaded', function() {
-//       loadParentProfile();
-//       loadGlobalStats();
-//     });
+          } catch (e) {
+            console.warn(`Erreur suivi enfant ${enfant.id_eleve}`, e);
+          }
+        }
 
-//   })();
-// </script>
+        // 5c. Construire les cartes
+        const cards = [
+          { label: 'Enfants', value: nbEnfants, icon: '👨‍👧‍👦', color: 'var(--accent)', url: "{% url 'monenfant' %}" },
+          { label: 'Notes', value: totalNotes, icon: '📝', color: 'var(--sage)', url: "{% url 'mesnotes' %}" },
+          { label: 'Absences', value: totalAbsences, icon: '📅', color: 'var(--coral)', url: "{% url 'madiscipline' %}" },
+          { label: 'Remarques', value: totalRemarques, icon: '💬', color: 'var(--ink)', url: "{% url 'mesremarques' %}" },
+          { label: 'Sanctions', value: totalSanctions, icon: '⚖️', color: '#b33c3c', url: "{% url 'messanctions' %}" },
+          { label: 'Bulletins', value: totalBulletins, icon: '📄', color: 'var(--gold)', url: "{% url 'mesbulletins' %}" },
+        ];
+
+        container.innerHTML = '';
+        cards.forEach(card => {
+          const link = document.createElement('a');
+          link.href = card.url;
+          link.className = 'stat-card-link';
+          link.innerHTML = `
+            <div class="dash-stat">
+              <span class="ic" style="background:${card.color};">
+                <span style="font-size:22px;line-height:1;color:white;">${card.icon}</span>
+              </span>
+              <div>
+                <strong>${card.value}</strong>
+                <span>${card.label}</span>
+              </div>
+            </div>
+          `;
+          container.appendChild(link);
+        });
+
+        // 5d. Afficher les activités récentes
+        renderRecentActivities(allActivities);
+
+      } catch (error) {
+        console.error('Erreur chargement stats :', error);
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--coral);">
+            ⚠️ Impossible de charger les statistiques : ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 6. AFFICHER LES ACTIVITÉS RÉCENTES
+    // ======================================================
+    function renderRecentActivities(activities) {
+      const container = document.getElementById('recent-activities');
+
+      if (activities.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-soft);">Aucune activité récente.</p>';
+        return;
+      }
+
+      // Trier par date décroissante et prendre les 5 dernières
+      activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const recent = activities.slice(0, 5);
+
+      container.innerHTML = '';
+      recent.forEach(act => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;';
+        div.innerHTML = `
+          <span>${act.message}</span>
+          <span style="font-size:0.8rem;color:var(--text-soft);white-space:nowrap;">
+            ${new Date(act.date).toLocaleDateString('fr-FR')}
+          </span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ======================================================
+    // 7. DÉCONNEXION
+    // ======================================================
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      try {
+        await fetch('/api/deconnexion/', {
+          method: 'POST',
+          headers: { 'Authorization': 'Token ' + token }
+        });
+      } catch (err) { console.warn(err); }
+
+      localStorage.clear();
+      window.location.href = '/login/';
+    });
+
+    // ======================================================
+    // 8. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      loadGlobalStats();
+    });
+
+  })();
+</script>
 
 </body>
 </html>

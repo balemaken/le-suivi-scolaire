@@ -20,13 +20,49 @@ from django.urls import path,include
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
-    path('',include('frontend.urls')),
-    path('parent/',include('parent.urls')),
-    path('administrateur/',include('administrateur.urls')),
-    path('teacher/',include('teacher.urls')),
+    # path('',include('frontend.urls')),
+    # path('parent/',include('parent.urls')),
+    # path('administrateur/',include('administrateur.urls')),
+    # path('teacher/',include('teacher.urls')),
     # path( 'api/', include('user.urls')),
     # path('api/',include ('administration.urls')),
     # path('api/',include ('enseignement.urls')),
     # path('api/',include ('parental.urls'))
 
-]
+
+    path('admin/', admin.site.urls),
+    
+    # Frontend
+    path('', include('frontend.urls')),
+    
+    # API Authentification - DOIT ÊTRE EN PREMIER
+    path('api/', include('user.urls')),
+
+    # API Administration
+    path('api/', include('administration.urls')),
+    path('api/', include('enseignement.urls')),
+    path('api/', include('parental.urls')),
+    
+    # Espaces séparés
+    path('parent/', include('parent.urls')),
+    path('administrateur/', include('administrateur.urls')),
+    path('teacher/', include('teacher.urls')),
+
+] 
+
+
+from django.conf import settings
+from django.urls import re_path, path, include
+from django.views.static import serve
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.contrib import admin
+
+
+if settings.DEBUG:
+    urlpatterns += [
+        re_path(
+            r'^media/(?P<path>.*)$',
+            xframe_options_sameorigin(serve),
+            {'document_root': settings.MEDIA_ROOT}
+        ),
+    ]

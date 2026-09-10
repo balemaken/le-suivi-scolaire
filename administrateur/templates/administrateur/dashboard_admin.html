@@ -407,90 +407,147 @@
 <script>
   (function() {
     // ======================================================
-    // 1. SIMULATION DES DONNÉES (à remplacer par API réelle)
+    // 1. RÉCUPÉRER L'UTILISATEUR CONNECTÉ DEPUIS localStorage
     // ======================================================
+    const nomAdmin = localStorage.getItem('userNom') || 'Administrateur';
+    const prenomAdmin = localStorage.getItem('userPrenom') || '';
+    const nomComplet = (prenomAdmin + ' ' + nomAdmin).trim() || 'Administrateur';
 
-    const adminSimule = {
-      id: 1,
-      nom: 'Administrateur',
-      initial: 'A'
-    };
-
-    // Statistiques globales (simulées)
-    const stats = {
-      classes: 8,
-      eleves: 156,
-      enseignants: 12,
-      parents: 45,
-      matieres: 24,
-      liaisons: 67
-    };
-
-    // Activités récentes (simulées)
-    const activities = [
-      { type: 'Création', message: 'Nouvelle classe : 6ᵉ C créée par Admin', date: 'Aujourd\'hui, 10:30', icon: 'var(--sage)' },
-      { type: 'Affectation', message: 'M. Ngono affecté à Mathématiques (5ᵉ A)', date: 'Aujourd\'hui, 09:15', icon: 'var(--blue)' },
-      { type: 'Liaison', message: 'Mme Mballa liée à Sarah Mballa (5ᵉ A)', date: 'Hier, 16:45', icon: 'var(--gold)' },
-      { type: 'Inscription', message: 'Nouvel enseignant : Mme Tchoffo s\'est inscrite', date: 'Hier, 14:20', icon: 'var(--purple)' },
-      { type: 'Modification', message: 'Classe 4ᵉ B modifiée (enseignant mis à jour)', date: 'Il y a 2 jours', icon: 'var(--accent)' }
-    ];
+    document.getElementById('admin-nom').textContent = nomComplet;
+    document.getElementById('admin-nom-avatar').textContent = nomComplet;
+    document.getElementById('admin-initial').textContent = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
 
     // ======================================================
-    // 2. AFFICHAGE
+    // 2. FONCTION POUR APPELER L'API
     // ======================================================
+    async function fetchAPI(url) {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Token ' + token } : {})
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} — ${response.statusText}`);
+      }
+      return response.json();
+    }
 
-    // Profil admin
-    document.getElementById('admin-nom').textContent = adminSimule.nom;
-    document.getElementById('admin-nom-avatar').textContent = adminSimule.nom;
-    document.getElementById('admin-initial').textContent = adminSimule.initial;
-
-    // Statistiques
-    const statsContainer = document.getElementById('statsGrid');
-    const statItems = [
-      { label: 'Classes', value: stats.classes, icon: 'M3.5 3.5h17v17h-17z M3.5 9h17' },
-      { label: 'Élèves', value: stats.eleves, icon: 'M9 8a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8' },
-      { label: 'Enseignants', value: stats.enseignants, icon: 'M12 8a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8z M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2' },
-      { label: 'Parents', value: stats.parents, icon: 'M12 8a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8z M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2' },
-      { label: 'Matières', value: stats.matieres, icon: 'M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z M8 12h8 M8 16h5' },
-      { label: 'Liaisons', value: stats.liaisons, icon: 'M4 5h16v11H8l-4 4V5z' }
-    ];
-
-    statsContainer.innerHTML = '';
-    const colors = ['var(--accent)', 'var(--sage)', 'var(--blue)', 'var(--gold)', 'var(--purple)', 'var(--coral)'];
-
-    statItems.forEach((item, index) => {
-      const card = document.createElement('div');
-      card.className = 'stat-card';
-      // Découper le SVG en plusieurs paths
-      const svgPaths = item.icon.split(' ').map(p => `<path d="${p}" />`).join('');
-      card.innerHTML = `
-        <div class="icon" style="background:${colors[index % colors.length]}">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${svgPaths}</svg>
-        </div>
-        <div class="info">
-          <strong>${item.value}</strong>
-          <span>${item.label}</span>
+    // ======================================================
+    // 3. CHARGER LES STATISTIQUES DEPUIS LE BACKEND
+    // ======================================================
+    async function loadStats() {
+      const statsContainer = document.getElementById('statsGrid');
+      statsContainer.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
+          ⏳ Chargement des statistiques...
         </div>
       `;
-      statsContainer.appendChild(card);
-    });
 
-    // Activités récentes
-    const activitiesContainer = document.getElementById('activitiesList');
-    activitiesContainer.innerHTML = '';
-    activities.forEach(act => {
-      const div = document.createElement('div');
-      div.className = 'notif-item';
-      div.innerHTML = `
-        <span class="ic" style="background:${act.icon};">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-        </span>
-        <div>
-          <p><strong>${act.type}</strong> : ${act.message}</p>
-          <small>${act.date}</small>
-        </div>
-      `;
-      activitiesContainer.appendChild(div);
+      try {
+        // Appels parallèles (plus rapide)
+        const [classes, eleves, enseignants, parents, matieres, liaisons] = await Promise.all([
+          fetchAPI('/api/classes/'),
+          fetchAPI('/api/eleves/'),
+          fetchAPI('/api/enseignants/'),
+          fetchAPI('/api/parents/'),
+          fetchAPI('/api/matieres/'),
+          fetchAPI('/api/liaisons/')
+        ]);
+
+        // Compter les éléments
+        const stats = {
+          classes: classes.length,
+          eleves: eleves.length,
+          enseignants: enseignants.length,
+          parents: parents.length,
+          matieres: matieres.length,
+          liaisons: liaisons.length
+        };
+
+        console.log('📊 Statistiques chargées :', stats);
+
+        // Afficher
+        renderStats(stats);
+
+      } catch (error) {
+        console.error('❌ Erreur chargement stats :', error);
+        statsContainer.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--coral);">
+            ⚠️ Impossible de charger les statistiques : ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // ======================================================
+    // 4. AFFICHER LES STATISTIQUES
+    // ======================================================
+    function renderStats(stats) {
+      const statsContainer = document.getElementById('statsGrid');
+      const colors = ['var(--accent)', 'var(--sage)', 'var(--blue)', 'var(--gold)', 'var(--purple)', 'var(--coral)'];
+
+      const statItems = [
+        { label: 'Classes', value: stats.classes, icon: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17"/>' },
+        { label: 'Élèves', value: stats.eleves, icon: '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/>' },
+        { label: 'Enseignants', value: stats.enseignants, icon: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/>' },
+        { label: 'Parents', value: stats.parents, icon: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2"/>' },
+        { label: 'Matières', value: stats.matieres, icon: '<path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/>' },
+        { label: 'Liaisons', value: stats.liaisons, icon: '<path d="M4 5h16v11H8l-4 4V5Z"/>' }
+      ];
+
+      statsContainer.innerHTML = '';
+      statItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        card.innerHTML = `
+          <div class="icon" style="background:${colors[index % colors.length]}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+          </div>
+          <div class="info">
+            <strong>${item.value}</strong>
+            <span>${item.label}</span>
+          </div>
+        `;
+        statsContainer.appendChild(card);
+      });
+    }
+
+    // ======================================================
+    // 5. CHARGER LES ACTIVITÉS RÉCENTES
+    // ======================================================
+    // Pour l'instant on garde les activités simulées
+    // (on les connectera plus tard avec un vrai endpoint)
+    function renderActivities() {
+      const activities = [
+        { type: 'Système', message: 'Dashboard connecté au backend', date: 'À l\'instant', icon: 'var(--sage)' },
+      ];
+
+      const activitiesContainer = document.getElementById('activitiesList');
+      activitiesContainer.innerHTML = '';
+      activities.forEach(act => {
+        const div = document.createElement('div');
+        div.className = 'notif-item';
+        div.innerHTML = `
+          <span class="ic" style="background:${act.icon};">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          </span>
+          <div>
+            <p><strong>${act.type}</strong> : ${act.message}</p>
+            <small>${act.date}</small>
+          </div>
+        `;
+        activitiesContainer.appendChild(div);
+      });
+    }
+
+    // ======================================================
+    // 6. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStats();
+      renderActivities();
     });
 
   })();

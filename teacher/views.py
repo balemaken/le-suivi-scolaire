@@ -48,3 +48,6 @@ def remarques(request):
 
 def sanctions(request):
     return render(request,'teacher/sanctions.html') 
+
+def bulletins(request):
+    return render(request, 'teacher/bulletins.html')
