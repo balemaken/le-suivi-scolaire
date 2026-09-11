@@ -16,6 +16,41 @@
     .disc-item .tag { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
     .tag.retard { background: rgba(217,164,65,0.18); color: #a97416; }
     .tag.cours { background: var(--sage); color: white; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* État "chargement" du bouton déconnexion */
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -125,6 +160,15 @@
 
       if (response.status === 204) return null;
 
+      // 🔥 DÉCONNEXION — si le token est invalide/expiré, on nettoie et on redirige
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/login/';
+        return null;
+      }
+
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -164,6 +208,9 @@
       try {
         const classes = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
 
+        // Si redirection 401 déjà déclenchée, on arrête là
+        if (classes === null) return;
+
         if (!classes || classes.length === 0) {
           statsGrid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-soft);">
@@ -195,7 +242,7 @@
             classesData.push({
               id: c.id_classe,
               nom: c.nom,
-              matieres: matieres.map(m => m.nom),
+              matieres: (matieres || []).map(m => m.nom),
               nbEleves: nbEleves,
             });
           } catch (e) {
@@ -288,33 +335,51 @@
     }
 
     // ======================================================
-    // 6. DÉCONNEXION
+    // 6. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
 
+      // Confirmation
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
+      // Retour visuel : on désactive le bouton pendant l'appel
+      btn.classList.add('loading');
+
+      // 1) Invalider le token côté serveur (côté Django : DeconnexionAPIView)
       try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Token ' + token,
-            'Content-Type': 'application/json'
-          }
-        });
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
       } catch (err) {
-        console.warn('Erreur déconnexion serveur :', err);
+        // Même si le serveur est injoignable, on continue la déconnexion locale
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
       }
 
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userNom');
-      localStorage.removeItem('userPrenom');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userRole');
+      // 2) Nettoyer TOUT le stockage local (annule toute session côté navigateur)
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
 
-      window.location.href = '/login/';
+      // 3) Redirection vers la page de connexion
+      //    (on remplace l'historique pour empêcher le retour arrière)
+      window.location.replace('/login/');
+    }
+
+    // Branchement du bouton
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

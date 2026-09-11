@@ -39,6 +39,39 @@
     .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
     .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -124,7 +157,7 @@
 
     if (!token || !enseignantId || userRole !== 'enseignant') {
       console.warn('⚠️ Non connecté en tant qu\'enseignant');
-      window.location.href = '/login/';
+      window.location.replace('/login/');
       return;
     }
 
@@ -142,6 +175,15 @@
       });
 
       if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
 
       const data = await response.json().catch(() => ({}));
 
@@ -196,6 +238,7 @@
     async function loadClasses() {
       try {
         classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        if (classesData === null) return; // redirection 401 déjà déclenchée
 
         classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
         classesData.forEach(c => {
@@ -229,16 +272,17 @@
       }
 
       try {
-        // Charger matières + élèves en parallèle
         const [matieres, eleves] = await Promise.all([
           fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/matieres/`),
           fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`)
         ]);
 
+        // Si 401 → redirection en cours, on arrête
+        if (matieres === null || eleves === null) return;
+
         matieresData = matieres;
         elevesData = eleves;
 
-        // Remplir le select matières
         matieres.forEach(m => {
           const opt = document.createElement('option');
           opt.value = m.id_matiere;
@@ -246,7 +290,6 @@
           matiereSelect.appendChild(opt);
         });
 
-        // Remplir le select élèves
         eleves.forEach(e => {
           const opt = document.createElement('option');
           opt.value = e.id_eleve;
@@ -276,7 +319,6 @@
 
       currentMatiereId = matiereId;
 
-      // Trouver le nom de la matière
       const matiere = matieresData.find(m => m.id_matiere === matiereId);
       const matiereNom = matiere ? matiere.nom : '';
       const classeNom = classesData.find(c => c.id_classe === classeId)?.nom || '';
@@ -287,7 +329,6 @@
       notesBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
 
       try {
-        // Charger les notes de TOUS les élèves de la classe
         const allNotes = [];
 
         for (const e of elevesData) {
@@ -295,9 +336,8 @@
             const notes = await fetchAPI(
               `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/notes/`
             );
-            // Filtrer par matière
+            if (notes === null) return; // 401 → arrêt
             const filtered = notes.filter(n => n.matiere === matiereId);
-            // Enrichir avec le nom de l'élève
             filtered.forEach(n => {
               n.eleve_nom = n.eleve_nom || e.nom;
               n.matiere_nom = n.matiere_nom || matiereNom;
@@ -381,27 +421,23 @@
 
       try {
         if (editingId) {
-          // MODIFICATION
           await fetchAPI(`/api/enseignants/${enseignantId}/notes/${editingId}/`, {
             method: 'PUT',
             body: JSON.stringify(payload),
           });
         } else {
-          // CRÉATION
           await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/notes/`, {
             method: 'POST',
             body: JSON.stringify(payload),
           });
         }
 
-        // Réinitialiser
         editingId = null;
         editId.value = '';
         cancelBtn.style.display = 'none';
         noteValue.value = '';
         eleveSelect.value = '';
 
-        // Recharger
         loadBtn.click();
 
       } catch (err) {
@@ -424,16 +460,13 @@
     // ======================================================
     window.editNote = async function(idNote) {
       try {
-        // Récupérer la note
         const note = await fetchAPI(`/api/enseignants/${enseignantId}/notes/${idNote}/`);
+        if (note === null) return;
 
         editingId = idNote;
         editId.value = idNote;
 
-        // Sélectionner l'élève
         eleveSelect.value = note.eleve;
-        // (eleve doit être dans la liste car on a chargé tous les élèves de la classe)
-
         typeEval.value = note.type_evaluation;
         sequence.value = note.sequence;
         noteValue.value = note.moyenne;
@@ -476,21 +509,46 @@
     });
 
     // ======================================================
-    // 14. DÉCONNEXION
+    // 14. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

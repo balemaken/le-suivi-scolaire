@@ -44,7 +44,7 @@ def parametre(request):
     return render(request,'administrateur/parametre.html') 
 
 
-@login_required_by_role('admin')
+# @login_required_by_role('admin')
 def inscriptionAdmin(request):
     return render(request,'administrateur/inscription.html') 
 

@@ -58,7 +58,7 @@ def classes(request):
 
 
 
-@login_required_by_role('enseignant')
+# @login_required_by_role('enseignant')
 def inscriptionEnseignant(request):
     return render(request,'teacher/inscription.html')
 

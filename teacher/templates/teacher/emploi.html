@@ -19,9 +19,42 @@
     .cours-item .info { flex: 1; padding: 0 16px; }
     .cours-item .salle { color: var(--text-soft); font-size: 0.85rem; }
     .tag-cours { background: var(--sage); color: white; padding: 2px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
-<body data-enseignant-id="1">
+<body>
 
 <div class="dash-body">
 
@@ -39,7 +72,12 @@
       <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">3</span></a>
       <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
-    <div class="logout"><a href=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Déconnexion</a></div>
+    <div class="logout">
+      <a href="#" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
   </aside>
 
   <main class="dash-main">
@@ -55,6 +93,35 @@
 
 <script>
   (function() {
+    // ======================================================
+    // 0. UTILISATEUR CONNECTÉ
+    // ======================================================
+    const token = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+
+    // 🔥 SÉCURITÉ — redirection si non connecté
+    if (!token || !userId || userRole !== 'enseignant') {
+      console.warn('⚠️ Non connecté en tant qu\'enseignant');
+      window.location.replace('/login/');
+      return;
+    }
+
+    // ======================================================
+    // 1. AFFICHER LE NOM (depuis localStorage, plus en dur)
+    // ======================================================
+    function afficherProfil() {
+      const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Enseignant';
+      document.getElementById('enseignant-nom-avatar').textContent = nomComplet;
+      document.getElementById('enseignant-initial').textContent =
+        (userPrenom || userNom).charAt(0).toUpperCase() || 'E';
+    }
+
+    // ======================================================
+    // 2. PLANNING (données en dur pour l'instant)
+    // ======================================================
     const emploi = [
       { jour: 'Lundi', cours: [{ heure: '08h00-09h00', classe: '5ᵉ A', salle: 'Salle 12' }, { heure: '10h00-11h00', classe: '4ᵉ B', salle: 'Salle 8' }] },
       { jour: 'Mardi', cours: [{ heure: '08h00-09h00', classe: '3ᵉ A', salle: 'Salle 12' }, { heure: '14h00-15h00', classe: '5ᵉ A', salle: 'Salle 12' }] },
@@ -63,30 +130,82 @@
       { jour: 'Vendredi', cours: [{ heure: '08h00-09h00', classe: '3ᵉ A', salle: 'Salle 12' }, { heure: '10h00-11h00', classe: '5ᵉ A', salle: 'Salle 12' }] }
     ];
 
-    document.getElementById('enseignant-initial').textContent = 'N';
-    document.getElementById('enseignant-nom-avatar').textContent = 'M. Ngono';
+    function renderPlanning() {
+      const container = document.getElementById('planning');
+      container.innerHTML = '';
+      emploi.forEach(j => {
+        const div = document.createElement('div');
+        div.className = 'jour';
+        div.innerHTML = `<h3>${j.jour}</h3>`;
+        if (j.cours.length === 0) {
+          div.innerHTML += '<div style="color:var(--text-soft);padding:8px 0;">Aucun cours</div>';
+        } else {
+          j.cours.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'cours-item';
+            item.innerHTML = `
+              <span class="horaire">${c.heure}</span>
+              <span class="info"><strong>${c.classe}</strong> <span class="salle">(${c.salle})</span></span>
+              <span class="tag-cours">Cours</span>
+            `;
+            div.appendChild(item);
+          });
+        }
+        container.appendChild(div);
+      });
+    }
 
-    const container = document.getElementById('planning');
-    emploi.forEach(j => {
-      const div = document.createElement('div');
-      div.className = 'jour';
-      div.innerHTML = `<h3>${j.jour}</h3>`;
-      if (j.cours.length === 0) {
-        div.innerHTML += '<div style="color:var(--text-soft);padding:8px 0;">Aucun cours</div>';
-      } else {
-        j.cours.forEach(c => {
-          const item = document.createElement('div');
-          item.className = 'cours-item';
-          item.innerHTML = `
-            <span class="horaire">${c.heure}</span>
-            <span class="info"><strong>${c.classe}</strong> <span class="salle">(${c.salle})</span></span>
-            <span class="tag-cours">Cours</span>
-          `;
-          div.appendChild(item);
-        });
+    // ======================================================
+    // 3. 🔥 DÉCONNEXION — universelle et robuste
+    // ======================================================
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      btn.classList.add('loading');
+
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
       }
-      container.appendChild(div);
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
+
+    // ======================================================
+    // 4. INITIALISATION
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      afficherProfil();
+      renderPlanning();
+    });
+
   })();
 </script>
 </body>

@@ -1,6 +1,5 @@
 {%load static%}
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -10,8 +9,98 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- <link rel="stylesheet" href="style.css"> -->
-<link rel="stylesheet" href="{%static 'frontend/css/login.css'%}">
+<link rel="stylesheet" href="{%static 'frontend/css/inscription.css'%}">
+<style>
+  /* ===== STYLES DE VALIDATION ===== */
+  .field {
+    position: relative;
+  }
+  .field input,
+  .field select {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Champ invalide */
+  .field input.invalid,
+  .field select.invalid {
+    border-color: #E2725B !important;
+    background-color: rgba(226, 114, 91, 0.05) !important;
+  }
+  .field input.invalid:focus,
+  .field select.invalid:focus {
+    box-shadow: 0 0 0 3px rgba(226, 114, 91, 0.2) !important;
+  }
+
+  /* Champ valide */
+  .field input.valid,
+  .field select.valid {
+    border-color: #6E8F71 !important;
+  }
+
+  /* Message d'erreur */
+  .field-error {
+    display: none;
+    color: #C24F3B;
+    font-size: 0.78rem;
+    margin-top: 4px;
+    font-weight: 500;
+    animation: slideDown 0.2s ease;
+  }
+  .field-error.visible {
+    display: block;
+  }
+  .field-error::before {
+    content: "⚠ ";
+    font-size: 0.85rem;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Indicateur de force du mot de passe */
+  .password-strength {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    height: 4px;
+  }
+  .password-strength .bar {
+    flex: 1;
+    background: rgba(28, 46, 51, 0.1);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+  }
+  .password-strength.weak .bar:nth-child(1) { background: #C24F3B; }
+  .password-strength.medium .bar:nth-child(1),
+  .password-strength.medium .bar:nth-child(2) { background: #D9A441; }
+  .password-strength.strong .bar:nth-child(1),
+  .password-strength.strong .bar:nth-child(2),
+  .password-strength.strong .bar:nth-child(3) { background: #6E8F71; }
+
+  .password-hint {
+    font-size: 0.75rem;
+    color: #5B6B69;
+    margin-top: 4px;
+  }
+
+  /* Message global en haut */
+  .global-error {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(226, 114, 91, 0.12);
+    border-left: 4px solid #E2725B;
+    color: #C24F3B;
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .global-error.visible {
+    display: block;
+  }
+</style>
 </head>
 <body>
 
@@ -46,7 +135,6 @@
           À propos
         </a>
       </li>
-     
       <li>
         <a href="{% url 'login' %}" class="btn-nav">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -66,46 +154,61 @@
     <h1>Créer votre compte parent</h1>
     <p class="sub">Renseignez vos informations, puis celles de votre / vos enfant(s).</p>
 
+    <!-- Message d'erreur global -->
+    <div class="global-error" id="globalError"></div>
+
     <form id="registerForm" novalidate>
 
       <div class="form-section-title"><span class="num">1</span> Informations du parent</div>
 
       <div class="field-row">
         <div class="field">
-          <label for="r-nom">Nom</label>
+          <label for="r-nom">Nom *</label>
           <input type="text" id="r-nom" name="nom" placeholder="Ex : Balemaken" required>
+          <div class="field-error" data-error-for="r-nom"></div>
         </div>
         <div class="field">
-          <label for="r-prenom">Prénom</label>
+          <label for="r-prenom">Prénom *</label>
           <input type="text" id="r-prenom" name="prenom" placeholder="Ex : Koza" required>
+          <div class="field-error" data-error-for="r-prenom"></div>
         </div>
       </div>
 
       <div class="field-row">
         <div class="field">
-          <label for="r-ville">Ville</label>
+          <label for="r-ville">Ville *</label>
           <input type="text" id="r-ville" name="ville" placeholder="Ex : Yaoundé" required>
+          <div class="field-error" data-error-for="r-ville"></div>
         </div>
         <div class="field">
-          <label for="r-tel">Numéro de téléphone</label>
+          <label for="r-tel">Numéro de téléphone *</label>
           <input type="tel" id="r-tel" name="telephone" placeholder="Ex : 6 58 08 80 37" required>
+          <div class="field-error" data-error-for="r-tel"></div>
         </div>
       </div>
 
       <div class="field">
-        <label for="r-email">Adresse e-mail</label>
+        <label for="r-email">Adresse e-mail *</label>
         <input type="email" id="r-email" name="email" placeholder="vous@exemple.com" required>
+        <div class="field-error" data-error-for="r-email"></div>
       </div>
 
       <div class="field field-pw">
-        <label for="r-password">Mot de passe</label>
-        <input type="password" id="r-password" name="password" placeholder="••••••••" required>
+        <label for="r-password">Mot de passe *</label>
+        <input type="password" id="r-password" name="password" placeholder="••••••••" required minlength="6">
         <button type="button" class="toggle-pw" aria-label="Afficher le mot de passe" data-target="r-password">
           <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
             <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </button>
+        <div class="password-strength" id="passwordStrength">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+        <div class="password-hint">Minimum 6 caractères</div>
+        <div class="field-error" data-error-for="r-password"></div>
       </div>
 
       <div class="form-section-title"><span class="num">2</span> Informations de l'enfant</div>
@@ -125,21 +228,23 @@
           </div>
 
           <div class="field">
-            <label>Nom de l'enfant</label>
+            <label>Nom de l'enfant *</label>
             <input type="text" name="enfant_nom[]" placeholder="Ex : clara" required>
+            <div class="field-error" data-error-for="enfant_nom"></div>
           </div>
 
           <div class="field-row">
             <div class="field">
-              <label>Sexe</label>
+              <label>Sexe *</label>
               <select name="enfant_sexe[]" required>
                 <option value="" disabled selected>Sélectionner</option>
-<option value="F">Féminin</option>
-<option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+                <option value="M">Masculin</option>
               </select>
+              <div class="field-error" data-error-for="enfant_sexe"></div>
             </div>
             <div class="field">
-              <label>Classe</label>
+              <label>Classe *</label>
               <select name="enfant_classe[]" required>
                 <option value="" disabled selected>Sélectionner</option>
                 <optgroup label="Primaire">
@@ -160,6 +265,7 @@
                   <option>Terminale</option>
                 </optgroup>
               </select>
+              <div class="field-error" data-error-for="enfant_classe"></div>
             </div>
           </div>
         </div>
@@ -170,7 +276,7 @@
         Ajouter un autre enfant
       </button>
 
-      <button type="submit" class="btn auth-submit">
+      <button type="submit" class="btn auth-submit" id="submitBtn">
         Créer mon compte
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14"></path>
@@ -191,9 +297,18 @@
 </footer>
 
 <script>
+  // ============================================================
+  // VARIABLES GLOBALES
+  // ============================================================
   var wrap = document.getElementById('childrenWrap');
   var addBtn = document.getElementById('addChildBtn');
+  var form = document.getElementById('registerForm');
+  var submitBtn = document.getElementById('submitBtn');
+  var globalError = document.getElementById('globalError');
 
+  // ============================================================
+  // GESTION DES ENFANTS (AJOUT / SUPPRESSION)
+  // ============================================================
   function refreshChildLabels(){
     var cards = wrap.querySelectorAll('[data-child]');
     cards.forEach(function(card, i){
@@ -206,8 +321,20 @@
   addBtn.addEventListener('click', function(){
     var first = wrap.querySelector('[data-child]');
     var clone = first.cloneNode(true);
-    clone.querySelectorAll('input').forEach(function(inp){ inp.value = ''; });
-    clone.querySelectorAll('select').forEach(function(sel){ sel.selectedIndex = 0; });
+    // Vider les champs du clone
+    clone.querySelectorAll('input').forEach(function(inp){
+      inp.value = '';
+      inp.classList.remove('valid', 'invalid');
+    });
+    clone.querySelectorAll('select').forEach(function(sel){
+      sel.selectedIndex = 0;
+      sel.classList.remove('valid', 'invalid');
+    });
+    // Cacher les erreurs du clone
+    clone.querySelectorAll('.field-error').forEach(function(err){
+      err.classList.remove('visible');
+      err.textContent = '';
+    });
     wrap.appendChild(clone);
     refreshChildLabels();
   });
@@ -221,6 +348,9 @@
     refreshChildLabels();
   });
 
+  // ============================================================
+  // TOGGLE PASSWORD
+  // ============================================================
   document.querySelectorAll('.toggle-pw').forEach(function(btn){
     btn.addEventListener('click', function(){
       var input = document.getElementById(btn.dataset.target);
@@ -229,23 +359,297 @@
   });
 
   // ============================================================
-  // SOUMISSION DU FORMULAIRE D'INSCRIPTION PARENT
+  // FONCTIONS DE VALIDATION
   // ============================================================
-  document.getElementById('registerForm').addEventListener('submit', function(e){
+
+  // Afficher une erreur sous un champ
+  function showError(input, message) {
+    input.classList.add('invalid');
+    input.classList.remove('valid');
+
+    // Trouver le conteneur .field
+    var field = input.closest('.field');
+    if (!field) return;
+
+    var errorDiv = field.querySelector('.field-error');
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.classList.add('visible');
+    }
+  }
+
+  // Effacer l'erreur d'un champ
+  function clearError(input) {
+    input.classList.remove('invalid');
+
+    var field = input.closest('.field');
+    if (!field) return;
+
+    var errorDiv = field.querySelector('.field-error');
+    if (errorDiv) {
+      errorDiv.textContent = '';
+      errorDiv.classList.remove('visible');
+    }
+  }
+
+  // Marquer un champ comme valide
+  function markValid(input) {
+    input.classList.remove('invalid');
+    input.classList.add('valid');
+
+    var field = input.closest('.field');
+    if (!field) return;
+
+    var errorDiv = field.querySelector('.field-error');
+    if (errorDiv) {
+      errorDiv.classList.remove('visible');
+    }
+  }
+
+  // Afficher une erreur globale
+  function showGlobalError(message) {
+    globalError.textContent = message;
+    globalError.classList.add('visible');
+    // Scroll vers le haut
+    globalError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function clearGlobalError() {
+    globalError.textContent = '';
+    globalError.classList.remove('visible');
+  }
+
+  // ============================================================
+  // RÈGLES DE VALIDATION PAR CHAMP
+  // ============================================================
+
+  // Nom / Prénom / Ville : lettres, espaces, tirets, apostrophes (min 2 caractères)
+  function validateName(input, fieldName) {
+    var value = input.value.trim();
+
+    if (!value) {
+      showError(input, fieldName + ' est obligatoire.');
+      return false;
+    }
+    if (value.length < 2) {
+      showError(input, fieldName + ' doit contenir au moins 2 caractères.');
+      return false;
+    }
+    if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(value)) {
+      showError(input, fieldName + ' ne doit contenir que des lettres.');
+      return false;
+    }
+    markValid(input);
+    return true;
+  }
+
+  // Téléphone : chiffres, espaces, +, -, (, )
+  function validatePhone(input) {
+    var value = input.value.trim();
+    var cleanValue = value.replace(/[\s\-\(\)]/g, '');
+
+    if (!value) {
+      showError(input, 'Le numéro de téléphone est obligatoire.');
+      return false;
+    }
+    // Minimum 9 chiffres, maximum 15
+    if (!/^\+?\d{9,15}$/.test(cleanValue)) {
+      showError(input, 'Numéro invalide (9 à 15 chiffres attendus).');
+      return false;
+    }
+    markValid(input);
+    return true;
+  }
+
+  // Email
+  function validateEmail(input) {
+    var value = input.value.trim();
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!value) {
+      showError(input, "L'adresse e-mail est obligatoire.");
+      return false;
+    }
+    if (!regex.test(value)) {
+      showError(input, "Format d'e-mail invalide (ex: nom@exemple.com).");
+      return false;
+    }
+    markValid(input);
+    return true;
+  }
+
+  // Mot de passe : minimum 6 caractères
+  function validatePassword(input) {
+    var value = input.value;
+
+    if (!value) {
+      showError(input, 'Le mot de passe est obligatoire.');
+      return false;
+    }
+    if (value.length < 6) {
+      showError(input, 'Le mot de passe doit contenir au moins 6 caractères.');
+      return false;
+    }
+    markValid(input);
+    return true;
+  }
+
+  // Champ select (sexe, classe)
+  function validateSelect(select, fieldName) {
+    var value = select.value;
+
+    if (!value) {
+      showError(select, fieldName + ' est obligatoire.');
+      return false;
+    }
+    markValid(select);
+    return true;
+  }
+
+  // ============================================================
+  // INDICATEUR DE FORCE DU MOT DE PASSE
+  // ============================================================
+  var passwordInput = document.getElementById('r-password');
+  var passwordStrength = document.getElementById('passwordStrength');
+
+  passwordInput.addEventListener('input', function() {
+    var value = this.value;
+    passwordStrength.classList.remove('weak', 'medium', 'strong');
+
+    if (value.length === 0) return;
+
+    var score = 0;
+    if (value.length >= 6) score++;
+    if (value.length >= 10) score++;
+    if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+    if (/\d/.test(value)) score++;
+    if (/[^A-Za-z0-9]/.test(value)) score++;
+
+    if (score <= 2) passwordStrength.classList.add('weak');
+    else if (score <= 3) passwordStrength.classList.add('medium');
+    else passwordStrength.classList.add('strong');
+  });
+
+  // ============================================================
+  // VALIDATION EN TEMPS RÉEL (au blur et à la saisie)
+  // ============================================================
+
+  // Validation au blur (quand on quitte le champ)
+  document.getElementById('r-nom').addEventListener('blur', function() { validateName(this, 'Le nom'); });
+  document.getElementById('r-prenom').addEventListener('blur', function() { validateName(this, 'Le prénom'); });
+  document.getElementById('r-ville').addEventListener('blur', function() { validateName(this, 'La ville'); });
+  document.getElementById('r-tel').addEventListener('blur', function() { validatePhone(this); });
+  document.getElementById('r-email').addEventListener('blur', function() { validateEmail(this); });
+  document.getElementById('r-password').addEventListener('blur', function() { validatePassword(this); });
+
+  // Effacer l'erreur dès qu'on tape
+  document.querySelectorAll('#registerForm input, #registerForm select').forEach(function(input) {
+    input.addEventListener('input', function() {
+      clearError(this);
+    });
+    input.addEventListener('change', function() {
+      clearError(this);
+    });
+  });
+
+  // ============================================================
+  // VALIDATION COMPLÈTE DU FORMULAIRE
+  // ============================================================
+  function validateForm() {
+    var isValid = true;
+    var firstInvalid = null;
+    var errors = [];
+
+    // --- Parent ---
+    var nomInput = document.getElementById('r-nom');
+    if (!validateName(nomInput, 'Le nom')) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nomInput;
+    }
+
+    var prenomInput = document.getElementById('r-prenom');
+    if (!validateName(prenomInput, 'Le prénom')) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = prenomInput;
+    }
+
+    var villeInput = document.getElementById('r-ville');
+    if (!validateName(villeInput, 'La ville')) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = villeInput;
+    }
+
+    var telInput = document.getElementById('r-tel');
+    if (!validatePhone(telInput)) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = telInput;
+    }
+
+    var emailInput = document.getElementById('r-email');
+    if (!validateEmail(emailInput)) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = emailInput;
+    }
+
+    var passwordField = document.getElementById('r-password');
+    if (!validatePassword(passwordField)) {
+      isValid = false;
+      if (!firstInvalid) firstInvalid = passwordField;
+    }
+
+    // --- Enfants ---
+    var cards = wrap.querySelectorAll('[data-child]');
+    cards.forEach(function(card, index) {
+      var enfantNom = card.querySelector('input[name="enfant_nom[]"]');
+      var enfantSexe = card.querySelector('select[name="enfant_sexe[]"]');
+      var enfantClasse = card.querySelector('select[name="enfant_classe[]"]');
+      var num = index + 1;
+
+      if (!validateName(enfantNom, "Le nom de l'enfant " + num)) {
+        isValid = false;
+        if (!firstInvalid) firstInvalid = enfantNom;
+      }
+      if (!validateSelect(enfantSexe, 'Le sexe')) {
+        isValid = false;
+        if (!firstInvalid) firstInvalid = enfantSexe;
+      }
+      if (!validateSelect(enfantClasse, 'La classe')) {
+        isValid = false;
+        if (!firstInvalid) firstInvalid = enfantClasse;
+      }
+    });
+
+    // Scroll vers le premier champ invalide
+    if (firstInvalid) {
+      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstInvalid.focus();
+    }
+
+    return isValid;
+  }
+
+  // ============================================================
+  // SOUMISSION DU FORMULAIRE
+  // ============================================================
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // 1. Récupérer les données du parent
+    // Effacer l'erreur globale
+    clearGlobalError();
+
+    // 1. Valider tous les champs
+    if (!validateForm()) {
+      showGlobalError('Veuillez corriger les erreurs dans le formulaire avant de continuer.');
+      return;
+    }
+
+    // 2. Récupérer les données du parent
     var nom = document.getElementById('r-nom').value.trim();
     var prenom = document.getElementById('r-prenom').value.trim();
+    var ville = document.getElementById('r-ville').value.trim();
     var telephone = document.getElementById('r-tel').value.trim();
     var email = document.getElementById('r-email').value.trim();
     var password = document.getElementById('r-password').value;
-
-    // 2. Vérification simple
-    if (!nom || !prenom || !email || !password) {
-      alert('Veuillez remplir tous les champs obligatoires.');
-      return;
-    }
 
     // 3. Récupérer les enfants
     var enfantNoms = document.getElementsByName('enfant_nom[]');
@@ -255,7 +659,7 @@
     var enfants = [];
     for (var i = 0; i < enfantNoms.length; i++) {
       var nomE = enfantNoms[i].value.trim();
-      var sexeE = enfantSexes[i].value;    // "F" ou "M"
+      var sexeE = enfantSexes[i].value;
       var classeE = enfantClasses[i].value;
 
       if (nomE && sexeE && classeE) {
@@ -279,7 +683,11 @@
 
     console.log('📤 Envoi:', payload);
 
-    // 5. Envoi à l'API
+    // 5. Désactiver le bouton pendant l'envoi
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Envoi en cours...';
+
+    // 6. Envoi à l'API
     fetch('/api/inscription/', {
       method: 'POST',
       headers: {
@@ -301,26 +709,42 @@
         window.location.href = "{% url 'login' %}";
       } else {
         // Erreur : afficher les détails
-        var erreurs = '';
+        var erreurs = [];
         if (typeof result.body === 'object') {
           for (var key in result.body) {
             if (Array.isArray(result.body[key])) {
-              erreurs += key + ' : ' + result.body[key].join(', ') + '\n';
+              erreurs.push(key + ' : ' + result.body[key].join(', '));
             } else {
-              erreurs += key + ' : ' + result.body[key] + '\n';
+              erreurs.push(key + ' : ' + result.body[key]);
             }
           }
         } else {
-          erreurs = result.body;
+          erreurs.push(result.body);
         }
-        alert('❌ Erreur :\n' + erreurs);
+        showGlobalError('❌ Erreur : ' + erreurs.join(' | '));
       }
     })
     .catch(function(error) {
       console.error('❌ Erreur réseau:', error);
-      alert('Erreur réseau : impossible de contacter le serveur.');
+      showGlobalError('Erreur réseau : impossible de contacter le serveur.');
+    })
+    .finally(function() {
+      // Réactiver le bouton
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        Créer mon compte
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      `;
     });
   });
+
+  // ============================================================
+  // INITIALISATION
+  // ============================================================
+  refreshChildLabels();
 </script>
 
 </body>

@@ -65,7 +65,38 @@
     .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
     .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
     .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
-    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 8px 0;
+      border-top: 1px solid rgba(251, 246, 236, 0.12);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.18);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 19px; height: 19px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     /* ===== MAIN ===== */
     .dash-main { flex: 1; padding: 30px 4% 60px; min-width: 0; }
@@ -163,7 +194,7 @@
     }
 
     .bulletin-item .actions { display: flex; gap: 8px; flex-shrink: 0; }
-    .bulletin-item .actions button {
+    .bulletin-item .actions button, .bulletin-item .actions a {
       padding: 8px 18px;
       border-radius: 999px;
       font-size: 0.82rem;
@@ -174,6 +205,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      text-decoration: none;
     }
     .bulletin-item .actions .view-btn { background: var(--blue); color: white; }
     .bulletin-item .actions .view-btn:hover { background: #3a5a8a; transform: translateY(-2px); }
@@ -316,7 +348,7 @@
     @media (max-width: 560px) {
       .child-tabs { flex-direction: column; }
       .bulletin-item .actions { flex-direction: column; width: 100%; }
-      .bulletin-item .actions button { width: 100%; justify-content: center; }
+      .bulletin-item .actions button, .bulletin-item .actions a { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -455,7 +487,7 @@
 
     if (!token || !parentId || userRole !== 'parent') {
       console.warn('⚠️ Non connecté en tant que parent');
-      window.location.href = '/login/';
+      window.location.replace('/login/');
       return;
     }
 
@@ -471,6 +503,15 @@
       });
 
       if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
 
       const data = await response.json().catch(() => ({}));
 
@@ -540,6 +581,9 @@
       try {
         enfantsData = await fetchAPI(`/api/parents/${parentId}/eleves/`);
 
+        // Si 401 → redirection en cours
+        if (enfantsData === null) return;
+
         if (!enfantsData || enfantsData.length === 0) {
           container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
           document.getElementById('bulletinsList').innerHTML =
@@ -597,6 +641,9 @@
         const bulletins = await fetchAPI(
           `/api/parents/${parentId}/eleves/${eleveId}/bulletins/`
         );
+
+        // Si 401 → redirection en cours
+        if (bulletins === null) return;
 
         if (!bulletins || bulletins.length === 0) {
           container.innerHTML = `
@@ -687,21 +734,46 @@
     }
 
     // ======================================================
-    // 10. DÉCONNEXION
+    // 10. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

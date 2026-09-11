@@ -122,14 +122,14 @@
 
     .pdf-modal-body {
       flex: 1;
-      overflow: auto;  /* ← SCROLL ACTIVÉ */
+      overflow: auto;
       background: #525659;
       padding: 16px;
     }
     .pdf-modal-body iframe {
       width: 100%;
       height: 100%;
-      min-height: 1200px;  /* Force une hauteur pour permettre le scroll */
+      min-height: 1200px;
       border: none;
       border-radius: 8px;
       background: white;
@@ -175,6 +175,39 @@
       transform: translateY(-2px);
     }
 
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
     @media (max-width: 820px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform .3s ease; z-index: 60; }
       .sidebar.open { transform: translateX(0); }
@@ -202,7 +235,7 @@
       <a href="{% url 'remarques' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
       <a href="{% url 'bulletins' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
-      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
+      <a href="{% url 'parametre' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8-2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Paramètres</a>
     </nav>
     <div class="logout">
       <a href="#" id="logoutBtn">
@@ -348,6 +381,16 @@
 
       const response = await fetch(API_BASE + url, opts);
       if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
+
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         const error = new Error('Erreur API');
@@ -404,7 +447,7 @@
       pdfModalDownload.href = url;
       pdfModalDownload.download = titre || 'bulletin.pdf';
       pdfModalOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Empêche le scroll de la page derrière
+      document.body.style.overflow = 'hidden';
     }
 
     function closePdfModal() {
@@ -430,6 +473,7 @@
     async function loadClasses() {
       try {
         classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        if (classesData === null) return; // redirection 401 déjà déclenchée
         classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
         classesData.forEach(c => {
           const opt = document.createElement('option');
@@ -459,6 +503,7 @@
 
       try {
         elevesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`);
+        if (elevesData === null) return;
         elevesData.forEach(e => {
           const opt = document.createElement('option');
           opt.value = e.id_eleve;
@@ -491,6 +536,7 @@
             const bulletins = await fetchAPI(
               `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/bulletins/`
             );
+            if (bulletins === null) return; // 401 → arrêt
             bulletins.forEach(b => { b.eleve_nom = e.nom; });
             allBulletins.push(...bulletins);
           } catch (err) {
@@ -530,7 +576,6 @@
         const dateFr = new Date(b.date_publication).toLocaleDateString('fr-FR', {
           day: '2-digit', month: '2-digit', year: 'numeric'
         });
-        const fileName = b.fichier ? b.fichier.split('/').pop() : 'bulletin.pdf';
         const titreComplet = `Bulletin - ${b.eleve_nom} - ${b.trimestre} - Séquence ${b.sequence}`;
 
         const tr = document.createElement('tr');
@@ -646,21 +691,46 @@
     };
 
     // ======================================================
-    // 15. DÉCONNEXION
+    // 15. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

@@ -38,6 +38,39 @@
     .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
     .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -53,7 +86,7 @@
       <a href="{% url 'notes' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M8 12h8M8 16h5"/></svg>Saisie des notes</a>
       <a href="{% url 'élève' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.9-5.8 6.5-5.8s6.5 2.4 6.5 5.8"/><circle cx="17.5" cy="8.5" r="2.4"/><path d="M15.8 14.3c2.9.4 5.2 2.5 5.2 5.7"/></svg>Élèves</a>
       <a href="{% url 'absences' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Absences</a>
-    <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
+      <a href="{% url 'bulletins' %}" class=""><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Bulletins</a>
       <a href="{% url 'sanctions' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Sanctions</a>
       <a href="{% url 'remarques' %}" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Remarques</a>
       <a href="{% url 'messages' %}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>Messages<span class="badge-dot" id="msg-badge">0</span></a>
@@ -118,7 +151,7 @@
 
     if (!token || !enseignantId || userRole !== 'enseignant') {
       console.warn('⚠️ Non connecté en tant qu\'enseignant');
-      window.location.href = '/login/';
+      window.location.replace('/login/');
       return;
     }
 
@@ -136,6 +169,15 @@
       });
 
       if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
 
       const data = await response.json().catch(() => ({}));
 
@@ -185,6 +227,7 @@
     async function loadClasses() {
       try {
         classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        if (classesData === null) return; // redirection 401
         classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
         classesData.forEach(c => {
           const opt = document.createElement('option');
@@ -214,6 +257,7 @@
 
       try {
         elevesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`);
+        if (elevesData === null) return;
         elevesData.forEach(e => {
           const opt = document.createElement('option');
           opt.value = e.id_eleve;
@@ -250,6 +294,7 @@
             const remarques = await fetchAPI(
               `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/remarques/`
             );
+            if (remarques === null) return; // 401
             remarques.forEach(r => {
               r.eleve_nom = r.eleve_nom || e.nom;
             });
@@ -361,6 +406,7 @@
     window.editRemarque = async function(idRemarque) {
       try {
         const remarque = await fetchAPI(`/api/enseignants/${enseignantId}/remarques/${idRemarque}/`);
+        if (remarque === null) return;
 
         editingId = idRemarque;
         editId.value = idRemarque;
@@ -406,21 +452,46 @@
     });
 
     // ======================================================
-    // 14. DÉCONNEXION
+    // 14. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

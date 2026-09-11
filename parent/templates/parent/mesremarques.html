@@ -66,7 +66,38 @@
     .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
     .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
     .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
-    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 8px 0;
+      border-top: 1px solid rgba(251, 246, 236, 0.12);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.18);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 19px; height: 19px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     /* ===== MAIN ===== */
     .dash-main { flex: 1; padding: 30px 4% 60px; min-width: 0; }
@@ -207,13 +238,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Discipline
       </a>
-
-
-  <a href="{% url 'mesbulletins' %}" class="">
+      <a href="{% url 'mesbulletins' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
         Bulletins
       </a>
-
       <a href="{% url 'mesremarques' %}" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
         Remarques
@@ -221,10 +249,6 @@
       <a href="{% url 'messanctions' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
         Sanctions
-      </a>
-      <a href="{% url 'mesbulletins' %}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg>
-        Bulletins
       </a>
       <a href="{% url 'ia_schoolconnect' %}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.27A7 7 0 0 1 14 21.73V22h-4v-.27A7 7 0 0 1 5.27 19H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2"/></svg>
@@ -305,7 +329,7 @@
 
     if (!token || !parentId || userRole !== 'parent') {
       console.warn('⚠️ Non connecté en tant que parent');
-      window.location.href = '/login/';
+      window.location.replace('/login/');
       return;
     }
 
@@ -321,6 +345,15 @@
       });
 
       if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
 
       const data = await response.json().catch(() => ({}));
 
@@ -353,6 +386,9 @@
       const container = document.getElementById('childTabs');
       try {
         enfantsData = await fetchAPI(`/api/parents/${parentId}/eleves/`);
+
+        // Si 401 → redirection en cours
+        if (enfantsData === null) return;
 
         if (!enfantsData || enfantsData.length === 0) {
           container.innerHTML = '<div class="child-tab">Aucun enfant rattaché</div>';
@@ -388,7 +424,6 @@
     // 6. CHARGER LES REMARQUES
     // ======================================================
     async function loadRemarks(eleveId) {
-      // Mettre à jour les onglets actifs
       document.querySelectorAll('.child-tab').forEach(tab => {
         tab.classList.toggle('active', parseInt(tab.dataset.eleveId) === eleveId);
       });
@@ -408,18 +443,19 @@
           `/api/parents/${parentId}/eleves/${eleveId}/remarques/`
         );
 
+        // Si 401 → redirection en cours
+        if (remarques === null) return;
+
         if (!remarques || remarques.length === 0) {
           tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Aucune remarque disponible</td></tr>';
           countEl.textContent = '0 remarque';
           return;
         }
 
-        // Trier par date décroissante
         remarques.sort((a, b) => new Date(b.date_remarque) - new Date(a.date_remarque));
 
         tbody.innerHTML = '';
         remarques.forEach(rem => {
-          // Déterminer la classe CSS selon le type
           let typeClass = 'neutral';
           let typeLabel = 'Autre';
 
@@ -463,21 +499,46 @@
     }
 
     // ======================================================
-    // 8. DÉCONNEXION
+    // 8. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

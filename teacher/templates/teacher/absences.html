@@ -37,6 +37,39 @@
     .actions .delete-btn { color: var(--coral); border-color: var(--coral); }
     .empty-state { text-align: center; padding: 30px 0; color: var(--text-soft); }
     .info-banner { padding: 12px 18px; border-radius: 12px; background: color-mix(in srgb, var(--sage) 12%, var(--paper)); border-left: 4px solid var(--sage); margin-bottom: 20px; font-size: 0.9rem; color: var(--text); }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar nav { flex: 1 1 auto; }
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 18px; height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +171,15 @@
 
       if (response.status === 204) return null;
 
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
+
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -190,6 +232,7 @@
     async function loadClasses() {
       try {
         classesData = await fetchAPI(`/api/enseignants/${enseignantId}/classes/`);
+        if (classesData === null) return; // redirection 401 déjà déclenchée
         classeSelect.innerHTML = '<option value="">-- Choisir une classe --</option>';
         classesData.forEach(c => {
           const opt = document.createElement('option');
@@ -223,6 +266,8 @@
           fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/matieres/`),
           fetchAPI(`/api/enseignants/${enseignantId}/classes/${classeId}/eleves/`)
         ]);
+
+        if (matieres === null || eleves === null) return;
 
         matieresData = matieres;
         elevesData = eleves;
@@ -273,7 +318,6 @@
       absencesBody.innerHTML = `<tr><td colspan="5" class="empty-state">⏳ Chargement...</td></tr>`;
 
       try {
-        // Charger les absences de tous les élèves de la classe
         const allAbsences = [];
 
         for (const e of elevesData) {
@@ -281,6 +325,7 @@
             const absences = await fetchAPI(
               `/api/enseignants/${enseignantId}/eleves/${e.id_eleve}/absences/`
             );
+            if (absences === null) return; // 401
             const filtered = absences.filter(a => a.matiere === matiereId);
             filtered.forEach(a => {
               a.eleve_nom = a.eleve_nom || e.nom;
@@ -360,13 +405,11 @@
 
       try {
         if (editingId) {
-          // MODIFICATION
           await fetchAPI(`/api/enseignants/${enseignantId}/absences/${editingId}/`, {
             method: 'PUT',
             body: JSON.stringify(payload),
           });
         } else {
-          // CRÉATION
           await fetchAPI(`/api/enseignants/${enseignantId}/eleves/${eleveId}/absences/`, {
             method: 'POST',
             body: JSON.stringify(payload),
@@ -401,6 +444,7 @@
     window.editAbsence = async function(idAbsence) {
       try {
         const absence = await fetchAPI(`/api/enseignants/${enseignantId}/absences/${idAbsence}/`);
+        if (absence === null) return;
 
         editingId = idAbsence;
         editId.value = idAbsence;
@@ -447,21 +491,46 @@
     });
 
     // ======================================================
-    // 14. DÉCONNEXION
+    // 14. 🔥 DÉCONNEXION — universelle et robuste
     // ======================================================
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-      e.preventDefault();
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
       if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
 
-      try {
-        await fetch('/api/deconnexion/', {
-          method: 'POST',
-          headers: { 'Authorization': 'Token ' + token }
-        });
-      } catch (err) { console.warn(err); }
+      btn.classList.add('loading');
 
-      localStorage.clear();
-      window.location.href = '/login/';
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
     });
 
     // ======================================================

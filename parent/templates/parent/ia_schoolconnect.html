@@ -68,7 +68,38 @@
     .sidebar nav a svg { width: 19px; height: 19px; stroke: currentColor; flex-shrink: 0; }
     .sidebar nav a:hover { background: rgba(251, 246, 236, 0.08); color: var(--cream); transform: translateX(3px); }
     .sidebar nav a.active { background: var(--accent); color: var(--ink); font-weight: 600; }
-    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 8px 0;
+      border-top: 1px solid rgba(251, 246, 236, 0.12);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.18);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 19px; height: 19px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     /* ===== MAIN ===== */
     .dash-main {
@@ -300,7 +331,7 @@
     }
   </style>
 </head>
-<body data-parent-id="{{ user.id_utilisateur }}">
+<body>
 
 <div class="dash-body">
 
@@ -352,7 +383,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -366,12 +397,12 @@
     <div class="dash-topbar">
       <div>
         <h1>IA School Connect</h1>
-        <p class="sub">Discutez avec l’assistant intelligent de votre école.</p>
+        <p class="sub">Discutez avec l'assistant intelligent de votre école.</p>
       </div>
       <div class="topbar-actions">
         <div class="topbar-avatar">
-          <span class="avatar-sm" id="parent-initial">P</span>
-          <span id="parent-nom-avatar">Parent</span>
+          <span class="avatar-sm" id="parent-initial">?</span>
+          <span id="parent-nom-avatar">...</span>
         </div>
       </div>
     </div>
@@ -412,11 +443,27 @@
 <script>
   (function() {
     // ======================================================
-    // 1. RÉCUPÉRER LE NOM DU PARENT (simulé)
+    // 0. 🔥 AUTHENTIFICATION — vérifier la connexion
     // ======================================================
-    const parentNom = 'Mme Mballa';
-    document.getElementById('parent-nom-avatar').textContent = parentNom.split(' ')[1] || parentNom;
-    document.getElementById('parent-initial').textContent = parentNom.charAt(0);
+    const token = localStorage.getItem('authToken');
+    const parentId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+
+    if (!token || !parentId || userRole !== 'parent') {
+      console.warn('⚠️ Non connecté en tant que parent');
+      window.location.replace('/login/');
+      return;
+    }
+
+    // ======================================================
+    // 1. RÉCUPÉRER LE NOM DU PARENT (depuis localStorage)
+    // ======================================================
+    const parentNom = (userPrenom + ' ' + userNom).trim() || 'Parent';
+    document.getElementById('parent-nom-avatar').textContent = parentNom;
+    document.getElementById('parent-initial').textContent =
+      (userPrenom || userNom).charAt(0).toUpperCase() || 'P';
 
     // ======================================================
     // 2. ÉLÉMENTS DU DOM
@@ -430,7 +477,6 @@
     // ======================================================
     let isWaiting = false;
 
-    // Ajouter un message
     function addMessage(text, sender, time = null) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${sender}`;
@@ -441,7 +487,6 @@
       scrollToBottom();
     }
 
-    // Afficher l'indicateur de frappe
     function showTyping() {
       const typingDiv = document.createElement('div');
       typingDiv.className = 'typing-indicator';
@@ -451,13 +496,11 @@
       scrollToBottom();
     }
 
-    // Supprimer l'indicateur de frappe
     function hideTyping() {
       const typing = document.getElementById('typingIndicator');
       if (typing) typing.remove();
     }
 
-    // Faire défiler vers le bas
     function scrollToBottom() {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -466,7 +509,6 @@
     // 4. RÉPONSES SIMULÉES DE L'IA (à remplacer par une vraie API)
     // ======================================================
     function getAIResponse(userMessage) {
-      // Quelques réponses prédéfinies pour simuler
       const msg = userMessage.toLowerCase().trim();
       if (msg.includes('bonjour') || msg.includes('salut')) {
         return 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?';
@@ -486,7 +528,6 @@
       if (msg.includes('enfant') || msg.includes('élève')) {
         return 'Vous pouvez gérer tous vos enfants depuis la page "Mes enfants". Vous y verrez leurs classes, leurs moyennes et leurs statuts.';
       }
-      // Réponse par défaut
       return 'Je suis là pour vous aider. Posez-moi une question sur les notes, les absences, les bulletins ou les enfants.';
     }
 
@@ -497,17 +538,14 @@
       const text = userInput.value.trim();
       if (!text || isWaiting) return;
 
-      // Ajouter le message de l'utilisateur
       addMessage(text, 'user');
       userInput.value = '';
       userInput.style.height = 'auto';
       isWaiting = true;
       sendBtn.disabled = true;
 
-      // Afficher l'indicateur de frappe
       showTyping();
 
-      // Simuler un délai de réponse (comme une vraie API)
       setTimeout(() => {
         hideTyping();
         const reply = getAIResponse(text);
@@ -521,10 +559,8 @@
     // ======================================================
     // 6. GESTION DES ÉVÉNEMENTS
     // ======================================================
-    // Envoyer au clic sur le bouton
     sendBtn.addEventListener('click', sendMessage);
 
-    // Envoyer avec Entrée (Shift+Enter pour un saut de ligne)
     userInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -532,14 +568,56 @@
       }
     });
 
-    // Ajuster automatiquement la hauteur du textarea
     userInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
 
     // ======================================================
-    // 7. MESSAGE D'ACCUEIL
+    // 7. 🔥 DÉCONNEXION — universelle et robuste
+    // ======================================================
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      btn.classList.add('loading');
+
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
+    });
+
+    // ======================================================
+    // 8. MESSAGE D'ACCUEIL
     // ======================================================
     function initChat() {
       const now = new Date();

@@ -82,7 +82,38 @@
       justify-content: center;
       padding: 0 5px;
     }
-    .sidebar .logout { border-top: 1px solid rgba(251, 246, 236, 0.12); padding-top: 14px; margin-top: 10px; }
+
+    /* 🔥 DÉCONNEXION — placement propre du bouton en bas de la sidebar */
+    .sidebar .logout {
+      margin-top: auto;
+      padding: 14px 8px 0;
+      border-top: 1px solid rgba(251, 246, 236, 0.12);
+    }
+    .sidebar .logout a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: rgba(251, 246, 236, 0.72);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(217, 68, 68, 0.18);
+      color: #ff8a8a;
+    }
+    .sidebar .logout svg {
+      width: 19px; height: 19px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+    .sidebar .logout a.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     /* ===== MAIN ===== */
     .dash-main {
@@ -317,7 +348,7 @@
     </nav>
 
     <div class="logout">
-      <a href="">
+      <a href="#" id="logoutBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Déconnexion
       </a>
@@ -407,27 +438,52 @@
 <script>
   (function() {
     // ======================================================
-    // 1. RÉCUPÉRER L'UTILISATEUR CONNECTÉ DEPUIS localStorage
+    // 0. 🔥 AUTHENTIFICATION — vérifier la connexion
     // ======================================================
-    const nomAdmin = localStorage.getItem('userNom') || 'Administrateur';
-    const prenomAdmin = localStorage.getItem('userPrenom') || '';
-    const nomComplet = (prenomAdmin + ' ' + nomAdmin).trim() || 'Administrateur';
+    const token = localStorage.getItem('authToken');
+    const adminId = localStorage.getItem('userId');
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+
+    if (!token || !adminId || userRole !== 'admin') {
+      console.warn('⚠️ Non connecté en tant qu\'administrateur');
+      window.location.replace('/login/');
+      return;
+    }
+
+    // ======================================================
+    // 1. AFFICHER LE NOM DE L'ADMIN
+    // ======================================================
+    const nomComplet = (userPrenom + ' ' + userNom).trim() || 'Administrateur';
 
     document.getElementById('admin-nom').textContent = nomComplet;
-    document.getElementById('admin-nom-avatar').tesxtContent = nomComplet;
-    document.getElementById('admin-initial').textContent = (prenomAdmin || nomAdmin).charAt(0).toUpperCase() || 'A';
+    document.getElementById('admin-nom-avatar').textContent = nomComplet; // 🔥 correction typo (tesxtContent → textContent)
+    document.getElementById('admin-initial').textContent =
+      (userPrenom || userNom).charAt(0).toUpperCase() || 'A';
 
     // ======================================================
     // 2. FONCTION POUR APPELER L'API
     // ======================================================
     async function fetchAPI(url) {
-      const token = localStorage.getItem('authToken');
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': 'Token ' + token } : {})
+          'Authorization': 'Token ' + token
         }
       });
+
+      if (response.status === 204) return null;
+
+      // 🔥 DÉCONNEXION — token invalide/expiré → nettoyage + redirection
+      if (response.status === 401) {
+        console.warn('⚠️ Token invalide ou expiré — nettoyage auto');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/login/');
+        return null;
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} — ${response.statusText}`);
       }
@@ -455,6 +511,9 @@
           fetchAPI('/api/matieres/'),
           fetchAPI('/api/liaisons/')
         ]);
+
+        // Si 401 → redirection en cours
+        if (classes === null) return;
 
         // Compter les éléments
         const stats = {
@@ -517,8 +576,6 @@
     // ======================================================
     // 5. CHARGER LES ACTIVITÉS RÉCENTES
     // ======================================================
-    // Pour l'instant on garde les activités simulées
-    // (on les connectera plus tard avec un vrai endpoint)
     function renderActivities() {
       const activities = [
         { type: 'Système', message: 'Dashboard connecté au backend', date: 'À l\'instant', icon: 'var(--sage)' },
@@ -543,7 +600,50 @@
     }
 
     // ======================================================
-    // 6. INITIALISATION
+    // 6. 🔥 DÉCONNEXION — universelle et robuste
+    // ======================================================
+    async function deconnecter() {
+      const btn = document.getElementById('logoutBtn');
+
+      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+
+      btn.classList.add('loading');
+
+      // 1) Invalider le token côté serveur
+      try {
+        if (token) {
+          await fetch('/api/deconnexion/', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Token ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('✅ Token invalidé côté serveur');
+        }
+      } catch (err) {
+        console.warn('⚠️ Serveur injoignable — nettoyage client quand même :', err);
+      }
+
+      // 2) Nettoyer TOUT le stockage local
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erreur nettoyage stockage :', e);
+      }
+
+      // 3) Redirection (replace = pas de retour arrière possible)
+      window.location.replace('/login/');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      deconnecter();
+    });
+
+    // ======================================================
+    // 7. INITIALISATION
     // ======================================================
     document.addEventListener('DOMContentLoaded', function() {
       loadStats();
