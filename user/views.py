@@ -57,50 +57,89 @@ class InscriptionAPIView(APIView):
         )
 
 
-class ConnexionAPIView(APIView):
+# class ConnexionAPIView(APIView):
 
+#     permission_classes = [AllowAny]
+
+#     def post(self, request):
+
+#         serializer = ConnexionSerializer(
+#             data=request.data
+#         )
+
+#         if serializer.is_valid():
+
+#             utilisateur = serializer.validated_data[
+#                 'utilisateur'
+#             ]
+
+#             token = serializer.validated_data[
+#                 'token'
+#             ]
+
+#             return Response(
+#                 {
+#                     'message': 'Connexion réussie.',
+#                     'token': token.key,
+#                     'utilisateur': {
+#                         'id_utilisateur':
+#                             utilisateur.id_utilisateur,
+#                         'nom':
+#                             utilisateur.nom,
+#                         'prenom':
+#                             utilisateur.prenom,
+#                         'email':
+#                             utilisateur.email,
+#                         'role':
+#                             utilisateur.role,
+#                     }
+#                 },
+#                 status=status.HTTP_200_OK
+#             )
+
+#         return Response(
+#             serializer.errors,
+#             status=status.HTTP_401_UNAUTHORIZED
+#         )
+
+
+
+from django.contrib.auth import login as django_login
+
+class ConnexionAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-
-        serializer = ConnexionSerializer(
-            data=request.data
-        )
+        serializer = ConnexionSerializer(data=request.data)
 
         if serializer.is_valid():
+            utilisateur = serializer.validated_data['utilisateur']
+            token = serializer.validated_data['token']
 
-            utilisateur = serializer.validated_data[
-                'utilisateur'
-            ]
+            # ✅ LA LIGNE MAGIQUE : crée une session Django
+            django_login(request, utilisateur)
 
-            token = serializer.validated_data[
-                'token'
-            ]
+            return Response({
+                'message': 'Connexion réussie.',
+                'token': token.key,
+                'utilisateur': {
+                    'id_utilisateur': utilisateur.id_utilisateur,
+                    'nom': utilisateur.nom,
+                    'prenom': utilisateur.prenom,
+                    'email': utilisateur.email,
+                    'role': utilisateur.role,
+                }
+            }, status=status.HTTP_200_OK)
 
-            return Response(
-                {
-                    'message': 'Connexion réussie.',
-                    'token': token.key,
-                    'utilisateur': {
-                        'id_utilisateur':
-                            utilisateur.id_utilisateur,
-                        'nom':
-                            utilisateur.nom,
-                        'prenom':
-                            utilisateur.prenom,
-                        'email':
-                            utilisateur.email,
-                        'role':
-                            utilisateur.role,
-                    }
-                },
-                status=status.HTTP_200_OK
-            )
+        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+
+
+
+
+
+
+
 
 
 class ProfilAPIView(APIView):
@@ -156,30 +195,20 @@ class ProfilAPIView(APIView):
         )
 
 
+
+from django.contrib.auth import logout as django_logout
+
 class DeconnexionAPIView(APIView):
-
-    authentication_classes = [
-        TokenAuthentication
-    ]
-
-    permission_classes = [
-        IsAuthenticated
-    ]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-
         try:
-
             request.user.auth_token.delete()
-
-        except Token.DoesNotExist:
-
+        except:
             pass
 
-        return Response(
-            {
-                'message':
-                    'Déconnexion réussie.'
-            },
-            status=status.HTTP_200_OK
-        )
+        # ✅ Détruire la session Django
+        django_logout(request)
+
+        return Response({'message': 'Déconnexion réussie.'})
